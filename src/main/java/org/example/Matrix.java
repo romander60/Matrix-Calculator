@@ -16,7 +16,6 @@ public class Matrix {
     private boolean colVec;
     // True if this matrix is a 1 x 1 matrix, false otherwise
     private boolean number;
-    // True if this matrix is n x n, false otherwise
 
 //-------------------------------------------------------------------------------------------------------------
 // CONSTRUCTORS
@@ -26,7 +25,9 @@ public class Matrix {
      */
     public Matrix() {
         this.entries = new double[][]{
-                {1, 0, 0}, {0, 1, 0}, {0, 0, 1}
+                {1, 0, 0},
+                {0, 1, 0},
+                {0, 0, 1}
         };
 
         this.rows = 3;
@@ -36,17 +37,17 @@ public class Matrix {
         this.number = false;
     }
 
+
     /**
      * Matrix(n) generates the nxn identity matrix.
      */
     public Matrix(int n) {
         assert n > 0;
 
-        double[][] entries = new double[n][n];
+        double[][] entries = new double[n][n]; // all entries are initially as 0.0
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (i == j) { entries[i][j] = 1;}
-                else { entries[i][j] = 0;}
+                if (i == j) { entries[i][j] = 1;} // only modifying the diagonal entries
             }
         }
 
@@ -65,6 +66,7 @@ public class Matrix {
         }
     }
 
+
     /**
      * Matrix(entries) generates a new Matrix object whose entries are
      * determined by the "entries" argument. Each array in "entries" is
@@ -73,10 +75,6 @@ public class Matrix {
      * not have the same length.
      */
     public Matrix(double[][] entries) throws InvalidMatrixException {
-        this.entries = Arrays.copyOf(entries, entries.length);
-        this.rowVec = false;
-        this.colVec = false;
-        this.number = false;
         int rowLength = entries[0].length;
         if (rowLength == 0) {
             throw new InvalidMatrixException("Matrix rows can't be empty.");
@@ -89,6 +87,10 @@ public class Matrix {
             }
         }
 
+        this.entries = Arrays.copyOf(entries, entries.length);
+        this.rowVec = false;
+        this.colVec = false;
+        this.number = false;
         this.rows = entries.length;
         this.cols = rowLength;
         if (this.rows == 1) {
@@ -102,12 +104,14 @@ public class Matrix {
         }
     }
 
+
     /**
      * zeroColVec(n) generates the n-dimensional column zero vector.
      */
     public static Matrix zeroColVec(int n) {
         return new Matrix(new double[n][1]);
     }
+
 
     /**
      * zeroRowVec(n) generates the n-dimensional row zero vector.
@@ -126,12 +130,22 @@ public class Matrix {
         return v.rowVec;
     }
 
+
     /**
      * Matrix.isColVec(v) returns "true" if v is a column vector.
      */
     public static boolean isColVec(Matrix v) {
         return v.colVec;
     }
+
+
+    /**
+     * Matrix.sameType(v1, v2) returns "true" if v1 and v2 are either both column vectors or both row vectors.
+     */
+    public static boolean sameType(Matrix v1, Matrix v2) {
+        return (isRowVec(v1) && isRowVec(v2)) || (isColVec(v1) && isColVec(v2));
+    }
+
 
     /**
      * Matrix.isNumber(n) returns "true" if n is a 1x1 matrix (a number).
@@ -140,12 +154,30 @@ public class Matrix {
         return n.number;
     }
 
+
     /**
      * Matrix.isSquare(A) returns "true" if A has the same number of rows as it does columns.
      */
     public static boolean isSquare(Matrix A) {
         return A.rows == A.cols;
     }
+
+
+    /**
+     * Matrix.isDiagonal(A) returns "true" if A is a diagonal matrix; that is, if
+     * all A's off-diagonal entries are zero.
+     */
+    public static boolean isDiagonal(Matrix A) {
+        if (!isSquare(A)) { return false;}
+
+        for (int i = 0; i < rows(A); i++) {
+            for (int j = 0; i < cols(A); j++) {
+                if (i != j && A.entries[i][j] != 0) { return false;}
+            }
+        }
+        return true;
+    }
+
 
     /**
      * Matrix.isInvertible(A) returns "true" if A^-1 exists.
@@ -157,20 +189,23 @@ public class Matrix {
         return true;
     }
 
+
     /**
      * Matrix.equals(A, B) returns "true" is A and B's corresponding entries are equal.
      */
     public static boolean equals(Matrix A, Matrix B) {
         if (A.rows != B.rows || A.cols != B.cols) { return false;}
 
-        for (int i = 0; i < A.rows; i++) {
-            for (int j = 0; j < A.cols; j++) {
-                if ( A.entries[i][j] != B.entries[i][j] ) {return false;}
+        // leaving some room for roundoff error
+        for (int i = 0; i < rows(A); i++) {
+            for (int j = 0; j < cols(A); j++) {
+                if ( Math.abs( A.entries[i][j] - B.entries[i][j] ) >= 0.005 ) {return false;}
             }
         }
 
         return true;
     }
+
 
     /**
      * Matrix.isSymmetric(A) returns "true" if A is equal to its transpose.
@@ -178,6 +213,7 @@ public class Matrix {
     public static boolean isSymmetric(Matrix A) {
         return equals(A, transpose(A));
     }
+
 
     /**
      * Matrix.isUnit(v) returns "true" if v is a unit vector; that is, if it's magnitude is 1.
@@ -192,6 +228,7 @@ public class Matrix {
         return Math.abs(1 - magn(v)) < 0.005;
     }
 
+
     /**
      * Matrix.areOrtho(v1, v2) returns "true" if v1 and v2 are orthogonal; that is,
      * if their dot product is zero.
@@ -203,13 +240,12 @@ public class Matrix {
         return Math.abs(dot(v1, v2)) < 0.005;
     }
 
+
     /**
-     * Matrix.isOrtho(A) returns "true" if A is an orthogonal matrix; that is,
-     * if A is a square matrix such that A^TA = I.
-     * Throws InvalidMatrixException if A isn't square.
+     * Matrix.isOrtho(A) returns "true" if A has orthonormal columns; that is, if A^T * A = I.
      */
     public static boolean isOrtho(Matrix A) {
-        return equals( mult(transpose(A), A), new Matrix(rows(A)));
+        return equals( mult(transpose(A), A), new Matrix(cols(A)) );
     }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -222,12 +258,14 @@ public class Matrix {
         return A.rows;
     }
 
+
     /**
      * Matrix.cols(A) returns the number of columns in "A".
      */
     public static int cols(Matrix A) {
         return A.cols;
     }
+
 
     /**
      * Matrix.getRow(A, i) returns a new Matrix object representing
@@ -244,6 +282,7 @@ public class Matrix {
         }
         return new Matrix(row);
     }
+
 
     /**
      * Matrix.getCol(A, j) returns a new Matrix object representing
@@ -270,26 +309,6 @@ public class Matrix {
      */
     public static Matrix copy(Matrix A) {
         return new Matrix(A.entries);
-    }
-
-    /**
-     * Matrix.add(A, B) returns a new Matrix object representing A + B.
-     * Throws MatrixSizeMismatchException is "A" and "B" do not have the same
-     * number of rows and columns.
-     */
-    public static Matrix add(Matrix A, Matrix B) throws MatrixSizeMismatchException {
-        if (rows(A) != rows(B) || cols(A) != cols(B)) {
-            throw new MatrixSizeMismatchException("Both matrices must have the same size.");
-        }
-
-        double[][] sum = new double[Matrix.rows(A)][Matrix.cols(A)];
-        for (int i = 0; i < Matrix.rows(A); i++) {
-            for (int j = 0; j < Matrix.cols(A); j++) {
-                sum[i][j] = A.entries[i][j] + B.entries[i][j];
-            }
-        }
-
-        return new Matrix(sum);
     }
 
 
@@ -340,6 +359,7 @@ public class Matrix {
         return new Matrix(entries);
     }
 
+
     /**
      * Matrix.append(B, A) generates the partitioned matrix [A | B].
      * Throws MatrixSizeMismatchException if A and B don't have an equal number of rows.
@@ -353,6 +373,7 @@ public class Matrix {
         }
         return appended;
     }
+
 
     /**
      * Matrix.transpose(A) returns a new Matrix object representing
@@ -395,44 +416,87 @@ public class Matrix {
         }
     }
 
+
     /**
      * Matrix.dot(v1, v2) returns the dot product of v1 and v2, assuming that
      * both v1 and v2 are columns vectors of equal size.
-     * Throws InvalidMatrixException if either of v1 or v2 isn't a column vector.
-     * Throws MatrixSizeMismatchException if v1 and v2 aren't column vectors with the same size.
+     * Throws InvalidMatrixException if either of v1 or v2 isn't a column or row vector, or if v1 and v2
+     * aren't both column vectors or row vectors.
+     * Throws MatrixSizeMismatchException if v1 and v2 aren't vectors with the same size.
      */
     public static double dot(Matrix v1, Matrix v2) throws InvalidMatrixException, MatrixSizeMismatchException {
-        if (!isColVec(v1) || !isColVec(v2)) {
-            throw new InvalidMatrixException("Inputs must both be column vectors of the same size.");
+        if ( !isColVec(v1) || !isColVec(v2) || !isRowVec(v1) || !isRowVec(v2) ) {
+            throw new InvalidMatrixException("Both inputs must be vectors.");
         }
-
-        if (rows(v1) != rows(v2)) {
-            throw new MatrixSizeMismatchException("Inputs must both be column vectors of the same size.");
+        if ( !sameType(v1, v2) ) {
+            throw new InvalidMatrixException("Both inputs must be columns vectors or row vectors.");
         }
 
         double sum = 0;
-        for (int i = 0; i < rows(v1); i++) {
-            sum += v1.entries[i][0] * v2.entries[i][0];
+
+        if (isColVec(v1)) {
+            if (rows(v1) != rows(v2)) {
+                throw new MatrixSizeMismatchException("Inputs must both be vectors of the same size.");
+            }
+
+            for (int i = 0; i < rows(v1); i++) {
+                sum += v1.entries[i][0] * v2.entries[i][0];
+            }
+        }
+
+        else {
+            if (cols(v1) != cols(v2)) {
+                throw new MatrixSizeMismatchException("Inputs must both be vectors of the same size.");
+            }
+
+            for (int j = 0; j < cols(v1); j++) {
+                sum += v1.entries[0][j] * v2.entries[0][j];
+            }
         }
 
         return sum;
+    }
+
+
+    /**
+     * Matrix.add(A, B) returns a new Matrix object representing A + B.
+     * Throws MatrixSizeMismatchException is "A" and "B" do not have the same
+     * number of rows and columns.
+     */
+    public static Matrix add(Matrix A, Matrix B) throws MatrixSizeMismatchException {
+        if (rows(A) != rows(B) || cols(A) != cols(B)) {
+            throw new MatrixSizeMismatchException("Both matrices must have the same size.");
+        }
+
+        double[][] sum = new double[Matrix.rows(A)][Matrix.cols(A)];
+        for (int i = 0; i < Matrix.rows(A); i++) {
+            for (int j = 0; j < Matrix.cols(A); j++) {
+                sum[i][j] = A.entries[i][j] + B.entries[i][j];
+            }
+        }
+
+        return new Matrix(sum);
     }
 
     /**
      * Matrix.mult(A, B) returns a new Matrix object representing AB.
      * To obtain BA, call Matrix.mult(B, A).
      * Throws MatrixSizeMismatchException if the number of columns in "A" isn't equal to the number of rows in "B".
-     *
-     * NOT COMPLETE
      */
     public static Matrix mult(Matrix A, Matrix B) throws MatrixSizeMismatchException {
-        //TODO: implement this
-        if (Matrix.cols(A) != Matrix.rows(B)) {
+        if (cols(A) != rows(B)) {
             throw new MatrixSizeMismatchException("The number of columns in the first argument " +
                     "must equal the number of rows in the second.");
         }
 
-        double[][] prod = new double[Matrix.rows(A)][Matrix.cols(B)];
+        double[][] prod = new double[rows(A)][cols(B)];
+        for (int i = 0; i < rows(A); i++) {
+            for (int j = 0; j < cols(B); j++) {
+                for (int k = 0; k < cols(A); k++) {
+                    prod[i][j] += A.entries[i][k] * B.entries[k][j];
+                }
+            }
+        }
 
         return new Matrix(prod);
     }
