@@ -258,6 +258,32 @@ public class Matrix {
         return mult(transpose(A), A).equals( new Matrix(cols(A)) );
     }
 
+
+    /**
+     * @return "true" if A contains col.
+     */
+    public static boolean hasCol(Matrix A, Matrix col) {
+        if (col.rows != A.rows) { return false; }
+        for (int j = 0; j < A.cols; j++) {
+            if (!col.equals( getCol(A, j + 1) )) { return false; }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * @return "true" if A contains row.
+     */
+    public static boolean hasRow(Matrix A, Matrix row) {
+        if (row.cols != A.cols) { return false; }
+        for (int i = 0; i < A.rows; i++) {
+            if (!row.equals( getCol(A, i + 1) )) { return false; }
+        }
+
+        return true;
+    }
+
 //-------------------------------------------------------------------------------------------------------------
 // GETTERS
 
@@ -644,6 +670,25 @@ public class Matrix {
 
 
     /**
+     * Returns the trace of A.
+     * @param A the matrix in question.
+     * @return the trace of A.
+     * @throws InvalidMatrixException if A isn't square.
+     */
+    public static double trace(Matrix A) throws InvalidMatrixException {
+        if (!isSquare(A)) {
+            throw new InvalidMatrixException("Input must be a square matrix.");
+        }
+
+        double trace = 0;
+        for (int i = 0; i < A.rows; i++) {
+            trace += A.entries[i][i];
+        }
+
+        return trace;
+    }
+
+    /**
      * Returns A + B.
      * @param A the first matrix in the sum.
      * @param B the second matrix in the sum.
@@ -768,6 +813,7 @@ public class Matrix {
                     }
                 }
                 if ( getEntry(curCol, curRowIndex, 1) == 0 ) { // if all entries below are still zero somehow
+                    System.out.println("Current pivot is a zero; moving over one place.\n");
                     continue;
                 }
             }
@@ -782,11 +828,10 @@ public class Matrix {
                 }
             }
             reduced = add(reduced, replacements);
-            System.out.println("Iteration " + j + ": \n" + reduced + "\n");
+            System.out.println("Iteration " + curRowIndex + ": \n" + reduced + "\n");
 
             curRowIndex++;
         }
-
 
 
         return reduced;
