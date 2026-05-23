@@ -172,6 +172,14 @@ public class Matrix {
 
 
     /**
+     * @return "true" if v is a vector.
+     */
+    public static boolean isVec(Matrix v) {
+        return v.colVec || v.rowVec;
+    }
+
+
+    /**
      * @return "true" if v1 and v2 are either both column vectors or both row vectors.
      */
     public static boolean sameType(Matrix v1, Matrix v2) {
@@ -192,6 +200,51 @@ public class Matrix {
      */
     public static boolean isSquare(Matrix A) {
         return A.rows == A.cols;
+    }
+
+
+    /**
+     * @return "true" if A is an upper triangular matrix; that is, if all the entries below A's main diagonal are zero.
+     */
+    public static boolean isUpperTriangular(Matrix A) {
+        if (!isSquare(A)) { return false; }
+
+        for (int j = 1; j < A.cols + 1; j++) {
+            Matrix curCol = getCol(A, j);
+            for (int i = j; i < A.rows; i++) {
+                if ( Math.abs(getEntry(curCol, i, 1)) >= tol ) { return false; }
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * @return "true" if A is a lower triangular matrix; that is, if all the entries above A's main diagonal are zero.
+     */
+    public static boolean isLowerTriangular(Matrix A) {
+        if (!isSquare(A)) { return false; }
+
+        // Conveniently, a matrix is lower triangular if all the entries
+        // to the right of the main diagonal are zero.
+        for (int i = 1; i < A.rows + 1; i++) {
+            Matrix curRow = getRow(A, i);
+            for (int j = i; j < A.cols; j++) {
+                if ( Math.abs(getEntry(curRow, 1, j)) >= 0 ) { return false; }
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * @return "true" if A is a triangular matrix; that is, if all the entries either above or below
+     * A's main diagonal are zero.
+     */
+    public static boolean isTriangular(Matrix A) {
+        return isLowerTriangular(A) || isUpperTriangular(A);
     }
 
 
@@ -231,7 +284,7 @@ public class Matrix {
      * @throws InvalidMatrixException if v isn't a column or row vector.
      */
     public static boolean isUnit(Matrix v) throws InvalidMatrixException {
-        if (!isColVec(v) && !isRowVec(v)) {
+        if (!isVec(v)) {
             throw new InvalidMatrixException("Input must be a column or row vector.");
         }
 
@@ -376,7 +429,7 @@ public class Matrix {
      * @return the transpose of v.
      */
     private static Matrix transposeVec(Matrix v) {
-        assert isRowVec(v) || isColVec(v);
+        assert isVec(v);
 
         if (isRowVec(v)) {
             double[][] newEntries = new double[cols(v)][1];
@@ -594,10 +647,10 @@ public class Matrix {
         if (row1 == row2) {return copy(A);}
 
         Matrix swapped = copy(A);
-        Matrix firstRow = getCol(swapped, row1);
-        Matrix secondRow = getCol(swapped, row2);
-        swapped = replaceCol(swapped, row1, secondRow);
-        swapped = replaceCol(swapped, row2, firstRow);
+        Matrix firstRow = getRow(swapped, row1);
+        Matrix secondRow = getRow(swapped, row2);
+        swapped = replaceRow(swapped, row1, secondRow);
+        swapped = replaceRow(swapped, row2, firstRow);
 
         return swapped;
     }
@@ -608,7 +661,7 @@ public class Matrix {
      * @throws InvalidMatrixException if v isn't a column or row vector.
      */
     public static double magn(Matrix v) throws InvalidMatrixException {
-        if (!isColVec(v) && !isRowVec(v)) {
+        if (!isVec(v)) {
             throw new InvalidMatrixException("Input must be a column or row vector.");
         }
 
@@ -793,11 +846,10 @@ public class Matrix {
         if ( A.equals(zeroMatrix(A.rows, A.cols)) || A.equals(new Matrix(A.cols)) ) {return copy(A);}
 
         Matrix reduced = copy(A);
-        Matrix zeRow = zeroRowVec(A.cols);
         Matrix zeCol = zeroColVec(A.rows);
         int curRowIndex = 1;
 
-        System.out.println(reduced);
+        System.out.println("Initial: \n" + reduced);
 
         for (int j = 1; j < A.cols + 1; j++) {
             Matrix curCol = getCol(reduced, j);
@@ -809,12 +861,10 @@ public class Matrix {
             else if ( getEntry(curCol, curRowIndex, 1) == 0 ) {
                 for (int i = A.rows; i > curRowIndex; i--) {
                     if ( getEntry(reduced, i, j) != 0 ) {
-                        swapRows(reduced, curRowIndex, i);
+                        reduced = swapRows(reduced, curRowIndex, i);
+                        curCol = getCol(reduced, j);
+                        System.out.println("Swapped: \n" + reduced);
                     }
-                }
-                if ( getEntry(curCol, curRowIndex, 1) == 0 ) { // if all entries below are still zero somehow
-                    System.out.println("Current pivot is a zero; moving over one place.\n");
-                    continue;
                 }
             }
 
@@ -828,12 +878,10 @@ public class Matrix {
                 }
             }
             reduced = add(reduced, replacements);
-            System.out.println("Iteration " + curRowIndex + ": \n" + reduced + "\n");
+            System.out.println("Replaced: \n" + reduced);
 
             curRowIndex++;
         }
-
-
         return reduced;
     }
 
@@ -863,6 +911,81 @@ public class Matrix {
         }
 
         return inv;
+    }
+
+
+    /**
+     * Returns det(A).
+     * @param A the matrix in question
+     * @return the determinant of A.
+     * @throws InvalidMatrixException if A isn't square.
+     *
+     * NOT COMPLETE
+     */
+    public static double det(Matrix A) throws InvalidMatrixException {
+        if (!isSquare(A)) {
+            throw new InvalidMatrixException("Input must be a square matrix.");
+        }
+
+        if (isTriangular(A)) {
+            double det = 1;
+            for (int i = 0; i < A.rows; i++) {
+                det *= A.entries[i][i];
+            }
+
+            return det;
+        }
+
+        else {
+            // Duplicating the logic for row reduction because Java doesn't let me return multiple
+            // quantities of different types
+
+            double detFactor = 1;
+
+            Matrix reduced = copy(A);
+            Matrix zeRow = zeroRowVec(A.cols);
+            Matrix zeCol = zeroColVec(A.rows);
+            int curRowIndex = 1;
+
+            System.out.println("Initial: \n" + reduced);
+
+            for (int j = 1; j < A.cols + 1; j++) {
+                Matrix curCol = getCol(reduced, j);
+                Matrix replacements = zeroMatrix(A.rows, A.cols);
+
+                if ( curCol.equals(zeCol) ) {
+                    continue;
+                }
+                else if ( getEntry(curCol, curRowIndex, 1) == 0 ) {
+                    for (int i = A.rows; i > curRowIndex; i--) {
+                        if ( getEntry(reduced, i, j) != 0 ) {
+                            reduced = swapRows(reduced, curRowIndex, i);
+                            curCol = getCol(reduced, j);
+                            System.out.println("Swapped: \n" + reduced);
+                            detFactor *= -1;
+                        }
+                    }
+                }
+
+                System.out.println("Current row: " + getRow(reduced, curRowIndex));
+                System.out.println("Pivot: " + getEntry(curCol, curRowIndex, 1));
+                Matrix normedRow = scale(getRow(reduced, curRowIndex), 1 / getEntry(curCol, curRowIndex, 1));
+                detFactor *= getEntry(curCol, curRowIndex, 1);
+                reduced = replaceRow( reduced, curRowIndex, normedRow );
+                for (int i = 1; i < A.rows + 1; i++) {
+                    if (i != curRowIndex) {
+                        replacements = replaceRow( replacements, i, scale( normedRow, -1 * getEntry(reduced, i, j) ) );
+                    }
+                }
+                reduced = add(reduced, replacements);
+                System.out.println("Replaced: \n" + reduced);
+
+                curRowIndex++;
+            }
+
+            System.out.println(reduced);
+            return detFactor;
+        }
     }
 
 //-------------------------------------------------------------------------------------------------------------
