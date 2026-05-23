@@ -6,7 +6,7 @@ List of operations to implement:
 - Matrix Multiplication (implemented, not tested)
 - Matrix Transpose (implemented, not tested)
 - Dot Products on Vectors (implemented, not tested)
-- Gaussian Elimination
+- Gaussian Elimination (implemented, not tested)
 - Determinants
 - Matrix Inverse (implemented, not tested)
 - Null Space Basis Computations
