@@ -10,7 +10,6 @@
 package org.example;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public class Matrix {
 
@@ -316,6 +315,24 @@ public class Matrix {
     }
 
 
+    /**
+     * Returns a_ij.
+     * @param A the matrix in question.
+     * @param i the row that the desired entry is in, with indexing beginning at 1.
+     * @param j the column that the desired entry is in.
+     * @return the ij-entry of A.
+     * @throws AssertionError if i isn't a positive integer less than or equal to A's row count, or
+     * if j isn't a positive integer less than or equal to A's column count.
+     */
+    public static double getEntry(Matrix A, int i, int j) throws AssertionError {
+        if ( (i <= 0 || i > A.rows) || (j <= 0 || j > A.cols) ) {
+            throw new AssertionError("Second and third inputs must be valid indices.");
+        }
+
+        return A.entries[i - 1][j - 1];
+    }
+
+
 //-------------------------------------------------------------------------------------------------------------
 // MATRIX OPERATIONS
 
@@ -449,7 +466,7 @@ public class Matrix {
      * @throws MatrixSizeMismatchException if colNum doesn't have as many entries as A does rows.
      */
     public static Matrix replaceCol(Matrix A, int colNum, Matrix newCol) throws AssertionError, MatrixSizeMismatchException {
-        if (colNum <= 0 || colNum >= A.cols) {
+        if (colNum <= 0 || colNum > A.cols) {
             throw new AssertionError("2nd input must be a positive number less than or equal to " +
                     "the number of columns in the 1st input.");
         }
@@ -484,7 +501,7 @@ public class Matrix {
      * @throws MatrixSizeMismatchException if rowNum doesn't have as many entries as A does columns.
      */
     public static Matrix replaceRow(Matrix A, int rowNum, Matrix newRow) throws AssertionError, MatrixSizeMismatchException {
-        if (rowNum <= 0 || rowNum >= A.rows) {
+        if (rowNum <= 0 || rowNum > A.rows) {
             throw new AssertionError("2nd input must be a positive number less than or equal to " +
                     "the number of rows in the 1st input.");
         }
@@ -728,18 +745,49 @@ public class Matrix {
      * @return a new Matrix object representing the reduced row echelon form of A.
      */
     public static Matrix rowRed(Matrix A) {
+        if ( A.equals(zeroMatrix(A.rows, A.cols)) || A.equals(new Matrix(A.cols)) ) {return copy(A);}
+
         Matrix reduced = copy(A);
         Matrix zeRow = zeroRowVec(A.cols);
-        // 1) Zero out the entries above each leading entry.
-        for (int j = 0; j < cols(A); j++) {
+        Matrix zeCol = zeroColVec(A.rows);
+        int curRowIndex = 1;
+
+        System.out.println(reduced);
+
+        for (int j = 1; j < A.cols + 1; j++) {
+            Matrix curCol = getCol(reduced, j);
             Matrix replacements = zeroMatrix(A.rows, A.cols);
 
+            if ( curCol.equals(zeCol) ) {
+                continue;
+            }
+            else if ( getEntry(curCol, curRowIndex, 1) == 0 ) {
+                for (int i = A.rows; i > curRowIndex; i--) {
+                    if ( getEntry(reduced, i, j) != 0 ) {
+                        swapRows(reduced, curRowIndex, i);
+                    }
+                }
+                if ( getEntry(curCol, curRowIndex, 1) == 0 ) { // if all entries below are still zero somehow
+                    continue;
+                }
+            }
+
+            System.out.println("Current row: " + getRow(reduced, curRowIndex));
+            System.out.println("Pivot: " + getEntry(curCol, curRowIndex, 1));
+            Matrix normedRow = scale(getRow(reduced, curRowIndex), 1 / getEntry(curCol, curRowIndex, 1));
+            reduced = replaceRow( reduced, curRowIndex, normedRow );
+            for (int i = 1; i < A.rows + 1; i++) {
+                if (i != curRowIndex) {
+                    replacements = replaceRow( replacements, i, scale( normedRow, -1 * getEntry(reduced, i, j) ) );
+                }
+            }
             reduced = add(reduced, replacements);
+            System.out.println("Iteration " + j + ": \n" + reduced + "\n");
+
+            curRowIndex++;
         }
 
-        // 2) Scale each row so that the pivots are all 1.
 
-        // 3) Move all rows of all zeros to the bottom.
 
         return reduced;
     }
@@ -752,6 +800,13 @@ public class Matrix {
      */
     public static Matrix inverse(Matrix A) throws InvalidMatrixException {
         if (!isInvertible(A)) {throw new InvalidMatrixException("Input must be invertible.");}
+        if (isDiagonal(A)) {
+            Matrix inv = copy(A);
+            for (int i = 0; i < A.rows; i++) {
+                inv = replaceRow(inv, i, scale(getRow(inv, i), 1 / A.entries[i][i]) );
+            }
+            return inv;
+        }
 
         // Augment A with the identity matrix, then row reduce it.
         Matrix reduced = rowRed( append(new Matrix(cols(A)), A) );
