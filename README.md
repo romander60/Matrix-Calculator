@@ -7,7 +7,7 @@ List of operations to (hopefully) implement:
 - Matrix Transpose (implemented, not tested)
 - Dot Products on Vectors (implemented, not tested)
 - Gaussian Elimination (implemented, not tested)
-- Determinants
+- Determinants (implemented, not tested)
 - Matrix Inverse (implemented, not tested)
 - Null Space Basis Computations
 - Eigenvalue/Eigenvector Computations
