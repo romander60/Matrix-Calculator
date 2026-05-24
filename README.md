@@ -5,7 +5,10 @@ Currently implemented functionality (NT = not tested):
 - Matrix Addition NT
 - Matrix Multiplication NT
 - Matrix Transpose NT
+- Matrix Scaling NT
 - Submatrices NT
+- Matrix Padding NT
+- Row/Column Removal/Swapping/Replacement/Appending NT
 - Dot Products on Vectors NT
 - Gaussian Elimination NT
 - Determinants NT
@@ -15,9 +18,12 @@ Currently implemented functionality (NT = not tested):
 
 Functionality I'm hoping to implement:
 - Solving Linear Systems
-- Null Space Basis Computations
+- Column/Null Space Basis Computations
+- Least Squares
+- Orthogonal Complements of Subspaces
 - Eigenvalue/Eigenvector Computations
 - (Orthogonal) Diagonalization
+- QR Factorization
 - Singular Value Decomposition
 
 AI Usage:
