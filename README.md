@@ -1,16 +1,20 @@
 This is my attempt at a Java implementation of a calculator that can perform operations on real-valued matrices.
 For the time being, efficiency isn't the goal; functionality is. I want to get the functions working, then optimize them afterwards.
 
-List of functions to (hopefully) implement:
-- Matrix Addition (implemented, not tested)
-- Matrix Multiplication (implemented, not tested)
-- Matrix Transpose (implemented, not tested)
-- Dot Products on Vectors (implemented, not tested)
-- Gaussian Elimination (implemented, not tested)
-- Determinants (implemented, not tested)
-- Matrix Inverse (implemented, not tested)
+Currently implemented functionality (NT = not tested):
+- Matrix Addition NT
+- Matrix Multiplication NT
+- Matrix Transpose NT
+- Submatrices NT
+- Dot Products on Vectors NT
+- Gaussian Elimination NT
+- Determinants NT
+- Matrix Inverse NT
+- Orthogonal Projections NT
+- The Gram-Schmidt Process NT
+
+Functionality I'm hoping to implement:
 - Solving Linear Systems
-- Orthogonal Projections
 - Null Space Basis Computations
 - Eigenvalue/Eigenvector Computations
 - (Orthogonal) Diagonalization
