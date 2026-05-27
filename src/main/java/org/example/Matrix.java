@@ -2,9 +2,9 @@
  * A library containing a bunch of matrix operations. Matrices are represented as 2D arrays of doubles.
  *
  * Author: romander60  
- * Overall time spent on project: ~15 hours
+ * Overall time spent on project: ~24 hours
  *
- * Last updated: May 22, 2026
+ * Last updated: May 24, 2026
  */
 
 
@@ -384,9 +384,13 @@ public class Matrix {
      * @param A the matrix whose column is being obtained.
      * @param j the index of the column being obtained, with indexing beginning at 1.
      * @return the matrix representing the jth column of A.
+     * @throws AssertionError if j isn't a positive integer less than or equal to the number of columns A has.
      */
-    public static Matrix getCol(Matrix A, int j) {
-        assert (j > 0) && (j <= Matrix.rows(A));
+    public static Matrix getCol(Matrix A, int j) throws AssertionError {
+        if (j <= 0 || j > Matrix.cols(A)) {
+            throw new AssertionError("j must be a positive integer less than or " +
+                    "equal to the number of rows A has.");
+        }
 
         double[][] col = new double[Matrix.rows(A)][1];
 
@@ -404,9 +408,13 @@ public class Matrix {
      * @param A the matrix whose row is being obtained.
      * @param i the index of the row being obtained, with indexing beginning at 1.
      * @return the matrix representing the ith row of A.
+     * * @throws AssertionError if i isn't a positive integer less than or equal to the number of rows A has.
      */
-    public static Matrix getRow(Matrix A, int i) {
-        assert (i > 0) && (i <= Matrix.rows(A));
+    public static Matrix getRow(Matrix A, int i) throws AssertionError {
+        if (i <= 0 || i > Matrix.rows(A)) {
+            throw new AssertionError("i must be a positive integer less than or " +
+                    "equal to the number of columns A has.");
+        }
 
         double[][] row = new double[1][Matrix.cols(A)];
 
@@ -475,6 +483,7 @@ public class Matrix {
      * the (topLeftRow, topLeftCol)-entry of A and whose bottom rightmost entry is
      * the (botRightRow, botRightCol)-entry of A.
      * @throws AssertionError if 1) any of the indices aren't positive numbers within the dimensions of A
+     * 2) topLeftRow > botRightRow and/or topLeftCol > botRightCol
      */
     public static Matrix getSubmatrix(Matrix A, int topLeftRow, int topLeftCol, int botRightRow, int botRightCol)
             throws AssertionError {
@@ -483,6 +492,10 @@ public class Matrix {
                 (botRightRow <= 0 || botRightRow > A.rows) ||
                 (botRightCol <= 0 || botRightCol > A.cols) ) {
             throw new AssertionError("All indices must be within the dimensions of A.");
+        }
+        if ( topLeftRow > botRightRow || topLeftCol > botRightCol ) {
+            throw new AssertionError("Make sure that your first two indices are each less than or " +
+                    "equal to the corresponding last two indices.");
         }
 
         if (topLeftRow == 1 && topLeftCol == 1 && botRightRow == A.rows && botRightCol == A.cols) {
@@ -493,21 +506,9 @@ public class Matrix {
             return new Matrix(new double[][] { {getEntry(A, topLeftRow, topLeftCol)} });
         }
 
-        if (topLeftRow > botRightRow && topLeftCol < botRightCol) {
-            return getSubmatrix(A, botRightRow, topLeftCol, topLeftRow, botRightCol);
-        }
-
-        else if (topLeftRow < botRightRow && topLeftCol > botRightCol) {
-            return getSubmatrix(A, topLeftRow, botRightCol, botRightRow, topLeftCol);
-        }
-
-        else if (topLeftRow > botRightRow && topLeftCol > botRightCol) {
-            return getSubmatrix(A, botRightRow, botRightCol, topLeftRow, topLeftCol);
-        }
-
         double[][] subEntries = new double[botRightRow - topLeftRow + 1][botRightCol - topLeftCol + 1];
 
-        for (int i = 0; i < botRightRow - topLeftCol + 1; i++) {
+        for (int i = 0; i < botRightRow - topLeftRow + 1; i++) {
             for (int j = 0; j < botRightCol - topLeftCol + 1; j++) {
                 subEntries[i][j] = A.entries[topLeftRow - 1 + i][topLeftCol - 1 + j];
             }
@@ -1183,12 +1184,8 @@ public class Matrix {
         Matrix reduced = rowRed( append(new Matrix(cols(A)), A) );
 
         // Take the n + 1 to 2n columns of the augmented matrix; this matrix is A^-1.
-        Matrix inv = getCol(reduced, cols(A) + 1);
-        for (int j = cols(A) + 2; j < 2 * cols(A); j++) {
-            inv = append(inv, getCol(inv, j));
-        }
-
-        return inv;
+        // n = A.rows (or A.cols) here
+        return getSubmatrix(reduced, 1, A.rows, A.rows, 2 * A.rows);
     }
 
 

@@ -21,6 +21,6 @@ public class Main {
         //System.out.println(Matrix.getRow(m1, 2) + "\n");
         //System.out.println(Matrix.getCol(m1, 2) + "\n");
         //System.out.println(Matrix.rowRed(m1));
-        System.out.println(Matrix.det(m1));
+        System.out.println(Matrix.getSubmatrix(m2, 1, 1, 2, 1));
     }
 }

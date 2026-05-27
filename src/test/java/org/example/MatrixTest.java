@@ -133,24 +133,345 @@ class MatrixTest {
 
     }
 
-    @Test // INCOMPLETE
+    @Test
     void getEntryTest() {
+        // Test 1: Square Matrix
+        Matrix m1 = new Matrix(new double[][] {
+                {1, 2, 3, 4, 5},
+                {-3, 8, 39, 39, -15},
+                {40, -4, 76, -9, 0},
+                {6, 10, -6, 1, -1},
+                {-57, 32, -45, 43, -7}
+        } );
+        Assertions.assertEquals(-9, Matrix.getEntry(m1, 3, 4));
+        Assertions.assertEquals(-7, Matrix.getEntry(m1, 5, 5));
+        Assertions.assertEquals(1, Matrix.getEntry(m1, 1, 1));
+        Assertions.assertEquals(10, Matrix.getEntry(m1, 4, 2));
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m1, -3, 5);} );
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m1, 6, 4);} );
+
+        // Test 2: Non-square Matrix
+        Matrix m2 = new Matrix(new double[][] {
+                {0, -2, 4},
+                {-4, 5, 7},
+                {3, -3, 30},
+                {-41, 17, -59}
+        } );
+
+        Assertions.assertEquals(4, Matrix.getEntry(m2, 1, 3));
+        Assertions.assertEquals(30, Matrix.getEntry(m2, 3, 3));
+        Assertions.assertEquals(7, Matrix.getEntry(m2, 2, 3));
+        Assertions.assertEquals(-4, Matrix.getEntry(m2, 2, 1));
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m2, 2, -1);} );
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m2, 3, 7);} );
     }
 
-    @Test // INCOMPLETE
+    @Test
     void getColTest() {
         // Test 1: Column Vector
+        Matrix m1 = new Matrix(new double[][] {
+                {1},
+                {-3},
+                {0},
+                {-4}
+        });
+        Assertions.assertEquals(m1, Matrix.getCol(m1, 1));
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m1, 2);});
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m1, -3);});
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m1, 0);});
+
         // Test 2: Row Vector
-        // Tests 3-5: Non-vector
+        Matrix m2 = new Matrix(new double[][] {
+                {4, -5, 2, -6}
+        } );
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4}
+        }), Matrix.getCol(m2, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-5}
+        }), Matrix.getCol(m2, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2}
+        }), Matrix.getCol(m2, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-6}
+        }), Matrix.getCol(m2, 4));
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m2, 5);});
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m2, -1);});
+
+        // Tests 3: Non-vector
+        Matrix m3 = new Matrix(new double[][] {
+                {0, -2, 4},
+                {-4, 5, 7},
+                {3, -3, 30},
+                {-41, 17, -59},
+                {9, -1, 22}
+        } );
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0},
+                {-4},
+                {3},
+                {-41},
+                {9}
+        }), Matrix.getCol(m3, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-2},
+                {5},
+                {-3},
+                {17},
+                {-1}
+        }), Matrix.getCol(m3, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4},
+                {7},
+                {30},
+                {-59},
+                {22}
+        }), Matrix.getCol(m3, 3));
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m3, 4);} );
     }
 
-    @Test // INCOMPLETE
+    @Test
     void getRowTest() {
+        // Test 1: Column Vector
+        Matrix m1 = new Matrix(new double[][] {
+                {1},
+                {-3},
+                {0},
+                {-4}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1}
+        }), Matrix.getRow(m1, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-3}
+        }), Matrix.getRow(m1, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0}
+        }), Matrix.getRow(m1, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-4}
+        }), Matrix.getRow(m1, 4));
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m1, 5);});
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m1, -1);});
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m1, 0);});
+
+        // Test 2: Row Vector
+        Matrix m2 = new Matrix(new double[][] {
+                {4, -5, 2, -6}
+        } );
+        Assertions.assertEquals(m2, Matrix.getRow(m2, 1));
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getRow(m2, 2);});
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getRow(m2, -1);});
+
+        // Tests 3: Non-vector
+        Matrix m3 = new Matrix(new double[][] {
+                {0, -2, 4},
+                {-4, 5, 7},
+                {3, -3, 30},
+                {-41, 17, -59},
+                {9, -1, 22}
+        } );
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0, -2, 4},
+        }), Matrix.getRow(m3, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-4, 5, 7}
+        }), Matrix.getRow(m3, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3, -3, 30}
+        }), Matrix.getRow(m3, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-41, 17, -59}
+        }), Matrix.getRow(m3, 4));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {9, -1, 22}
+        }), Matrix.getRow(m3, 5));
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getRow(m3, 6);} );
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getRow(m3, -2);} );
     }
 
-    @Test // INCOMPLETE
-    void getSubmatrixTest() {
+    @Test
+    void getColsTest() {
+        // Test 1: Column Vector
+        Matrix m1 = new Matrix(new double[][] {
+                {1},
+                {-3},
+                {0},
+                {-4}
+        });
+        Assertions.assertArrayEquals(new Matrix[] {new Matrix(new double[][] {
+                {1},
+                {-3},
+                {0},
+                {-4}
+        }) }, Matrix.getCols(m1));
 
+
+        // Test 2: Row Vector
+        Matrix m2 = new Matrix(new double[][] {
+                {4, -5, 2, -6}
+        });
+        Assertions.assertArrayEquals(new Matrix[] {new Matrix(new double[][] {
+                {4}
+        }), new Matrix(new double[][] {
+                {-5}
+        }), new Matrix(new double[][] {
+                {2}
+        }), new Matrix(new double[][] {
+                {-6}
+        }) } , Matrix.getCols(m2));
+
+        // Tests 3: Non-vector
+        Matrix m3 = new Matrix(new double[][] {
+                {0, -2, 4},
+                {-4, 5, 7},
+                {3, -3, 30},
+                {-41, 17, -59},
+                {9, -1, 22}
+        });
+        Assertions.assertArrayEquals(new Matrix[] {new Matrix(new double[][] {
+                {0}, {-4}, {3}, {-41}, {9}
+        }),
+        new Matrix(new double[][] {
+                {-2}, {5}, {-3}, {17}, {-1}
+        }),
+        new Matrix(new double[][] {
+                {4}, {7}, {30}, {-59}, {22}
+        })}, Matrix.getCols(m3));
+    }
+
+    @Test
+    void getRowsTest() {
+        // Test 1: Column Vector
+        Matrix m1 = new Matrix(new double[][]{
+                {1},
+                {-3},
+                {0},
+                {-4}
+        });
+        Assertions.assertArrayEquals(new Matrix[]{new Matrix(new double[][]{
+                {1},
+        }), new Matrix(new double[][]{
+                {-3}
+        }), new Matrix(new double[][]{
+                {0}
+        }), new Matrix(new double[][]{
+                {-4}
+        })}, Matrix.getRows(m1));
+
+
+        // Test 2: Row Vector
+        Matrix m2 = new Matrix(new double[][]{
+                {4, -5, 2, -6}
+        });
+        Assertions.assertArrayEquals(new Matrix[]{
+                new Matrix(new double[][]{{4, -5, 2, -6}})
+        }, Matrix.getRows(m2));
+
+        // Tests 3: Non-vector
+        Matrix m3 = new Matrix(new double[][]{
+                {0, -2, 4},
+                {-4, 5, 7},
+                {3, -3, 30},
+                {-41, 17, -59},
+                {9, -1, 22}
+        });
+        Assertions.assertArrayEquals(new Matrix[] {
+                new Matrix(new double[][] {
+                        {0, -2, 4}
+                }), new Matrix(new double[][] {
+                {-4, 5, 7}
+        }), new Matrix(new double[][] {
+                {3, -3, 30}
+        }), new Matrix(new double[][] {
+                {-41, 17, -59}
+        }), new Matrix(new double[][] {
+                {9, -1, 22}
+        })
+        }  , Matrix.getRows(m3));
+    }
+
+    @Test
+    void getSubmatrixTest() {
+        // Test 1: Column Vector
+        Matrix m1 = new Matrix(new double[][] {
+                {1},
+                {-3},
+                {0},
+                {-4}
+        });
+        Assertions.assertEquals(m1, Matrix.getSubmatrix(m1, 1, 1, 4, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-3},
+                {0},
+                {-4}
+        }), Matrix.getSubmatrix(m1, 2, 1, 4, 1));
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m1, 4, 1, 2, 1);});
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1},
+                {-3}
+        }), Matrix.getSubmatrix(m1, 1, 1, 2, 1));
+        Assertions.assertThrows(AssertionError.class, () ->
+                {Matrix.getSubmatrix(m1, 2, 1, 1, 1);});
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1}
+        }), Matrix.getSubmatrix(m1, 1, 1, 1, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-4}
+        }), Matrix.getSubmatrix(m1, 4, 1, 4, 1));
+
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m1, 1, -1, 1, 1);} );
+
+        // Test 2: Row Vector
+        Matrix m2 = new Matrix(new double[][] {
+                {4, -5, 2, -6}
+        });
+        Assertions.assertEquals(m2, Matrix.getSubmatrix(m2, 1, 1, 1, 4));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, -5, 2}
+        }), Matrix.getSubmatrix(m2, 1, 1, 1, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2, -6}
+        }), Matrix.getSubmatrix(m2, 1, 3, 1, 4));
+
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m2, 1, 1, 3, 1);} );
+        Assertions.assertThrows(AssertionError.class, () ->
+        {Matrix.getSubmatrix(m2, 0, 1, 1, 4);} );
+
+
+        // Tests 3: Non-vector
+        Matrix m3 = new Matrix(new double[][] {
+                {0, -2, 4},
+                {-4, 5, 7},
+                {3, -3, 30},
+                {-41, 17, -59},
+                {9, -1, 22}
+        });
+        Assertions.assertEquals(m3, Matrix.getSubmatrix(m3, 1, 1, 5, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {5, 7},
+                {-3, 30},
+                {17, -59}
+        }), Matrix.getSubmatrix(m3, 2, 2, 4, 3));
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m3, 4, 3, 2, 2);});
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0, -2},
+                {-4, 5},
+                {3, -3}
+        }), Matrix.getSubmatrix(m3, 1, 1, 3, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-41, 17},
+                {9, -1},
+        }), Matrix.getSubmatrix(m3, 4, 1, 5, 2));
+        Assertions.assertEquals(Matrix.getCol(m3, 1),
+                Matrix.getSubmatrix(m3, 1, 1, 5, 1));
+        Assertions.assertEquals(Matrix.getRow(m3, 3),
+                Matrix.getSubmatrix(m3, 3, 1, 3, 3));
     }
 
     //-------------------------------------------------------------------------------------------------------
