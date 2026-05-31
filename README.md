@@ -6,7 +6,7 @@ Currently implemented functionality (NT = not tested):
 - Matrix Multiplication NT
 - Matrix Transpose NT
 - Matrix Scaling NT
-- Submatrices NT
+- Submatrices
 - Matrix Padding NT
 - Row/Column Removal/Swapping/Replacement/Appending NT
 - Dot Products on Vectors NT
