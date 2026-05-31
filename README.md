@@ -6,7 +6,7 @@ Currently implemented functionality (NT = not tested):
 - Matrix Multiplication NT
 - Matrix Transpose NT
 - Matrix Scaling NT
-- Submatrices
+- Submatrices NT
 - Matrix Padding NT
 - Row/Column Removal/Swapping/Replacement/Appending NT
 - Dot Products on Vectors NT
@@ -15,12 +15,12 @@ Currently implemented functionality (NT = not tested):
 - Matrix Inverse NT
 - Orthogonal Projections NT
 - The Gram-Schmidt Process NT
+- Linear System Solver NT
+- Column/Null Space Basis Computations NT
+- Least Squares Approximation NT
+- Orthogonal Complements of Subspaces NT
 
 Functionality I'm hoping to implement:
-- Solving Linear Systems
-- Column/Null Space Basis Computations
-- Least Squares
-- Orthogonal Complements of Subspaces
 - Eigenvalue/Eigenvector Computations
 - (Orthogonal) Diagonalization
 - QR Factorization
