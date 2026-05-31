@@ -1,5 +1,7 @@
 package org.example;
 
+import java.util.Arrays;
+
 public class Main {
     public static void main(String[] args) {
 
@@ -14,13 +16,24 @@ public class Main {
                 {3, 5, 7, 9},
                 {5, 7, 9, 1}
         };
+        double[][] test3 = new double[][] {
+                {1, -2, -9, 5},
+                {0, 1, 2, -6},
+        };
 
-        Matrix m1 = new Matrix(test1);
-        Matrix m2 = new Matrix(test2);
-        //System.out.println(m1 + "\n");
-        //System.out.println(Matrix.getRow(m1, 2) + "\n");
-        //System.out.println(Matrix.getCol(m1, 2) + "\n");
-        //System.out.println(Matrix.rowRed(m1));
-        System.out.println(Matrix.getSubmatrix(m2, 1, 1, 2, 1));
+        double[][] test4 = new double[][] {
+                {3, 1},
+                {6, 2},
+                {0, 2}
+        };
+
+        Matrix m = new Matrix(test4);
+//        Matrix m1 = Matrix.getSubmatrix(m, 1, 1, Matrix.rows(m), Matrix.cols(m) - 1);
+//        Matrix m2 = Matrix.getCol(m, Matrix.cols(m));
+//        Matrix[] solved = Matrix.solve(m1, m2, true);
+//        System.out.println("Particular solution: \n" + solved[0]);
+//        System.out.println("Null space: \n" + solved[1]);
+        System.out.println(Matrix.nullity(m));
+        System.out.println(Matrix.rank(m));
     }
 }

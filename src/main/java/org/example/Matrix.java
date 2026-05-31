@@ -2,7 +2,7 @@
  * A library containing a bunch of matrix operations. Matrices are represented as 2D arrays of doubles.
  *
  * Author: romander60  
- * Overall time spent on project: ~24 hours
+ * Overall time spent on project: ~27 hours
  *
  * Last updated: May 24, 2026
  */
@@ -26,10 +26,8 @@ public class Matrix {
     private boolean rowVec;
     // True if this matrix is m x 1
     private boolean colVec;
-    // True if this matrix is 1 x 1
-    private boolean number;
     // The value within which roundoff errors are tolerated
-    private static final double tol = 0.005;
+    private static final double tol = 0.001;
 
 //-------------------------------------------------------------------------------------------------------------
 // MATRIX GENERATORS
@@ -48,7 +46,6 @@ public class Matrix {
         this.cols = 3;
         this.rowVec = false;
         this.colVec = false;
-        this.number = false;
     }
 
 
@@ -72,12 +69,10 @@ public class Matrix {
         if (n == 1) {
             this.rowVec = true;
             this.colVec = true;
-            this.number = true;
         }
         else {
             this.rowVec = false;
             this.colVec = false;
-            this.number = false;
         }
     }
 
@@ -104,7 +99,6 @@ public class Matrix {
         this.entries = Arrays.copyOf(entries, entries.length);
         this.rowVec = false;
         this.colVec = false;
-        this.number = false;
         this.rows = entries.length;
         this.cols = rowLength;
         if (this.rows == 1) {
@@ -112,9 +106,6 @@ public class Matrix {
         }
         if (this.cols == 1) {
             this.colVec = true;
-        }
-        if (this.rowVec && this.colVec) {
-            this.number = true;
         }
     }
 
@@ -154,19 +145,19 @@ public class Matrix {
 //-------------------------------------------------------------------------------------------------------------
 // BOOLEAN OPERATIONS
 
-    /**
-     * @return "true" if v is a row vector.
-     */
-    public static boolean isRowVec(Matrix v) {
-        return v.rowVec;
-    }
-
 
     /**
      * @return "true" if v is a column vector.
      */
     public static boolean isColVec(Matrix v) {
         return v.colVec;
+    }
+
+    /**
+     * @return "true" if v is a row vector.
+     */
+    public static boolean isRowVec(Matrix v) {
+        return v.rowVec;
     }
 
 
@@ -182,15 +173,7 @@ public class Matrix {
      * @return "true" if v1 and v2 are either both column vectors or both row vectors.
      */
     public static boolean sameType(Matrix v1, Matrix v2) {
-        return (isRowVec(v1) && isRowVec(v2)) || (isColVec(v1) && isColVec(v2));
-    }
-
-
-    /**
-     * @return "true" if n is a 1x1 matrix (a number).
-     */
-    public static boolean isNumber(Matrix n) {
-        return n.number;
+        return (isColVec(v1) && isColVec(v2)) || (isRowVec(v1) && isRowVec(v2));
     }
 
 
@@ -310,6 +293,43 @@ public class Matrix {
         return mult(transpose(A), A).equals( new Matrix(cols(A)) );
     }
 
+    /**
+     * @return "true" if the vectors in vecs form an orthogonal set, if normal is false | "true" if the vectors in vecs
+     * form an orthonormal set, if normal is true
+     * @throws AssertionError if vecs is empty
+     * @throws InvalidMatrixException if the vectors in vecs aren't column vectors with the same size.
+     */
+    public static boolean isOrtho(Matrix[] vecs, boolean normal) throws InvalidMatrixException {
+        if (vecs.length == 0) {
+            throw new AssertionError("vecs must not be empty.");
+        }
+
+        if (!isColVec(vecs[0]) || !sameSize(vecs)) {
+            throw new InvalidMatrixException("The vectors in vecs must be column vectors with the same size.");
+        }
+
+        Matrix zeCol = zeroMatrix(vecs[0].rows, 1);
+        if (vecs.length == 1) {
+            if ( (normal && !isUnit(vecs[0])) || vecs[0].equals(zeCol) ) {
+                return false;
+            }
+            else if ( !normal || isUnit(vecs[0]) ) {
+                return true;
+            }
+        }
+
+        for (int i = 0; i < vecs.length; i++) {
+            for (int j = 0; j < vecs.length; j++) {
+                if ( ( Math.abs(dot(vecs[i], vecs[j])) >= tol ) ||
+                        (normal && Math.abs(1 - dot(vecs[i], vecs[i])) >= tol ) ) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
 
     /**
      * @return "true" if A contains col.
@@ -346,8 +366,15 @@ public class Matrix {
 
     /**
      * @return "true" if all the matrices in mats have the same dimension
+     * @throws AssertionError if mats is empty
      */
-    public static boolean sameSize(Matrix[] mats) {
+    public static boolean sameSize(Matrix[] mats) throws AssertionError {
+        if (mats.length == 0) {
+            throw new AssertionError("Input array must not be empty.");
+        }
+
+        if (mats.length == 1) {return true;}
+
         int rowCount = mats[0].rows;
         int colCount = mats[0].cols;
         for (int i = 1; i < mats.length; i++) {
@@ -468,6 +495,44 @@ public class Matrix {
             rows[i] = getRow(A, i + 1);
         }
         return rows;
+    }
+
+
+    /**
+     * Takes the vectors in vecs and concatenates them into a matrix. If the vectors are column vectors, they will
+     * be arranged from left to right in the order they appear in vecs; that is, vecs[i] will be column i
+     * in the resulting matrix, assuming indexing begins at one. Similarly, if the vectors are row vectors,
+     * they will be arranged from top to bottom in the order they appear in vecs; that is, vecs[i] will be row i
+     * in the resulting matrix.
+     * @param vecs the vectors being concatenated
+     * @return a new Matrix object representing the matrix formed by the vectors in vecs.
+     * @throws AssertionError if vecs is empty
+     * @throws InvalidMatrixException if the elements of vecs aren't vectors of the same size.
+     */
+    public static Matrix formMatrix(Matrix[] vecs) throws AssertionError, InvalidMatrixException {
+        if (vecs.length == 0) {
+            throw new AssertionError("Input array must not be empty.");
+        }
+
+        if (!isVec(vecs[0]) || !sameSize(vecs)) {
+            throw new InvalidMatrixException("All vectors in vecs must be vectors with the same size");
+        }
+
+        if (isColVec(vecs[0])) {
+            Matrix concatenated = vecs[0];
+            for (int i = 1; i < vecs.length; i++) {
+                concatenated = appendCol(concatenated, vecs[i]);
+            }
+            return concatenated;
+        }
+
+        else {
+            Matrix concatenated = vecs[0];
+            for (int i = 1; i < vecs.length; i++) {
+                concatenated = appendRow(concatenated, vecs[i]);
+            }
+            return concatenated;
+        }
     }
 
 
@@ -759,17 +824,18 @@ public class Matrix {
 
 
     /**
-     * Removes the colInd'th column of A.
+     * Removes the colInd'th column of A. If A is a column vector, this function will return a zero vector.
      * @param A the matrix in question
      * @param colInd the index of the column being removed, with indexing beginning at 1.
-     * @return a new Matrix object representing A, but with its colInd'th column removed.
+     * @return <ul>
+     *    <li>if A is not a column vector, a new Matrix object representing A, but with its colInd'th row removed.</li>
+     *    <li>if A is a column vector, the zero vector with the same dimensions as A.</li>
+     * </ul>
      * @throws AssertionError if colInd isn't a positive integer less than or equal to the number of columns in A.
-     * @throws InvalidMatrixException if A is a column vector.
      */
-    public static Matrix removeCol(Matrix A, int colInd) throws AssertionError, InvalidMatrixException {
+    public static Matrix removeCol(Matrix A, int colInd) throws AssertionError {
         if (isColVec(A)) {
-            throw new InvalidMatrixException("A is already a column vector; " +
-                    "this operation would just delete the vector.");
+            return zeroMatrix(A.rows, 1);
         }
 
         if (colInd <= 0 || colInd > A.cols) {
@@ -777,38 +843,37 @@ public class Matrix {
                     "the number of columns in A.");
         }
 
+        Matrix removed;
         if (colInd == 1) {
-            Matrix removed = getCol(A, 2);
+            removed = getCol(A, 2);
             for (int j = 3; j < A.cols + 1; j++) {
                 removed = appendCol(removed, getCol(A, j));
             }
-            return removed;
-        }
-
-        else {
-            Matrix removed = getCol(A, 1);
+        } else {
+            removed = getCol(A, 1);
             for (int j = 2; j < A.cols + 1; j++) {
                 if (j != colInd) {
                     removed = appendCol(removed, getCol(A, j));
                 }
             }
-            return removed;
         }
+        return removed;
     }
 
 
     /**
-     * Removes the rowInd'th row of A.
+     * Removes the rowInd'th row of A. If A is a row vector, this function will return a zero vector.
      * @param A the matrix in question
      * @param rowInd the index of the row being removed, with indexing beginning at 1.
-     * @return a new Matrix object representing A, but with its rowInd'th row removed.
+     * @return <ul>
+     *     <li>if A is not a row vctor, a new Matrix object representing A, but with its rowInd'th row removed.</li>
+     *     <li>if A is a row vector, the zero vector with the same dimensions as A.</li>
+     * </ul>
      * @throws AssertionError if rowInd isn't a positive integer less than or equal to the number of rows in A.
-     * @throws InvalidMatrixException if A is a row vector.
      */
-    public static Matrix removeRow(Matrix A, int rowInd) throws AssertionError, InvalidMatrixException {
+    public static Matrix removeRow(Matrix A, int rowInd) throws AssertionError {
         if (isRowVec(A)) {
-            throw new InvalidMatrixException("A is already a row vector; " +
-                    "this operation would just delete the vector.");
+            return zeroMatrix(1, A.cols);
         }
 
         if (rowInd <= 0 || rowInd > A.rows) {
@@ -906,6 +971,37 @@ public class Matrix {
 
 
     /**
+     * Returns || v1 - v2 ||.
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return the distance between v1 and v2
+     * @throws MatrixSizeMismatchException if v1 and v2 aren't both column or row vectors with the same size.
+     */
+    public static double distance(Matrix v1, Matrix v2) throws MatrixSizeMismatchException {
+        if (!isVec(v1) || !sameType(v1, v2)) {
+            throw new MatrixSizeMismatchException("Inputs must both be column or row vectors with the same size.");
+        }
+
+        return magn( sub(v1, v2) );
+    }
+
+
+    /**
+     * Returns the angle between v1 and v2.
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return the angle, in radians, between v1 and v2. This angle will be between 0 and pi.
+     * @throws MatrixSizeMismatchException if v1 and v 2 aren't both column or row vectors with the same size.
+     */
+    public static double angle(Matrix v1, Matrix v2) throws MatrixSizeMismatchException {
+        if (!isVec(v1) || !sameType(v1, v2)) {
+            throw new MatrixSizeMismatchException("Inputs must both be column or row vectors with the same size.");
+        }
+        return Math.acos( dot(v1, v2) / (magn(v1) * magn(v2)) );
+    }
+
+
+    /**
      * Returns the normalized version of v.
      * @param v the vector being normalized
      * @return a new Matrix object representing the unit vector pointing in the same direction as v.
@@ -918,6 +1014,7 @@ public class Matrix {
 
         return scale(v, 1 / magn(v));
     }
+
 
     /**
      * Normalizes each vector in vecs.
@@ -1130,6 +1227,12 @@ public class Matrix {
 //        System.out.println("Initial: \n" + reduced);
 
         for (int j = 1; j < A.cols + 1; j++) {
+            if (curRowIndex > A.rows) {
+                // breakout condition if the matrix has more columns than rows
+                // could also just change the loop variable to be the smaller of the rows and columns
+                break;
+            }
+
             Matrix curCol = getCol(reduced, j);
             Matrix replacements = zeroMatrix(A.rows, A.cols);
 
@@ -1143,6 +1246,9 @@ public class Matrix {
                         curCol = getCol(reduced, j);
 //                        System.out.println("Swapped: \n" + reduced);
                     }
+                }
+                if ( getEntry(curCol, curRowIndex, 1) == 0 ) { // if all entries below are still zero somehow
+                    continue;
                 }
             }
 
@@ -1160,6 +1266,7 @@ public class Matrix {
 
             curRowIndex++;
         }
+
         return reduced;
     }
 
@@ -1239,6 +1346,9 @@ public class Matrix {
                             detFactor *= -1;
                         }
                     }
+                    if ( getEntry(curCol, curRowIndex, 1) == 0 ) { // if all entries below are still zero somehow
+                        continue;
+                    }
                 }
 
 //                System.out.println("Current row: " + getRow(reduced, curRowIndex));
@@ -1266,20 +1376,118 @@ public class Matrix {
 // SOLVING SYSTEMS / SUBSPACES
 
     /**
-     * Returns an orthonormal basis for the solution set to the equation Ax = b.
+     * Returns the orthogonal representation of the solution set of the equation Ax = b.<br>
+     * NOTE: If Ax = b is consistent and p is a solution to the equation, then
+     * the solution set of Ax = b is the set of all vectors of the form x = p + v, where v is any solution
+     * to Ax = 0. As such, the first entry in the returned array will be this vector p, and the second entry
+     * will be a matrix whose columns form an orthogonal basis for Nul(A).
+     * If the argument for normal is true, this basis will be orthonormal.
      * @param A the coefficient matrix
      * @param b the target vector
-     * @return an array of Matrix objects representing an orthonormal basis for the solution set to Ax = b.
+     * @param normal determines if the resulting basis is orthonormal
+     * @return an array of two Matrix objects representing an orthogonal basis for the solution set to Ax = 0,
+     * translated by a vector p that satisfies Ap = b.<br>
+     * If p = 0, it will still be an element of the array.<br>
+     * If the second element of the returned array is the zero matrix, the null space of A is trivial.<br>
+     * If the equation is inconsistent, both elements of the returned array will be zero vectors with as many
+     * entries as b.
      * @throws MatrixSizeMismatchException if b isn't a column vector with as many rows as A.
      *
      * NOT COMPLETE
      */
-    public static Matrix[] solve(Matrix A, Matrix b) throws MatrixSizeMismatchException{
-        //TODO: implement this
+    public static Matrix[] solve(Matrix A, Matrix b, boolean normal)
+            throws MatrixSizeMismatchException {
         if (b.rows != A.rows || !isColVec(b)) {
             throw new MatrixSizeMismatchException("b must be a column vector with as many rows as A.");
         }
-        return null;
+
+        try {
+            int m = A.rows;
+            int n = A.cols;
+            Matrix reduced = rowRed(append(A, b));
+//            System.out.println("Reduced: \n" + reduced + "\n");
+            Matrix zeRow = zeroMatrix(1, n);
+            // checking if the system is inconsistent
+            for (int i = m; i > 0; i--) {
+                Matrix curRow = getRow(reduced, i);
+                Matrix lhs = getSubmatrix(curRow, 1, 1, 1, n);
+                double rhs = getEntry(curRow, 1, n + 1);
+                if ( lhs.equals(zeRow) && Math.abs(rhs) >= tol ) {
+                    throw new InconsistentSystemException("Equation was inconsistent.");
+                }
+            }
+
+            Matrix[] solutions = new Matrix[2];
+            if (b.equals(zeroMatrix(m, 1))) {
+                solutions[0] = zeroMatrix(m, 1);
+            }
+
+            else {
+                double[][] particularEntries = new double[n][1];
+                double[][] rhsEntries = getCol(reduced, n + 1).entries;
+                for (int i = 0; i < n; i++) {
+                    if (i < m) {
+                        particularEntries[i][0] = rhsEntries[i][0];
+                    } else {
+                        particularEntries[i][0] = 0;
+                    }
+                }
+                solutions[0] = (new Matrix(particularEntries));
+            }
+
+
+            double[][] basisVecs = new double[n][n];
+
+            Matrix coeffMat = getSubmatrix(reduced, 1, 1, m, n);
+            if (m < n) {
+                coeffMat = pad(coeffMat, n, n, 0);
+            }
+//            System.out.println("Coeffs: \n" + coeffMat + "\n");
+            ArrayList<Integer> freeCols = new ArrayList<>();
+            int lastBasicCol = -1;
+
+            for (int i = 0; i < n; i++) {
+//                System.out.println("Row " + (i+1));
+                Matrix curRow = getRow(coeffMat, i + 1);
+                boolean foundPivot = false;
+                for (int j = lastBasicCol + 1; j < n; j++) {
+                    if ( j == lastBasicCol + 1 && Math.abs(1 - getEntry(curRow, 1, j + 1)) >= tol &&
+                        !foundPivot) {
+                        // if we haven't found a pivot, we're at the location where a pivot should be, but there isn't
+//                        System.out.println( (j + 1) + " is free");
+                        freeCols.add(j);
+                        lastBasicCol = j; // updating in case the next column also doesn't have a pivot
+                    }
+                    else if ( j == lastBasicCol + 1 && Math.abs(1 - getEntry(curRow, 1, j + 1)) <= tol) {
+                        // if we're at the location where a pivot should be, and there is one
+//                        System.out.println( (j + 1) + " is basic" );
+                        basisVecs[i][j] = 0;
+                        foundPivot = true;
+                        lastBasicCol = j;
+                    }
+                    else {
+//                        System.out.println("Adding " + (-coeffMat.entries[i][j]) );
+                        basisVecs[i][j] = -coeffMat.entries[i][j];
+                    }
+                }
+            }
+
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if ( i == j && freeCols.contains(j) ) {
+                        basisVecs[j][j] = 1;
+                    }
+                }
+            }
+
+            solutions[1] = formMatrix( gs(getCols(new Matrix(basisVecs)), normal) );
+            return solutions;
+        }
+
+        catch (InconsistentSystemException ise) {
+            System.out.println("The equation was inconsistent. Both elements of the returned matrix are zero vectors.");
+            return new Matrix[] {zeroMatrix(A.rows, 1), zeroMatrix(A.rows, 1)};
+        }
     }
 
 
@@ -1298,17 +1506,42 @@ public class Matrix {
             return 0;
         }
 
-        return -1;
+        Matrix zero = zeroMatrix(vecs[0].rows, 1);
+        Matrix[] basis = gs(vecs, false);
+        int dimension = 0;
+        for (int i = 0; i < basis.length; i++) {
+            if ( !(basis[i].equals(zero)) ) {
+                dimension++;
+            }
+        }
+        return dimension;
     }
 
 
     /**
-     * Returns an orthonormal basis for Col(A).
+     * Returns an orthogonal basis for Col(A). If normal is true, this basis will be orthonormal.
      * @param A the matrix in question
-     * @return an array of Matrix objects representing an orthonormal basis for the column space of A.
+     * @param normal determines if the resulting basis is orthonormal
+     * @return an array of Matrix objects representing an orthogonal basis for the column space of A.
      */
-    public static Matrix[] columnSpace(Matrix A) {
-        return null;
+    public static Matrix[] columnSpace(Matrix A, boolean normal) {
+        Matrix reduced = rowRed(A);
+        if (reduced.equals(zeroMatrix(A.rows, A.cols))) {
+            return new Matrix[] {zeroMatrix(A.rows, 1)};
+        }
+
+        Matrix zero = zeroMatrix(A.rows, 1);
+        ArrayList<Integer> nonzeros = new ArrayList<>();
+        for (int j = 0; j < reduced.cols; j++) {
+            if ( !(getCol(reduced, j + 1).equals(zero))  ) {
+                nonzeros.add(j + 1);
+            }
+        }
+        Matrix[] basis = new Matrix[nonzeros.size()];
+        for (int i = 0; i < basis.length; i++) {
+            basis[i] = getCol(A, nonzeros.get(i));
+        }
+        return gs(basis, normal);
     }
 
 
@@ -1318,17 +1551,18 @@ public class Matrix {
      * @return the dimension of Col(A)
      */
     public static int rank(Matrix A) {
-        return dimension(columnSpace(A));
+        return dimension(columnSpace(A, false));
     }
 
 
     /**
-     * Returns an orthonormal basis for Nul(A).
+     * Returns an orthogonal basis for Nul(A). If normal is true, this basis will be orthonormal.
      * @param A the matrix in question
-     * @return an array containing Matrix objects representing an orthonormal basis for the null space of A.
+     * @param normal determines if the resulting basis is orthonormal
+     * @return an array containing Matrix objects representing an orthogonal basis for the null space of A.
      */
-    public static Matrix[] nullSpace(Matrix A) {
-        return null;
+    public static Matrix[] nullSpace(Matrix A, boolean normal) {
+        return solve(A, zeroMatrix(A.rows, 1), normal);
     }
 
 
@@ -1338,7 +1572,7 @@ public class Matrix {
      * @return the dimension of Nul(A).
      */
     public static int nullity(Matrix A) {
-        return dimension(nullSpace(A));
+        return dimension(getCols(nullSpace(A, false)[0]));
     }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -1369,11 +1603,12 @@ public class Matrix {
 
 
     /**
-     * Returns the orthogonal projection of v onto the subspace spanned by the vectors in vecs
+     * Returns the orthogonal projection of v onto the subspace spanned by the vectors in vecs.
      * @param v the vector being projected
      * @param vecs the vectors spanning the subspace
      * @return the orthogonal projection of v onto the span on the vectors in vecs
-     * @throws InvalidMatrixException if vecs doesn't contain only column vectors of the same size
+     * @throws InvalidMatrixException if 1) vecs doesn't contain only column vectors of the same size
+     * 2) if vecs isn't an orthogonal set
      * @throws MatrixSizeMismatchException if v isn't a column vector with the same size as those in vecs
      */
     public static Matrix proj(Matrix v, Matrix[] vecs) throws InvalidMatrixException, MatrixSizeMismatchException {
@@ -1383,10 +1618,22 @@ public class Matrix {
         if (!sameSize(v, vecs[0])) {
             throw new MatrixSizeMismatchException("v must have the same dimension as the vectors in vecs.");
         }
+        if (!isOrtho(vecs, false)) {
+            throw new InvalidMatrixException("vecs must be an orthogonal set.");
+        }
 
-        Matrix proj = zeroMatrix(vecs[0].rows, 1);
+        Matrix zeCol = zeroMatrix(vecs[0].rows, 1);
+        ArrayList<Matrix> nonzeros = new ArrayList<>();
         for (int i = 0; i < vecs.length; i++) {
-            double scaleFactor = dot(v, vecs[i]) / (dot(vecs[i], vecs[i]));
+            if (!vecs[i].equals(zeCol)) {
+                nonzeros.add(vecs[i]);
+            }
+        }
+
+        Matrix proj = zeroMatrix(vecs[0].rows, 1); // the accumulator
+        for (int i = 0; i < nonzeros.size(); i++) {
+            Matrix curVec = nonzeros.get(i);
+            double scaleFactor = dot(v, curVec) / dot(curVec, curVec);
             proj = add(proj, scale(vecs[i], scaleFactor));
         }
 
@@ -1395,13 +1642,16 @@ public class Matrix {
 
 
     /**
-     * Returns an orthonormal basis for the subspace spanned by the vectors in vecs.
+     * Returns an orthogonal basis for the subspace spanned by the vectors in vecs.
+     * If normal is true, this basis will be orthonormal.
      * @param vecs the set of vectors that the GSP is being applied to
-     * @return an orthonormal basis for the subspace spanned by the vectors in vecs
+     * @param normal determines whether the returned basis is orthonormal or not
+     * @return an orthogonal basis for the subspace spanned by the vectors in vecs. If vecs only contains zero vectors,
+     * this functions returns an array containing only a zero vector.
      * @throws InvalidMatrixException if vecs doesn't contain only column vectors of the same size
      * @throws MatrixSizeMismatchException if the vectors in vecs aren't column vectors of the same size.
      */
-    public static Matrix[] gs(Matrix[] vecs) throws InvalidMatrixException, MatrixSizeMismatchException {
+    public static Matrix[] gs(Matrix[] vecs, boolean normal) throws InvalidMatrixException, MatrixSizeMismatchException {
         if (!isColVec(vecs[0])) {
             throw new InvalidMatrixException("vecs must contain only column vectors of the same size.");
         }
@@ -1409,68 +1659,92 @@ public class Matrix {
             throw new MatrixSizeMismatchException("All elements of vecs must be column vectors of the same size.");
         }
 
-        if (vecs.length == 1 && vecs[0].equals(zeroMatrix(vecs[0].rows, 1))) {
+
+        boolean allZeroes = true;
+        Matrix zeCol = zeroMatrix(vecs[0].rows, 1);
+        int firstNonzero = 0;
+        for (int i = 0; i < vecs.length; i++) {
+            if (!vecs[i].equals(zeCol)) {
+                allZeroes = false;
+                firstNonzero = i;
+                break;
+            }
+        }
+        if ( allZeroes || (vecs.length == 1 && vecs[0].equals(zeroMatrix(vecs[0].rows, 1)) )) {
             return new Matrix[] {zeroMatrix(vecs[0].rows, 1)};
         }
 
         // initializing the vectors
         ArrayList<Matrix> onb = new ArrayList<>();
-        onb.add(vecs[0]);
 
         // Computing the projections
-        for (int i = 1; i < vecs.length; i++) {
-            Matrix[] arr = new Matrix[onb.size()];
-            arr = onb.toArray(arr);
-            Matrix proj = proj(vecs[i], arr);
-            if (!proj.equals(vecs[i])) {
-                // only add to the onb if the projection isn't equal to the vector itself
-                // (i.e., if the vector isn't already in the span of the rest)
-                // if this check wasn't here, we'd be risking division by zero
-                Matrix ortho = sub(vecs[i], proj);
-                onb.add(ortho);
+        for (int i = firstNonzero; i < vecs.length; i++) {
+            if (i == firstNonzero) {
+                onb.add(vecs[i]);
+            }
+            else {
+//                System.out.println("in else, i = " + i);
+                Matrix[] arr = new Matrix[onb.size()];
+                arr = onb.toArray(arr);
+                Matrix proj = proj(vecs[i], arr);
+//                System.out.println("Starting vector: \n" + vecs[i] + "\n");
+//                System.out.println("Projection: \n" + proj + "\n");
+                if (!proj.equals(vecs[i])) {
+                    // only add to the onb if the projection isn't equal to the vector itself
+                    // (i.e., if the vector isn't already in the span of the rest)
+                    // if this check wasn't here, we'd be risking division by zero
+//                    System.out.println("added");
+                    Matrix ortho = sub(vecs[i], proj);
+                    onb.add(ortho);
+                }
             }
         }
 
         Matrix[] arr = new Matrix[onb.size()];
         arr = onb.toArray(arr);
-        return normalize(arr);
+        if (normal) {
+            return normalize(arr);
+        }
+        return arr;
     }
 
 
     /**
-     * Returns an orthonormal basis for the orthogonal complement of the subspace spanned by the vectors in vecs.
+     * Returns an orthogonal basis for the orthogonal complement of the subspace spanned by the vectors in vecs.
+     * If normal is true, this basis will be orthonormal.
      * @param vecs the vectors spanning some subspace
-     * @return a basis for vecs-perp
-     * @throws MatrixSizeMismatchException if the vectors in vecs aren't column vectors of the same size.
-     *
-     * NOT COMPLETE
+     * @param normal determines whether the returned basis is orthonormal or not
+     * @return an array of Matrix objects representing an orthogonal basis for the orthogonal complement of
+     * the subspace spanned by the vectors in vecs.
+     * @throws InvalidMatrixException if the vectors in vecs aren't column vectors of the same size.
      */
-    public static Matrix[] wPerp(Matrix[] vecs) throws MatrixSizeMismatchException {
-        //TODO: implement this
-        if (!sameSize(vecs)) {
-            throw new MatrixSizeMismatchException("vecs must contain column vectors of the same size.");
+    public static Matrix[] orthoComp(Matrix[] vecs, boolean normal) throws InvalidMatrixException {
+        if (!isColVec(vecs[0]) || !sameSize(vecs)) {
+            throw new InvalidMatrixException("vecs must contain column vectors of the same size.");
         }
 
-        return null;
+        return solve(transpose(formMatrix(vecs)), zeroMatrix(vecs[0].rows, 1), normal);
     }
 
 
     /**
-     * Returns an orthonormal basis of the set of least squares solutions to the equation Ax = b.
+     * Returns an orthogonal basis of the set of least squares solutions to the equation Ax = b.
+     * If normal is true, this basis will be orthonormal.
      * @param A the coefficient matrix
      * @param b the target vector
-     * @return an array of Matrix objects representing an orthonormal basis for the set of
+     * @param normal determines if the returned basis is orthonormal.
+     * @return an array of Matrix objects representing an orthogonal basis for the set of
      * least squares solutions to Ax = b.
      * @throws MatrixSizeMismatchException if b isn't a column vector with as many rows as A.
-     *
-     * NOT COMPLETE
      */
-    public static Matrix[] leastSquares(Matrix A, Matrix b) throws MatrixSizeMismatchException {
-        //TODO: implement this
+    public static Matrix[] leastSquares(Matrix A, Matrix b, boolean normal) throws MatrixSizeMismatchException {
         if (b.rows != A.rows || !isColVec(b)) {
             throw new MatrixSizeMismatchException("b must be a column vector with as many rows as A.");
         }
-        return null;
+
+        return solve(A, proj(b, columnSpace(A, normal)), normal);
+
+
     }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -1482,26 +1756,21 @@ public class Matrix {
     @Override
     public String toString() {
         StringBuilder string = new StringBuilder();
-        if (this.number) {
-            string.append(this.entries[0][0]);
-        }
-        else {
-            for (int i = 0; i < rows; i++) {
-                for (int j = 0; j < cols; j++) {
-                    if (j == 0){
-                        string.append("[");
-                    }
-                    string.append(this.entries[i][j]);
-                    if (j != cols - 1) {
-                        string.append("   ");
-                    }
-                    else {
-                        string.append("]");
-                    }
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (j == 0){
+                    string.append("[");
                 }
-                if (i != rows - 1) {
-                    string.append("\n");
+                string.append(this.entries[i][j]);
+                if (j != cols - 1) {
+                    string.append("   ");
                 }
+                else {
+                    string.append("]");
+                }
+            }
+            if (i != rows - 1) {
+                string.append("\n");
             }
         }
 
@@ -1510,7 +1779,7 @@ public class Matrix {
 
 
     /**
-     * A.equals(B) returns "true" is A and B's corresponding entries are equal.
+     * A.equals(B) returns "true" if A and B have the same size and if their corresponding entries are equal.
      */
     @Override
     public boolean equals(Object o) {
@@ -1520,8 +1789,7 @@ public class Matrix {
         if (this.rows != matrix.rows ||
                 this.cols != matrix.cols ||
                 this.rowVec != matrix.rowVec ||
-                this.colVec != matrix.colVec ||
-                this.number != matrix.number) { return false;}
+                this.colVec != matrix.colVec) { return false;}
 
         // leaving some room for roundoff error
         for (int i = 0; i < this.rows; i++) {

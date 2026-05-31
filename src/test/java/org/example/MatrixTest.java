@@ -6,11 +6,21 @@ import org.junit.jupiter.api.Test;
 class MatrixTest {
 
     //-------------------------------------------------------------------------------------------------------
-    // GENERATOR TESTS - COMPLETE
+    // GENERATOR TESTS
+
+    double tol = 0.005;
 
     @Test
     void MatrixGenTest() {
-        // Test 1: Invalid Args
+        // Test 1: No Args
+        Matrix m1 = new Matrix();;
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 0, 0},
+                {0, 1, 0},
+                {0, 0, 1}
+        }), m1);
+
+        // Test 2: Invalid Args
         Assertions.assertThrows(AssertionError.class, () -> {new Matrix(0);} );
         Assertions.assertThrows(AssertionError.class, () -> {new Matrix(-5);} );
         Assertions.assertThrows(InvalidMatrixException.class, () -> { new Matrix(new double[][] {
@@ -407,14 +417,10 @@ class MatrixTest {
                 {0},
                 {-4}
         }), Matrix.getSubmatrix(m1, 2, 1, 4, 1));
-        Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m1, 4, 1, 2, 1);});
         Assertions.assertEquals(new Matrix(new double[][] {
                 {1},
                 {-3}
         }), Matrix.getSubmatrix(m1, 1, 1, 2, 1));
-        Assertions.assertThrows(AssertionError.class, () ->
-                {Matrix.getSubmatrix(m1, 2, 1, 1, 1);});
         Assertions.assertEquals(new Matrix(new double[][] {
                 {1}
         }), Matrix.getSubmatrix(m1, 1, 1, 1, 1));
@@ -424,6 +430,10 @@ class MatrixTest {
 
         Assertions.assertThrows(AssertionError.class, () ->
             {Matrix.getSubmatrix(m1, 1, -1, 1, 1);} );
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m1, 4, 1, 2, 1);});
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m1, 2, 1, 1, 1);});
 
         // Test 2: Row Vector
         Matrix m2 = new Matrix(new double[][] {
@@ -440,7 +450,9 @@ class MatrixTest {
         Assertions.assertThrows(AssertionError.class, () ->
             {Matrix.getSubmatrix(m2, 1, 1, 3, 1);} );
         Assertions.assertThrows(AssertionError.class, () ->
-        {Matrix.getSubmatrix(m2, 0, 1, 1, 4);} );
+            {Matrix.getSubmatrix(m2, 0, 1, 1, 4);} );
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m2, 1, 4, 1, 1);} );
 
 
         // Tests 3: Non-vector
@@ -457,8 +469,6 @@ class MatrixTest {
                 {-3, 30},
                 {17, -59}
         }), Matrix.getSubmatrix(m3, 2, 2, 4, 3));
-        Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m3, 4, 3, 2, 2);});
         Assertions.assertEquals(new Matrix(new double[][] {
                 {0, -2},
                 {-4, 5},
@@ -472,45 +482,215 @@ class MatrixTest {
                 Matrix.getSubmatrix(m3, 1, 1, 5, 1));
         Assertions.assertEquals(Matrix.getRow(m3, 3),
                 Matrix.getSubmatrix(m3, 3, 1, 3, 3));
+
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m3, 4, 3, 2, 2);});
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m3, 6, 2, 5, 3);});
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m3, 2, 5, 5, 3);});
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m3, 2, 2, -2, 3);});
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m3, 2, 2, 5, -1);});
+        Assertions.assertThrows(AssertionError.class, () ->
+            {Matrix.getSubmatrix(m3, 2, 2, 5, 4);});
     }
 
     //-------------------------------------------------------------------------------------------------------
     // BOOLEAN FUNCTION TESTS
 
     @Test
-    void isRowVecTest() {
+    void isColVecTest() {
+        // Test 1: Column Vector
+        Matrix m1 = new Matrix(new double[][] {
+                {-2},
+                {4},
+                {-3}
+        });
+        Assertions.assertTrue(Matrix.isColVec(m1));
+
+        // Test 2: Row Vector
+        Matrix m2 = new Matrix(new double[][] {
+                {-2, 4, -3}
+        });
+        Assertions.assertFalse(Matrix.isColVec(m2));
+
+        // Test 3: Non-vector
+        Matrix m3 = new Matrix(new double[][] {
+                {4, -2, 3},
+                {1, 0, 0},
+                {-9, 6, 7}
+        });
+        Assertions.assertFalse(Matrix.isColVec(m3));
+        Assertions.assertTrue( Matrix.isColVec(Matrix.getCol(m3, 1)) );
+        Assertions.assertTrue( Matrix.isColVec(Matrix.getCol(m3, 2)) );
+        Assertions.assertTrue( Matrix.isColVec(Matrix.getCol(m3, 3)) );
     }
 
     @Test
-    void isColVecTest() {
+    void isRowVecTest() {
+        // Test 1: Column Vector
+        Matrix m1 = new Matrix(new double[][] {
+                {-2},
+                {4},
+                {-3}
+        });
+        Assertions.assertFalse(Matrix.isRowVec(m1));
+
+        // Test 2: Row Vector
+        Matrix m2 = new Matrix(new double[][] {
+                {-2, 4, -3}
+        });
+        Assertions.assertTrue(Matrix.isRowVec(m2));
+
+        // Test 3: Non-vector
+        Matrix m3 = new Matrix(new double[][] {
+                {4, -2, 3},
+                {1, 0, 0},
+                {-9, 6, 7}
+        });
+        Assertions.assertFalse(Matrix.isRowVec(m3));
+        Assertions.assertTrue( Matrix.isRowVec(Matrix.getRow(m3, 1)) );
+        Assertions.assertTrue( Matrix.isRowVec(Matrix.getRow(m3, 2)) );
+        Assertions.assertTrue( Matrix.isRowVec(Matrix.getRow(m3, 3)) );
     }
 
     @Test
     void isVecTest() {
+        // Test 1: Column Vector
+        Matrix m1 = new Matrix(new double[][] {
+                {-2},
+                {4},
+                {-3}
+        });
+        Assertions.assertTrue(Matrix.isVec(m1));
+
+        // Test 2: Row Vector
+        Matrix m2 = new Matrix(new double[][] {
+                {-2, 4, -3}
+        });
+        Assertions.assertTrue(Matrix.isVec(m2));
+
+        // Test 3: Non-vector
+        Matrix m3 = new Matrix(new double[][] {
+                {4, -2, 3},
+                {1, 0, 0},
+                {-9, 6, 7}
+        });
+        Assertions.assertFalse(Matrix.isVec(m3));
     }
 
     @Test
     void sameTypeTest() {
         // Test 1: Two Columns Vectors
-        // Test 2: Two Row Vectors
-        // Test 3: Two Vectors, Different Types
-        // Test 4:
-    }
+        Matrix v1 = new Matrix(new double[][] {
+                {1},
+                {-3},
+                {-4}
+        });
+        Matrix v2 = new Matrix(new double[][] {
+                {4},
+                {-5},
+                {6},
+                {0},
+                {9}
+        });
+        Matrix v3 = new Matrix(new double[][] {
+                {7}
+        });
+        Assertions.assertTrue(Matrix.sameType(v1, v2));
+        Assertions.assertTrue(Matrix.sameType(v2, v3));
+        Assertions.assertTrue(Matrix.sameType(v1, v3));
 
-    @Test
-    void isNumberTest() {
-        // Test 1: Number
-        // Test 2: Non-Number
-        // Test 3: Diagonal
+        // Test 2: Two Row Vectors
+        Matrix v4 = new Matrix(new double[][] {
+                {1, -3, -4}
+        });
+        Matrix v5 = new Matrix(new double[][] {
+                {4, -5, 6, 0, 9}
+        });
+        Assertions.assertTrue(Matrix.sameType(v4, v5));
+        Assertions.assertTrue(Matrix.sameType(v4, v3));
+        Assertions.assertTrue(Matrix.sameType(v5, v3));
+
+        // Test 3: Two Vectors, Different Types
+        Assertions.assertFalse(Matrix.sameType(v1, v4));
+        Assertions.assertFalse(Matrix.sameType(v2, v4));
+        Assertions.assertFalse(Matrix.sameType(v1, v5));
+        Assertions.assertFalse(Matrix.sameType(v2, v5));
+
+        // Test 4: Non-vectors
+        Matrix v6 = new Matrix();
+        Matrix v7 = Matrix.zeroMatrix(4, 2);
+        Assertions.assertFalse(Matrix.sameType(v6, v1));
+        Assertions.assertFalse(Matrix.sameType(v6, v2));
+        Assertions.assertFalse(Matrix.sameType(v6, v3));
+        Assertions.assertFalse(Matrix.sameType(v6, v4));
+        Assertions.assertFalse(Matrix.sameType(v6, v5));
+        Assertions.assertFalse(Matrix.sameType(v7, v1));
+        Assertions.assertFalse(Matrix.sameType(v7, v2));
+        Assertions.assertFalse(Matrix.sameType(v7, v3));
+        Assertions.assertFalse(Matrix.sameType(v7, v4));
+        Assertions.assertFalse(Matrix.sameType(v7, v5));
+
+
+
     }
 
     @Test
     void isSquareTest() {
-        // Test 1: Square
-        // Test 2: Non-square
+        // Test 1: Squares
+        Matrix m1 = new Matrix();
+        Matrix m2 = new Matrix(5);
+        Matrix m3 = new Matrix(new double[][] {
+                {-2, 3},
+                {7, -5}
+        });
+        Matrix m4 = Matrix.zeroMatrix(1, 1);
+        Matrix m5 = Matrix.diag(new double[] {4, 5, 2, 7, 9});
+        Assertions.assertTrue(Matrix.isSquare(m1));
+        Assertions.assertTrue(Matrix.isSquare(m2));
+        Assertions.assertTrue(Matrix.isSquare(m3));
+        Assertions.assertTrue(Matrix.isSquare(m4));
+        Assertions.assertTrue(Matrix.isSquare(m5));
+
+        // Test 2: Non-squares
+        Matrix m6 = new Matrix(new double[][] {
+                {1, 2},
+                {5, 7},
+                {-2, 0},
+                {9, -8}
+        });
+        Matrix m7 = new Matrix(new double[][] {
+                {3, 3, -5},
+                {0, -7, 8}
+        });
+        Assertions.assertFalse(Matrix.isSquare(m6));
+        Assertions.assertFalse(Matrix.isSquare(m7));
+        Assertions.assertFalse( Matrix.isSquare(Matrix.getCol(m6, 1)) );
+        Assertions.assertFalse( Matrix.isSquare(Matrix.getRow(m7, 2)) );
     }
 
-    @Test
+    @Test // INCOMPLETE
+    void isUpperTriangularTest() {
+        // Test 1: Upper Triangular
+        // Test 2: Lower Triangular
+        // Test 3: Diagonal
+        // Test 4: Square, Non-Triangular
+        // Test 5: Non-square
+    }
+
+    @Test // INCOMPLETE
+    void isLowerTriangularTest() {
+        // Test 1: Upper Triangular
+        // Test 2: Lower Triangular
+        // Test 3: Diagonal
+        // Test 4: Square, Non-Triangular
+        // Test 5: Non-square
+    }
+
+    @Test // INCOMPLETE
     void isTriangularTest() {
         // Test 1: Upper Triangular
         // Test 2: Lower Triangular
@@ -519,26 +699,26 @@ class MatrixTest {
         // Test 5: Non-square
     }
 
-    @Test
+    @Test // INCOMPLETE
     void isDiagonalTest() {
         // Test 1: Identity
     }
 
-    @Test
+    @Test // INCOMPLETE
     void isInvertibleTest() {
         // Test 1: Invertible
         // Test 2: Square, Non-invertible
         // Test 3: Non-square
     }
 
-    @Test
+    @Test // INCOMPLETE
     void isSymmetricTest() {
         // Test 1: Symmetric
         // Test 2: Square, Non-symmetric
         // Test 3: Non-square
     }
 
-    @Test
+    @Test // INCOMPLETE
     void isUnitTest() {
         // Test 1: Unit Column Vector
         // Test 2: Unit Row Vector
@@ -547,7 +727,7 @@ class MatrixTest {
         // Test 5: Non-vector
     }
 
-    @Test
+    @Test // INCOMPLETE
     void areOrthoTest() {
         // Test 1: Orthogonal Column Vectors
         // Test 2: Orthogonal Row Vectors
@@ -556,21 +736,22 @@ class MatrixTest {
         // Test 5: Non-vectors
     }
 
-    @Test
+    @Test // INCOMPLETE
     void isOrthoTest() {
-        // Test 1: Orthogonal
-        // Test 2: Square, Non-orthogonal
-        // Test 3: Non-square
+        // Test 1 (matrix version): Orthogonal
+        // Test 2 (matrix version): Square, Non-orthogonal
+        // Test 3 (matrix version): Non-square
+        // Test 4: Just one vector
     }
 
-    @Test
+    @Test // INCOMPLETE
     void hasColTest() {
         // Test 1: Valid size, Contained
         // Test 2: Valid size, Not contained
         // Test 3: Invalid size
     }
 
-    @Test
+    @Test // INCOMPLETE
     void hasRowTest() {
         // Test 1: Valid size, Contained
         // Test 2: Valid size, Not contained
@@ -726,7 +907,7 @@ class MatrixTest {
     }
 
     @Test
-    void wPerpTest() {
+    void orthoCompTest() {
 
     }
 
