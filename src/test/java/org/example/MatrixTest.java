@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 class MatrixTest {
 
     //-------------------------------------------------------------------------------------------------------
-    // GENERATOR TESTS
+    // GENERATOR TESTS - COMPLETE
 
-    double tol = 0.005;
+    double tol = 0.0001;
 
     @Test
     void MatrixGenTest() {
@@ -106,7 +106,7 @@ class MatrixTest {
     }
 
     //-------------------------------------------------------------------------------------------------------
-    // GETTER TESTS
+    // GETTER TESTS - COMPLETE
 
     @Test
     void colsTest() {
@@ -756,6 +756,20 @@ class MatrixTest {
         // Test 1: Valid size, Contained
         // Test 2: Valid size, Not contained
         // Test 3: Invalid size
+    }
+
+    @Test // INCOMPLETE
+    void sameSizeTest() {
+        // Test 1: Column vectors, same size
+        // Test 2: Column vectors, different sizes
+        // Test 3: Row vectors, same size
+        // Test 4: Row vectors, different sizes
+        // Test 5: Arbitrary matrices, some same size, some different
+        // Test 6: Set of column vectors, all same size
+        // Test 7: Set of column vectors, some different size
+        // Test 8: Set of row vectors, all same size
+        // Test 9: Set of row vectors, all different size
+        // Test 10: Set of arbitrary matrices some same size, some different
     }
 
     //-------------------------------------------------------------------------------------------------------

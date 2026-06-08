@@ -2,17 +2,17 @@
  * A library containing a bunch of matrix operations. Matrices are represented as 2D arrays of doubles.
  *
  * Author: romander60  
- * Overall time spent on project: ~27 hours
+ * Overall time spent on project: ~35 hours
  *
- * Last updated: May 24, 2026
+ * Last updated: May 31, 2026
  */
 
 
 
 package org.example;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public class Matrix {
 
@@ -26,8 +26,12 @@ public class Matrix {
     private boolean rowVec;
     // True if this matrix is m x 1
     private boolean colVec;
+
+
     // The value within which roundoff errors are tolerated
-    private static final double tol = 0.001;
+    private static final double tol = 0.0001;
+    // The number of decimal places quantities should be rounded to
+    private static final int decPlaces = 5;
 
 //-------------------------------------------------------------------------------------------------------------
 // MATRIX GENERATORS
@@ -142,6 +146,55 @@ public class Matrix {
         return new Matrix(entries);
     }
 
+
+    /**
+     * Creates an m-dimensional column vector with all zeroes except for a one in the index'th spot.
+     * Indexing begins at 1.
+     */
+    private static Matrix singleOneCol(int m, int index) throws AssertionError {
+        if (index <= 0 || index > m) {
+            throw new AssertionError("m and index need to be positive, and index needs to " +
+                    "be <= m.");
+        }
+
+        double[][] entries = new double[m][1];
+
+        for (int i = 0; i < m; i++) {
+            if (i == index - 1) {
+                entries[i][0] = 1;
+            }
+            else {
+                entries[i][0] = 0;
+            }
+        }
+
+        return new Matrix(entries);
+    }
+
+
+    /**
+     * Creates an n-dimensional row vector with all zeroes except for a one in the index'th spot.
+     * Indexing begins at 1.
+     */
+    private static Matrix singleOneRow(int n, int index) throws AssertionError {
+        if (index <= 0 || index > n) {
+            throw new AssertionError("n and index need to be positive, and index needs to " +
+                    "be <= n.");
+        }
+
+        double[][] entries = new double[1][n];
+
+        for (int j = 0; j < n; j++) {
+            if (j == index - 1) {
+                entries[0][j] = 1;
+            }
+            else {
+                entries[0][j] = 0;
+            }
+        }
+
+        return new Matrix(entries);
+    }
 //-------------------------------------------------------------------------------------------------------------
 // BOOLEAN OPERATIONS
 
@@ -191,10 +244,12 @@ public class Matrix {
     public static boolean isUpperTriangular(Matrix A) {
         if (!isSquare(A)) { return false; }
 
-        for (int j = 1; j < A.cols + 1; j++) {
+//        System.out.println("In Upper");
+        for (int j = 1; j < A.cols; j++) {
             Matrix curCol = getCol(A, j);
-            for (int i = j; i < A.rows; i++) {
-                if ( Math.abs(getEntry(curCol, i, 1)) >= tol ) { return false; }
+            for (int i = j + 1; i < A.rows; i++) {
+//                System.out.println("Entry: " + getEntry(curCol, i, j));
+                if ( Math.abs(getEntry(curCol, i, j)) >= tol ) { return false; }
             }
         }
 
@@ -210,10 +265,12 @@ public class Matrix {
 
         // Conveniently, a matrix is lower triangular if all the entries
         // to the right of the main diagonal are zero.
-        for (int i = 1; i < A.rows + 1; i++) {
+//        System.out.println("In Lower");
+        for (int i = 1; i < A.rows; i++) {
             Matrix curRow = getRow(A, i);
-            for (int j = i; j < A.cols; j++) {
-                if ( Math.abs(getEntry(curRow, 1, j)) >= 0 ) { return false; }
+            for (int j = i + 1; j < A.cols; j++) {
+//                System.out.println("Entry: " + getEntry(curRow, i, j));
+                if ( Math.abs(getEntry(curRow, i, j)) >= 0 ) { return false; }
             }
         }
 
@@ -320,7 +377,7 @@ public class Matrix {
 
         for (int i = 0; i < vecs.length; i++) {
             for (int j = 0; j < vecs.length; j++) {
-                if ( ( Math.abs(dot(vecs[i], vecs[j])) >= tol ) ||
+                if ( (i != j && Math.abs(dot(vecs[i], vecs[j])) >= tol) ||
                         (normal && Math.abs(1 - dot(vecs[i], vecs[i])) >= tol ) ) {
                     return false;
                 }
@@ -328,6 +385,7 @@ public class Matrix {
         }
 
         return true;
+
     }
 
 
@@ -671,7 +729,7 @@ public class Matrix {
         if (isRowVec(v)) {
             double[][] newEntries = new double[cols(v)][1];
             for (int i = 0; i < cols(v); i++) {
-                newEntries[i][0] = v.entries[i][0];
+                newEntries[i][0] = v.entries[0][i];
             }
 
             return new Matrix(newEntries);
@@ -680,7 +738,7 @@ public class Matrix {
         else {
             double[][] newEntries = new double[1][rows(v)];
             for (int i = 0; i < cols(v); i++) {
-                newEntries[0][i] = v.entries[0][i];
+                newEntries[0][i] = v.entries[i][0];
             }
             return new Matrix(newEntries);
         }
@@ -902,7 +960,8 @@ public class Matrix {
 
 
     /**
-     * Returns A, but padded with filler until it's mxn.
+     * Returns A, but padded with filler until it's mxn. If m and n are the number of rows and columns A has,
+     * respectively, this function returns a copy of A.
      * @param A the matrix being padded
      * @param m the number of rows the padded matrix will have
      * @param n the number of columns the padded matrix will have
@@ -914,6 +973,9 @@ public class Matrix {
     public static Matrix pad(Matrix A, int m, int n, double filler) throws AssertionError {
         if (m <= 0 || m < A.rows || n <= 0 || n < A.cols) {
             throw new AssertionError("m and n must be positive integers within the dimensions of A.");
+        }
+        if (m == A.rows && n == A.cols) {
+            return copy(A);
         }
 
         double[][] newEntries = new double[m][n];
@@ -991,7 +1053,7 @@ public class Matrix {
      * @param v1 the first vector
      * @param v2 the second vector
      * @return the angle, in radians, between v1 and v2. This angle will be between 0 and pi.
-     * @throws MatrixSizeMismatchException if v1 and v 2 aren't both column or row vectors with the same size.
+     * @throws MatrixSizeMismatchException if v1 and v2 aren't both column or row vectors with the same size.
      */
     public static double angle(Matrix v1, Matrix v2) throws MatrixSizeMismatchException {
         if (!isVec(v1) || !sameType(v1, v2)) {
@@ -1221,11 +1283,27 @@ public class Matrix {
         if ( A.equals(zeroMatrix(A.rows, A.cols)) || A.equals(new Matrix(A.cols)) ) {return copy(A);}
 
         Matrix reduced = copy(A);
+
+        // moving any all-zero rows to the bottom
+        Matrix zeRow = zeroMatrix(1, A.cols);
+        for (int i = 1; i < A.rows; i++) {
+            // only looping until A.rows since we don't care about the bottom row
+            // if it's an all-zero row it's supposed to be there
+            Matrix curRow = getRow(reduced, i);
+            if (curRow.equals(zeRow)) {
+                for (int j = A.rows; j > i; j--) {
+                    if ( !getRow(reduced, j).equals(zeRow) ) {
+                        reduced = swapRows(reduced, i, j);
+                        break;
+                    }
+                }
+            }
+        }
+
+
         Matrix zeCol = zeroMatrix(A.rows, 1);
         int curRowIndex = 1;
-
 //        System.out.println("Initial: \n" + reduced);
-
         for (int j = 1; j < A.cols + 1; j++) {
             if (curRowIndex > A.rows) {
                 // breakout condition if the matrix has more columns than rows
@@ -1239,15 +1317,15 @@ public class Matrix {
             if ( curCol.equals(zeCol) ) {
                 continue;
             }
-            else if ( getEntry(curCol, curRowIndex, 1) == 0 ) {
+            else if ( Math.abs(getEntry(curCol, curRowIndex, 1)) <= tol ) {
                 for (int i = A.rows; i > curRowIndex; i--) {
-                    if ( getEntry(reduced, i, j) != 0 ) {
+                    if ( Math.abs(getEntry(reduced, i, j)) >= tol ) {
                         reduced = swapRows(reduced, curRowIndex, i);
                         curCol = getCol(reduced, j);
 //                        System.out.println("Swapped: \n" + reduced);
                     }
                 }
-                if ( getEntry(curCol, curRowIndex, 1) == 0 ) { // if all entries below are still zero somehow
+                if ( Math.abs(getEntry(curCol, curRowIndex, 1)) <= tol ) { // if all entries below are still zero somehow
                     continue;
                 }
             }
@@ -1328,7 +1406,7 @@ public class Matrix {
             Matrix zeCol = zeroMatrix(A.rows, 1);
             int curRowIndex = 1;
 
-            System.out.println("Initial: \n" + reduced);
+//            System.out.println("Initial: \n" + reduced);
 
             for (int j = 1; j < A.cols + 1; j++) {
                 Matrix curCol = getCol(reduced, j);
@@ -1367,13 +1445,71 @@ public class Matrix {
                 curRowIndex++;
             }
 
-            System.out.println(reduced);
+//            System.out.println(reduced);
             return detFactor;
         }
     }
 
 //-------------------------------------------------------------------------------------------------------------
-// SOLVING SYSTEMS / SUBSPACES
+// THE SYSTEM SOLVER
+
+    /**
+     * Returns the indices of the pivot columns and non-pivot columns of A. The leftmost column of A
+     * is column 1. Helper for solve()
+     * @param A the matrix in question
+     * @return an array containing two arrays of integers. The first array contains the indices of the pivot columns,
+     * and the second array contains the indices of the non-pivot columns.
+     */
+    private static int[][] pivotAndNonPivots(Matrix A) {
+        ArrayList<Integer> basicCols = new ArrayList<>();
+        ArrayList<Integer> freeCols = new ArrayList<>();
+        Matrix reduced = rowRed(A);
+        int pivotsFound = 0;
+        // the number of pivots a matrix can have is bounded from above
+        // by the smaller of the number of rows and the number of columns
+        int min = Math.min(reduced.rows, reduced.cols);
+        for (int j = 0; j < reduced.cols; j++) {
+            if (pivotsFound < min) {
+//                System.out.println("blah: " + reduced.rows + " " + (pivotsFound + 1));
+                Matrix pivCol = singleOneCol(reduced.rows, pivotsFound + 1);
+//            System.out.println("pivCol: \n" + pivCol);
+                if (getCol(A, j + 1).equals(pivCol)) {
+                    // if the current column is a pivot column
+                    basicCols.add(j + 1);
+                    pivotsFound++;
+                } else {
+                    freeCols.add(j + 1);
+                }
+            }
+            else {
+                freeCols.add(j + 1);
+            }
+        }
+        // Manually copying elements since toArray doesn't work for primitives
+        int[] basics = new int[basicCols.size()];
+        for (int i = 0; i < basics.length; i++) {
+            basics[i] = basicCols.get(i);
+        }
+        int[] frees = new int[freeCols.size()];
+        for (int i = 0; i < frees.length; i++) {
+            frees[i] = freeCols.get(i);
+        }
+        return new int[][] {basics, frees};
+
+    }
+
+
+    /**
+     * Helper for solve()
+     */
+    private static boolean arrayContains(int[] arr, int val) {
+        for (int i = 0; i < arr.length; i++) {
+            if (val == arr[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Returns the orthogonal representation of the solution set of the equation Ax = b.<br>
@@ -1388,7 +1524,7 @@ public class Matrix {
      * @return an array of two Matrix objects representing an orthogonal basis for the solution set to Ax = 0,
      * translated by a vector p that satisfies Ap = b.<br>
      * If p = 0, it will still be an element of the array.<br>
-     * If the second element of the returned array is the zero matrix, the null space of A is trivial.<br>
+     * If the second element of the returned array is the zero vector, the null space of A is trivial.<br>
      * If the equation is inconsistent, both elements of the returned array will be zero vectors with as many
      * entries as b.
      * @throws MatrixSizeMismatchException if b isn't a column vector with as many rows as A.
@@ -1400,6 +1536,8 @@ public class Matrix {
         if (b.rows != A.rows || !isColVec(b)) {
             throw new MatrixSizeMismatchException("b must be a column vector with as many rows as A.");
         }
+        Matrix equation = append(A, b);
+//        System.out.println("Equation: \n" + equation);
 
         try {
             int m = A.rows;
@@ -1409,6 +1547,7 @@ public class Matrix {
             Matrix zeRow = zeroMatrix(1, n);
             // checking if the system is inconsistent
             for (int i = m; i > 0; i--) {
+                // starting from the bottom since any all-zero rows should be there
                 Matrix curRow = getRow(reduced, i);
                 Matrix lhs = getSubmatrix(curRow, 1, 1, 1, n);
                 double rhs = getEntry(curRow, 1, n + 1);
@@ -1418,6 +1557,8 @@ public class Matrix {
             }
 
             Matrix[] solutions = new Matrix[2];
+
+            // Getting the particular solution
             if (b.equals(zeroMatrix(m, 1))) {
                 solutions[0] = zeroMatrix(m, 1);
             }
@@ -1435,53 +1576,63 @@ public class Matrix {
                 solutions[0] = (new Matrix(particularEntries));
             }
 
+            // Getting the null space
 
-            double[][] basisVecs = new double[n][n];
-
+            // Identify free columns
             Matrix coeffMat = getSubmatrix(reduced, 1, 1, m, n);
-            if (m < n) {
-                coeffMat = pad(coeffMat, n, n, 0);
-            }
 //            System.out.println("Coeffs: \n" + coeffMat + "\n");
-            ArrayList<Integer> freeCols = new ArrayList<>();
-            int lastBasicCol = -1;
-
-            for (int i = 0; i < n; i++) {
-//                System.out.println("Row " + (i+1));
-                Matrix curRow = getRow(coeffMat, i + 1);
-                boolean foundPivot = false;
-                for (int j = lastBasicCol + 1; j < n; j++) {
-                    if ( j == lastBasicCol + 1 && Math.abs(1 - getEntry(curRow, 1, j + 1)) >= tol &&
-                        !foundPivot) {
-                        // if we haven't found a pivot, we're at the location where a pivot should be, but there isn't
-//                        System.out.println( (j + 1) + " is free");
-                        freeCols.add(j);
-                        lastBasicCol = j; // updating in case the next column also doesn't have a pivot
-                    }
-                    else if ( j == lastBasicCol + 1 && Math.abs(1 - getEntry(curRow, 1, j + 1)) <= tol) {
-                        // if we're at the location where a pivot should be, and there is one
-//                        System.out.println( (j + 1) + " is basic" );
-                        basisVecs[i][j] = 0;
-                        foundPivot = true;
-                        lastBasicCol = j;
-                    }
-                    else {
-//                        System.out.println("Adding " + (-coeffMat.entries[i][j]) );
-                        basisVecs[i][j] = -coeffMat.entries[i][j];
-                    }
-                }
+            int[][] basicsAndFrees = pivotAndNonPivots(coeffMat);
+            int[] frees = basicsAndFrees[1];
+            if (frees.length == 0) {
+                solutions[1] = zeroMatrix(n, 1);
+                return solutions;
             }
+            // taking care of the first pivot column and setting up the accumulator simultaneously
+            for (int i = 0; i < frees.length; i++) {
+//                System.out.print("Frees: " + frees[i] + " ");
+            }
+//            System.out.println();
 
-            for (int i = 0; i < n; i++) {
+            //TODO: edit this to work for nonsquare matrices
+//            double[][] basisVecs = new double[n][n];
+//            for (int i = 0; i < m; i++) {
+//                for (int j = 0; j < n; j++) {
+//                    if (arrayContains(frees, j + 1) && i == j) {
+//                        // in a free column, located at where the pivot in the column should've been
+//                        basisVecs[i][j] = 1;
+//                    }
+//                    else if (!arrayContains(frees, j + 1) && i == j) {
+//                        // in a pivot column, at the pivot
+//                        basisVecs[i][j] = 0;
+//                    }
+//                    else {
+//                        basisVecs[i][j] = -getEntry(coeffMat, i + 1, j + 1);
+//                    }
+//                }
+//            }
+            double[][] basisVecs = new double[n][n];
+            for (int i = 0; i < m; i++) {
                 for (int j = 0; j < n; j++) {
-                    if ( i == j && freeCols.contains(j) ) {
-                        basisVecs[j][j] = 1;
+                    if ( !arrayContains(frees, j + 1) ) {
+                        // skipping the basic columns since they won't make vectors in the null space
+                        continue;
+                    }
+                    else if ( arrayContains(frees, j + 1) && i != j ) {
+                        basisVecs[i][j] = -getEntry(coeffMat, i + 1, j + 1);
                     }
                 }
             }
+            for (int i = 0; i < n; i++) {
+                if ( arrayContains(frees, i + 1) ) {
+                    basisVecs[i][i] = 1;
+                }
+            }
 
-            solutions[1] = formMatrix( gs(getCols(new Matrix(basisVecs)), normal) );
+
+            solutions[1] = formMatrix(gs(getCols(new Matrix(basisVecs)), normal));
+//            System.out.println("nullspace: \n" + solutions[1]);
             return solutions;
+
         }
 
         catch (InconsistentSystemException ise) {
@@ -1490,6 +1641,8 @@ public class Matrix {
         }
     }
 
+//-------------------------------------------------------------------------------------------------------------
+// SUBSPACES
 
     /**
      * Returns the dimension of the subspace spanned by the vectors in vecs.
@@ -1522,12 +1675,12 @@ public class Matrix {
      * Returns an orthogonal basis for Col(A). If normal is true, this basis will be orthonormal.
      * @param A the matrix in question
      * @param normal determines if the resulting basis is orthonormal
-     * @return an array of Matrix objects representing an orthogonal basis for the column space of A.
+     * @return a new Matrix object whose columns form an orthogonal (or orthonormal) basis for Col(A).
      */
-    public static Matrix[] columnSpace(Matrix A, boolean normal) {
+    public static Matrix columnSpace(Matrix A, boolean normal) {
         Matrix reduced = rowRed(A);
         if (reduced.equals(zeroMatrix(A.rows, A.cols))) {
-            return new Matrix[] {zeroMatrix(A.rows, 1)};
+            return zeroMatrix(A.rows, 1);
         }
 
         Matrix zero = zeroMatrix(A.rows, 1);
@@ -1541,7 +1694,7 @@ public class Matrix {
         for (int i = 0; i < basis.length; i++) {
             basis[i] = getCol(A, nonzeros.get(i));
         }
-        return gs(basis, normal);
+        return formMatrix(gs(basis, normal));
     }
 
 
@@ -1551,7 +1704,7 @@ public class Matrix {
      * @return the dimension of Col(A)
      */
     public static int rank(Matrix A) {
-        return dimension(columnSpace(A, false));
+        return dimension(getCols(columnSpace(A, false)));
     }
 
 
@@ -1559,10 +1712,10 @@ public class Matrix {
      * Returns an orthogonal basis for Nul(A). If normal is true, this basis will be orthonormal.
      * @param A the matrix in question
      * @param normal determines if the resulting basis is orthonormal
-     * @return an array containing Matrix objects representing an orthogonal basis for the null space of A.
+     * @return a new Matrix object whose columns form an orthogonal (or orthonormal) basis for Nul(A).
      */
-    public static Matrix[] nullSpace(Matrix A, boolean normal) {
-        return solve(A, zeroMatrix(A.rows, 1), normal);
+    public static Matrix nullSpace(Matrix A, boolean normal) {
+        return solve(A, zeroMatrix(A.rows, 1), normal)[1];
     }
 
 
@@ -1572,7 +1725,7 @@ public class Matrix {
      * @return the dimension of Nul(A).
      */
     public static int nullity(Matrix A) {
-        return dimension(getCols(nullSpace(A, false)[0]));
+        return dimension(getCols(nullSpace(A, false)));
     }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -1659,7 +1812,23 @@ public class Matrix {
             throw new MatrixSizeMismatchException("All elements of vecs must be column vectors of the same size.");
         }
 
+        if (vecs.length == 1) {
+            Matrix zeCol = zeroMatrix(vecs[0].rows, 1);
+            if (vecs[0].equals(zeCol)) {
+                return new Matrix[] {zeCol};
+            }
+            else {
+                if (normal) {
+                    return new Matrix[] {normalize(vecs[0])};
+                }
+                else {
+                    return new Matrix[] {vecs[0]};
+                }
+            }
+        }
 
+
+//        System.out.println("vecs: \n" + formMatrix(vecs));
         boolean allZeroes = true;
         Matrix zeCol = zeroMatrix(vecs[0].rows, 1);
         int firstNonzero = 0;
@@ -1686,6 +1855,7 @@ public class Matrix {
 //                System.out.println("in else, i = " + i);
                 Matrix[] arr = new Matrix[onb.size()];
                 arr = onb.toArray(arr);
+//                System.out.println("arr: \n" + formMatrix(arr));
                 Matrix proj = proj(vecs[i], arr);
 //                System.out.println("Starting vector: \n" + vecs[i] + "\n");
 //                System.out.println("Projection: \n" + proj + "\n");
@@ -1714,27 +1884,31 @@ public class Matrix {
      * If normal is true, this basis will be orthonormal.
      * @param vecs the vectors spanning some subspace
      * @param normal determines whether the returned basis is orthonormal or not
-     * @return an array of Matrix objects representing an orthogonal basis for the orthogonal complement of
-     * the subspace spanned by the vectors in vecs.
+     * @return a new Matrix object whose columns form an orthogonal (or orthonormal) basis for the orthogonal
+     * complement of the subspace spanned by the vectors in vecs.
      * @throws InvalidMatrixException if the vectors in vecs aren't column vectors of the same size.
      */
-    public static Matrix[] orthoComp(Matrix[] vecs, boolean normal) throws InvalidMatrixException {
+    public static Matrix orthoComp(Matrix[] vecs, boolean normal) throws InvalidMatrixException {
         if (!isColVec(vecs[0]) || !sameSize(vecs)) {
             throw new InvalidMatrixException("vecs must contain column vectors of the same size.");
         }
+        Matrix subspace = formMatrix(vecs);
+//        System.out.println("subspace: \n" + subspace);
+        int m = subspace.rows;
+        int n = subspace.cols;
 
-        return solve(transpose(formMatrix(vecs)), zeroMatrix(vecs[0].rows, 1), normal);
+        return nullSpace(transpose(subspace), normal);
     }
 
 
     /**
-     * Returns an orthogonal basis of the set of least squares solutions to the equation Ax = b.
+     * Returns an orthogonal basis of the set of least-squares solutions to the equation Ax = b.
      * If normal is true, this basis will be orthonormal.
      * @param A the coefficient matrix
      * @param b the target vector
      * @param normal determines if the returned basis is orthonormal.
-     * @return an array of Matrix objects representing an orthogonal basis for the set of
-     * least squares solutions to Ax = b.
+     * @return an array of two Matrix objects; the first one is a vector p that satisfies (A^T * A)p = (A^T)b,
+     * and the second one is the matrix whose columns form an orthogonal (or orthonormal) basis for Nul(A^T * A).
      * @throws MatrixSizeMismatchException if b isn't a column vector with as many rows as A.
      */
     public static Matrix[] leastSquares(Matrix A, Matrix b, boolean normal) throws MatrixSizeMismatchException {
@@ -1742,10 +1916,277 @@ public class Matrix {
             throw new MatrixSizeMismatchException("b must be a column vector with as many rows as A.");
         }
 
-        return solve(A, proj(b, columnSpace(A, normal)), normal);
+        return solve( mult(transpose(A), A), mult(transpose(A), b), normal);
+    }
 
+
+//-------------------------------------------------------------------------------------------------------------
+// EIGENSTUFF
+
+    /**
+     * Returns an approximation of A's eigenvalues.
+     * @param A the matrix in question
+     * @return an array containing the estimation of A's eigenvalues, arranged in decreasing order.
+     * @throws InvalidMatrixException if <ul>
+     *     <li>A isn't square.</li>
+     *     <li>A has complex eigenvalues (I'm not going to attempt handling complex numbers anytime soon, if ever.)</li>
+     * </ul>
+     */
+    public static double[] eigenvalues(Matrix A) throws InvalidMatrixException {
+        if (!isSquare(A)) {
+            throw new InvalidMatrixException("Input matrix must be square.");
+        }
+
+        Matrix acc = copy(A);
+        for (int i = 0; i < 500; i++) {
+            Matrix[] curQR = QR(acc);
+            acc = mult( curQR[1], curQR[0] );
+        }
+
+//        System.out.println("acc: \n" + acc);
+        if (!isTriangular(acc)) {
+            throw new InvalidMatrixException("Input matrix likely has complex eigenvalues.");
+        }
+
+
+        double[] eigens = new double[A.cols];
+        for (int i = 0; i < eigens.length; i++) {
+            eigens[i] = acc.entries[i][i];
+        }
+
+        Arrays.sort(eigens);
+        double[] copy = Arrays.copyOf(eigens, eigens.length);
+        for (int i = 0; i < eigens.length; i++) {
+            eigens[i] = copy[eigens.length - i - 1];
+        }
+
+        return eigens;
+
+        //TODO: need some way to handle complex eigenvalues
+    }
+
+
+    /**
+     * Returns an approximation of A's eigenvalues, with each element of the returned array being unique. As such,
+     * the algebraic multiplicity of each eigenvalue cannot be implied from the return value of this function.
+     * @param A the matrix in question
+     * @return an array containing the estimation of A's unique eigenvalues, arranged in decreasing order.
+     * @throws InvalidMatrixException if <ul>
+     *     <li>A isn't square.</li>
+     *     <li>A has complex eigenvalues (I'm not going to attempt handling complex numbers anytime soon, if ever.)</li>
+     * </ul>
+     */
+    public static double[] uniqueEigenvalues(Matrix A) throws InvalidMatrixException {
+        double[] eigens = eigenvalues(A);
+        ArrayList<Double> uniqueEigens = new ArrayList<>();
+        for (int i = 0; i < eigens.length; i++) {
+            if (i == 0) {
+                uniqueEigens.add(eigens[i]);
+                continue;
+            }
+
+            for (int j = 0; j < uniqueEigens.size(); j++) {
+                double diff = Math.abs(uniqueEigens.get(j) - eigens[i]);
+                if (diff <= tol) {
+//                    System.out.println("dupe found");
+                    break;
+                }
+
+                if (j == uniqueEigens.size() - 1) {
+//                    System.out.println("added");
+                    uniqueEigens.add(eigens[i]);
+                }
+
+            }
+        }
+        // toArray apparently doesn't work on primitive types so I gotta do this manually
+        double[] arr = new double[uniqueEigens.size()];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = uniqueEigens.get(i);
+        }
+
+        return arr;
+    }
+
+
+    /**
+     * Returns an orthogonal basis for each of A's eigenspaces. The bases will be arranged in decreasing order of
+     * the corresponding eigenvalues; that is, the first basis will correspond to the largest eigenvalue, the second
+     * will correspond to the second largest, and so on. If normal is true, each of these bases will be orthonormal.
+     * @param A the matrix in question.
+     * @return an array of Matrix objects, with each element of the array containing the matrix whose columns form
+     * an orthogonal basis for the corresponding eigenvalue.
+     * @throws InvalidMatrixException if <ul>
+     *      <li>A isn't square.</li>
+     *      <li>A has complex eigenvalues (I'm not going to attempt handling complex numbers anytime soon, if ever.)</li>
+     * </ul>
+     */
+    public static Matrix[] eigenvectors(Matrix A, boolean normal) throws InvalidMatrixException {
+        double[] eigens = uniqueEigenvalues(A);
+
+        Matrix[] eigenspaces = new Matrix[eigens.length];
+        Matrix I = new Matrix(A.cols);
+        for (int i = 0; i < eigenspaces.length; i++) {
+//            System.out.println("Eigenvalue: " + eigens[i]);
+            eigenspaces[i] = nullSpace( sub(A, scale(I, eigens[i])), normal );
+//            System.out.println("Eigenspace for " + eigens[i] + ": \n" + eigenspaces[i] + "\n");
+        }
+        return eigenspaces;
+    }
+
+
+    /**
+     * Returns an approximation of A's singular values.
+     * @param A the matrix in question
+     * @return an array containing the estimation of A's singular values, arranged in decreasing order.
+     */
+    public static double[] singularValues(Matrix A) {
+        double[] eigens = eigenvalues( mult(transpose(A), A) );
+        // could always just go straight to using A^TA but the process below is generally more optimal
+//        int m = A.rows;
+//        int n = A.cols;
+//        double[] eigens = new double[n];
+//
+//        // AA^T and A^TA have the same nonzero eigenvalues with the same multiplicities
+//        // so, if m < n, we can find the nonzero eigenvalues using the smaller matrix AA^T. Furthermore,
+//        // A^TA is guaranteed to have nonnegative eigenvalues, so we can infer the multiplicity of the leftover
+//        // zero eigenvalue.
+//        if (m < n) {
+//            double[] nonzeroEigens = eigenvalues( mult(A, transpose(A)) );
+//            for (int i = 0; i < eigens.length; i++) {
+//                if (i < m) {
+//                    eigens[i] = nonzeroEigens[i];
+//                }
+//                else {
+//                    eigens[i] = 0;
+//                }
+//            }
+//        }
+//        else {
+//            eigens = eigenvalues( mult(transpose(A), A) );
+//        }
+
+        double[] sings = new double[eigens.length];
+        for (int i = 0; i < eigens.length; i++) {
+            sings[i] = Math.sqrt(eigens[i]);
+        }
+        return sings;
+    }
+
+
+//-------------------------------------------------------------------------------------------------------------
+// MATRIX FACTORIZATIONS
+
+    /**
+     * Returns a QR factorization of A
+     * @param A the matrix being factored.
+     * @return an array with two elements. The first element is the Q matrix, and the second is the R matrix.
+     */
+    public static Matrix[] QR(Matrix A) {
+        // ONB for Col(A)
+        Matrix colA = columnSpace(A, true);
+//        System.out.println("Col A: \n" + colA);
+
+        // ONB for Col(A)-perp = Nul(A^T), if necessary
+        Matrix Q = colA;
+
+        if (Q.cols < A.cols) {
+            Matrix colAPerp = orthoComp(getCols(colA), true); // Col(A)-perp = Nul(A^T)
+//            System.out.println("Nul A^T: \n" + colAPerp);
+            Q = append(Q, colAPerp);
+        }
+        Matrix R = mult( transpose(Q), A );
+
+        return new Matrix[] {Q, R};
+    }
+
+
+    /**
+     * Returns matrices P and D such that D is diagonal and A = PDP^-1, if it exists. P will be constructed so that
+     * the basis of each eigenspace will be orthonormal, and the bases will be arranged from left to right in order
+     * of decreasing eigenvalues. The D matrix will be the diagonal matrix of A's eigenvalues arranged down the
+     * diagonal in decreasing order.
+     * @param A the matrix being diagonalized
+     * @return an array containing two Matrix objects. The first element is the P matrix, and the second element is
+     * the D matrix.
+     * @throws InvalidMatrixException if <ul>
+     *      <li>A isn't square.</li>
+     *      <li>A has complex eigenvalues (I'm not going to attempt handling complex numbers anytime soon, if ever.)</li>
+     *      <li>A cannot be diagonalized (not enough linearly independent eigenvectors).</li>
+     * </ul>
+     */
+    public static Matrix[] diagonalize(Matrix A) throws InvalidMatrixException {
+        double[] eigenvalues = eigenvalues(A);
+        Matrix[] eigenvectors = eigenvectors(A, true);
+        Matrix P = eigenvectors[0];
+        for (int i = 1; i < eigenvectors.length; i++) {
+            P = append(P, eigenvectors[i]);
+        }
+        if (P.cols != A.cols) {
+            throw new InvalidMatrixException("Input matrix does not have " + A.cols + " linearly " +
+                    "independent eigenvectors.");
+        }
+
+        Matrix D = diag(eigenvalues);
+        return new Matrix[] {P, D};
 
     }
+
+
+    /**
+     * Returns matrices U, S, and V such that A = USV^T. Let m be the number of rows A has, and let n be the
+     * number of columns.
+     * U is the orthogonal matrix whose columns form an orthonormal basis for R^m using eigenvectors of AA^T.
+     * S is the mxn matrix containing the nonzero singular values of A.
+     * V is the matrix whose  columns form an orthonormal basis for R^n using eigenvectors of A^TA.
+     * @param A the matrix being factored
+     * @return an array of three matrices that together form an SVD of A. The first matrix is U, the second is S,
+     * and the third is V.
+     */
+    public static Matrix[] SVD(Matrix A) {
+        // Forming S
+        double[] sings = singularValues(A);
+        ArrayList<Double> intermediate = new ArrayList<>();
+        for (int i = 0; i < sings.length; i++) {
+            if ( Math.abs(sings[i]) >= tol ) {
+                intermediate.add(sings[i]);
+            }
+        }
+        double[] nonzeroSings = new double[intermediate.size()];
+        for (int i = 0; i < intermediate.size(); i++) {
+            nonzeroSings[i] = intermediate.get(i);
+        }
+
+        System.out.print("nonzero Sings: ");
+        for (int i = 0; i < nonzeroSings.length; i++) {
+            System.out.print(nonzeroSings[i] + " ");
+        }
+        System.out.println();
+
+        Matrix S = pad( diag(nonzeroSings), A.rows, A.cols, 0 );
+
+        // Forming V
+        Matrix V = diagonalize( mult(transpose(A), A) )[0];
+
+        // Forming U
+        // Starting with an orthonormal basis for Col(A) using the columns of V
+        Matrix U = zeroMatrix(A.rows, A.rows);
+        for (int j = 0; j < nonzeroSings.length; j++) {
+            Matrix uCol = scale(mult( A, getCol(V, j + 1) ), 1 / nonzeroSings[j]);
+            U = replaceCol(U, j + 1, uCol);
+        }
+        if (A.rows > A.cols) {
+            // need an orthonormal basis for Nul(A^T) to complete U
+            Matrix nulAT = orthoComp(getCols(columnSpace(A, true)), true);
+            Matrix[] nulCols = getCols(nulAT);
+            for (int j = nonzeroSings.length; j < A.rows; j++) {
+                U = replaceCol(U, j + 1, nulCols[j - nonzeroSings.length]);
+            }
+        }
+
+        return new Matrix[] {U, S, V};
+    }
+
 
 //-------------------------------------------------------------------------------------------------------------
 // MISC OPERATIONS
@@ -1799,5 +2240,16 @@ public class Matrix {
         }
 
         return true;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(Arrays.deepHashCode(entries), rows, cols, rowVec, colVec);
+    }
+
+
+    private static double round(double num, int places) {
+        return Math.round( num * Math.pow(10, places) ) / Math.pow(10, places);
     }
 }
