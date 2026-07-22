@@ -56,6 +56,11 @@ public class Main {
                 {2, -2}
         };
 
+        double[][] test11 = new double[][] {
+                {9, -9},
+                {-9, 9}
+        };
+
         Matrix m = new Matrix(test10);
 //        Matrix m1 = Matrix.getSubmatrix(m, 1, 1, Matrix.rows(m), Matrix.cols(m) - 1);
 //        Matrix m2 = Matrix.getCol(m, Matrix.cols(m));
