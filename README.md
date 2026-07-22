@@ -22,7 +22,7 @@ Currently implemented functionality (NT = not tested):
 - Least Squares Approximation NT
 - Orthogonal Complements of Subspaces NT
 - Eigenvalue/Eigenvector Computations NT
-- (Orthogonal) Diagonalization NT
+- Diagonalization NT
 - QR Factorization NT
 - Singular Value Decomposition NT
 
