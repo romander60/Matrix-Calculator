@@ -2,16 +2,15 @@
  * A library containing a bunch of matrix operations. Matrices are represented as 2D arrays of doubles.
  *
  * Author: romander60  
- * Overall time spent on project: ~35 hours
+ * Overall time spent on project: ~42 hours
  *
- * Last updated: May 31, 2026
+ * Last updated: July 21, 2026
  */
 
 
 
 package org.example;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Matrix {
@@ -32,9 +31,10 @@ public class Matrix {
     private static final double tol = 0.0001;
     // The number of decimal places quantities should be rounded to
     private static final int decPlaces = 5;
+    // THERE'S CURRENTLY NO ROUNDING FUNCTIONALITY; THAT'LL BE ADDED WHEN I TEST ALL THESE FUNCTIONS AS THEY ARE
 
 //-------------------------------------------------------------------------------------------------------------
-// MATRIX GENERATORS
+// MATRIX GENERATORS (COMMENTED)
 
     /**
      * Generates a new Matrix object representing the 3x3 identity matrix.
@@ -64,17 +64,21 @@ public class Matrix {
 
         double[][] entries = new double[n][n]; // all entries are initially as 0.0
         for (int i = 0; i < n; i++) {
+            // setting the diagonal entries to 1
             entries[i][i] = 1;
         }
 
-        this.entries = Arrays.copyOf(entries, entries.length);
+        // originally Arrays.copyOf(entries, entries.length)
+        this.entries = entries;
         this.rows = n;
         this.cols = n;
         if (n == 1) {
+            // 1x1 matrix; effectively just a number
             this.rowVec = true;
             this.colVec = true;
         }
         else {
+            // nxn matrix for n > 1
             this.rowVec = false;
             this.colVec = false;
         }
@@ -93,24 +97,20 @@ public class Matrix {
             throw new InvalidMatrixException("Matrix rows can't be empty.");
         }
 
-        for (double[] row : entries) {
-            if (row.length != rowLength) {
+        for (int i = 1; i < entries.length; i++) {
+            // checking each row's length to ensure that each one has the same number of elements
+            if (entries[i].length != rowLength) {
                 throw new InvalidMatrixException("All rows in a matrix must " +
                         "have the same number of entries.");
             }
         }
 
+        // using Arrays.copyOf to prevent the user from changing this matrix's value by modifying the entries array
         this.entries = Arrays.copyOf(entries, entries.length);
-        this.rowVec = false;
-        this.colVec = false;
         this.rows = entries.length;
         this.cols = rowLength;
-        if (this.rows == 1) {
-            this.rowVec = true;
-        }
-        if (this.cols == 1) {
-            this.colVec = true;
-        }
+        this.rowVec = this.rows == 1;
+        this.colVec = this.cols == 1;
     }
 
     /**
@@ -140,6 +140,7 @@ public class Matrix {
         double[][] entries = new double[diags.length][diags.length];
 
         for (int i = 0; i < diags.length; i++) {
+            // only setting the diagonal entries
             entries[i][i] = diags[i];
         }
 
@@ -157,14 +158,14 @@ public class Matrix {
                     "be <= m.");
         }
 
+        // initializing the column vector
         double[][] entries = new double[m][1];
 
         for (int i = 0; i < m; i++) {
             if (i == index - 1) {
+                // using index - 1 since the specification explains that indexing begins at one. So, for example, if
+                // index = 1, then we'd want to set the top entry to 1, which is entries[0][0].
                 entries[i][0] = 1;
-            }
-            else {
-                entries[i][0] = 0;
             }
         }
 
@@ -186,17 +187,16 @@ public class Matrix {
 
         for (int j = 0; j < n; j++) {
             if (j == index - 1) {
+                // using index - 1 since the specification explains that indexing begins at one. So, for example, if
+                // index = 1, then we'd want to set the top entry to 1, which is entries[0][0].
                 entries[0][j] = 1;
-            }
-            else {
-                entries[0][j] = 0;
             }
         }
 
         return new Matrix(entries);
     }
 //-------------------------------------------------------------------------------------------------------------
-// BOOLEAN OPERATIONS
+// BOOLEAN OPERATIONS (COMMENTED)
 
 
     /**
@@ -242,14 +242,20 @@ public class Matrix {
      * @return "true" if A is an upper triangular matrix; that is, if all the entries below A's main diagonal are zero.
      */
     public static boolean isUpperTriangular(Matrix A) {
+        // Triangular matrices are necessarily square
         if (!isSquare(A)) { return false; }
 
-//        System.out.println("In Upper");
-        for (int j = 1; j < A.cols; j++) {
+        // Iterate through each column
+        for (int j = 1; j < A.cols + 1; j++) {
+            // Starting at j = 1 as per getCol's specification
             Matrix curCol = getCol(A, j);
-            for (int i = j + 1; i < A.rows; i++) {
-//                System.out.println("Entry: " + getEntry(curCol, i, j));
-                if ( Math.abs(getEntry(curCol, i, j)) >= tol ) { return false; }
+            for (int i = j + 1; i < A.rows + 1; i++) {
+                // Starting at i = j + 1 because we only care about the entries below the main diagonal.
+                if ( Math.abs(getEntry(curCol, i, j)) >= tol ) {
+                    // Values within the tolerance range are treated as being "close enough" to zero.
+                    // Anything outside that range is considered nonzero.
+                    return false;
+                }
             }
         }
 
@@ -261,16 +267,23 @@ public class Matrix {
      * @return "true" if A is a lower triangular matrix; that is, if all the entries above A's main diagonal are zero.
      */
     public static boolean isLowerTriangular(Matrix A) {
+        // Triangular matrices are necessarily square
         if (!isSquare(A)) { return false; }
 
         // Conveniently, a matrix is lower triangular if all the entries
         // to the right of the main diagonal are zero.
-//        System.out.println("In Lower");
-        for (int i = 1; i < A.rows; i++) {
+        // So, I can just use the same structure as in isUpperTriangular.
+
+        for (int i = 1; i < A.rows + 1; i++) {
+            // Iterating through the rows
             Matrix curRow = getRow(A, i);
-            for (int j = i + 1; j < A.cols; j++) {
-//                System.out.println("Entry: " + getEntry(curRow, i, j));
-                if ( Math.abs(getEntry(curRow, i, j)) >= 0 ) { return false; }
+            for (int j = i + 1; j < A.cols + 1; j++) {
+                // Starting at j = i + 1 because we only care about the entries to the right of the main diagonal.
+                if ( Math.abs(getEntry(curRow, i, j)) >= 0 ) {
+                    // Values within the tolerance range are treated as being "close enough" to zero.
+                    // Anything outside that range is considered nonzero.
+                    return false;
+                }
             }
         }
 
@@ -291,12 +304,17 @@ public class Matrix {
      * @return "true" if A is a diagonal matrix; that is, if all A's off-diagonal entries are zero.
      */
     public static boolean isDiagonal(Matrix A) {
-        if (!isSquare(A)) { return false;}
+        // Diagonal matrices are necessarily square
+        if (!isSquare(A)) { return false; }
 
-        // leaving room for roundoff error
-        for (int i = 0; i < rows(A); i++) {
-            for (int j = 0; i < cols(A); j++) {
-                if (i != j && Math.abs(A.entries[i][j]) >= tol) { return false;}
+        // Iterating through the rows and columns
+        for (int i = 0; i < A.rows; i++) {
+            for (int j = 0; j < A.cols; j++) {
+                // Only checking the off-diagonal entries
+                if (i != j && Math.abs(A.entries[i][j]) >= tol) {
+                    // Anything outside the tolerance range is considered nonzero
+                    return false;
+                }
             }
         }
         return true;
@@ -307,7 +325,9 @@ public class Matrix {
      * @return "true" if A^-1 exists.
      */
     public static boolean isInvertible(Matrix A) {
-        return isSquare(A) && rowRed(A).equals( new Matrix(A.rows) );
+        // Invertible matrices are necessarily square
+        // By the Invertible Matrix Theorem, a matrix is invertible iff it's row equivalent to the identity matrix
+        return isSquare(A) && rowRed(A, true).equals( new Matrix(A.rows) );
     }
 
     /**
@@ -320,26 +340,42 @@ public class Matrix {
 
     /**
      * @return "true" if v is a unit vector; that is, if it's magnitude is 1.
-     * @throws InvalidMatrixException if v isn't a column or row vector.
      */
-    public static boolean isUnit(Matrix v) throws InvalidMatrixException {
-        if (!isVec(v)) {
-            throw new InvalidMatrixException("Input must be a column or row vector.");
+    public static boolean isUnit(Matrix v) {
+        try {
+            // Anything within the tolerance range is considered to be zero.
+            // So, if 1 - magn(v) is within the tolerance range, then magn(v) is close enough to 1.
+            return Math.abs(1 - magn(v)) < tol;
         }
 
-        // a bit of tolerance for computational instability
-        return Math.abs(1 - magn(v)) < tol;
+        catch (InvalidMatrixException ime) {
+            // Should only end up here if v isn't a column or row vector; magn will throw an exception
+            // if this happens.
+            System.out.println("Input was not a column or row vector. Returning false.");
+            return false;
+        }
     }
 
 
     /**
-     * @return "true" if v1 and v2 are orthogonal; that is, if their dot product is zero.
-     * @throws InvalidMatrixException if v1 and v2 aren't vectors of the same type.
-     * @throws MatrixSizeMismatchException if v1 and v2 aren't column vectors with the same size.
+     * @return "true" if v1 and v2 are orthogonal; that is, if their dot product is zero. Note that v1 and v2 are
+     * implied to be vectors of the same size.
      */
-    public static boolean areOrtho(Matrix v1, Matrix v2) throws InvalidMatrixException, MatrixSizeMismatchException {
-        // a bit of tolerance for computational stability
-        return sameType(v1, v2) && Math.abs(dot(v1, v2)) < tol;
+    public static boolean areOrtho(Matrix v1, Matrix v2) {
+        try {
+            // Anything within the tolerance range is considered to be zero.
+            return sameType(v1, v2) && Math.abs(dot(v1, v2)) < tol;
+        }
+
+        catch (InvalidMatrixException ime) {
+            System.out.println("Both inputs must either be both column vectors or both row vectors.");
+            return false;
+        }
+
+        catch (MatrixSizeMismatchException msme) {
+            System.out.println("Both inputs must be vectors of the same size.");
+            return false;
+        }
     }
 
 
@@ -353,49 +389,96 @@ public class Matrix {
     /**
      * @return "true" if the vectors in vecs form an orthogonal set, if normal is false | "true" if the vectors in vecs
      * form an orthonormal set, if normal is true
-     * @throws AssertionError if vecs is empty
-     * @throws InvalidMatrixException if the vectors in vecs aren't column vectors with the same size.
      */
-    public static boolean isOrtho(Matrix[] vecs, boolean normal) throws InvalidMatrixException {
-        if (vecs.length == 0) {
-            throw new AssertionError("vecs must not be empty.");
-        }
-
-        if (!isColVec(vecs[0]) || !sameSize(vecs)) {
-            throw new InvalidMatrixException("The vectors in vecs must be column vectors with the same size.");
-        }
-
-        Matrix zeCol = zeroMatrix(vecs[0].rows, 1);
-        if (vecs.length == 1) {
-            if ( (normal && !isUnit(vecs[0])) || vecs[0].equals(zeCol) ) {
-                return false;
+    public static boolean isOrtho(Matrix[] vecs, boolean normal) {
+        try {
+            if (vecs.length == 0) {
+                // Can't operate on an empty array
+                throw new AssertionError();
             }
-            else if ( !normal || isUnit(vecs[0]) ) {
-                return true;
-            }
-        }
 
-        for (int i = 0; i < vecs.length; i++) {
-            for (int j = 0; j < vecs.length; j++) {
-                if ( (i != j && Math.abs(dot(vecs[i], vecs[j])) >= tol) ||
-                        (normal && Math.abs(1 - dot(vecs[i], vecs[i])) >= tol ) ) {
+            if (!isColVec(vecs[0]) || !sameSize(vecs)) {
+                // The first conditional checks if the first element is a column vector. If it isn't, an exception
+                // gets thrown because we're only operating on column vectors. The second conditional checks if all
+                // the vectors in vecs have the same size; i.e., the same size as vecs[0]. If they don't, an
+                // exception is thrown because we can only operate on vectors of the same size to check their
+                // orthogonality.
+                // (All things considered, I could just return false if the second conditional fails, but it feels more
+                // natural to put these two conditionals together like this.)
+                throw new InvalidMatrixException("");
+            }
+
+            // Making an all-zero column with the same size as the vectors in vecs
+            // Just an edge case for when vecs only has 1 vector in it. In this case, the set is orthogonal
+            // iff it isn't the zero vector.
+            Matrix zeCol = zeroMatrix(vecs[0].rows, 1);
+            if (vecs.length == 1) {
+                // If we've reached this point and normal is false, then the set is orthogonal because we've
+                // already determined vecs[0] is nonzero. If normal is true, then we need to check if it
+                if ((normal && !isUnit(vecs[0])) || vecs[0].equals(zeCol)) {
+                    // If normal is true and vecs[0] isn't a unit vector, then vecs isn't an orthonormal set.
+                    // Additionally, if vecs[0] is the zero vector, it's definitely not an orthogonal set.
                     return false;
                 }
+
+                // If we've reached this point and normal is false, then the set is orthogonal because we've
+                // already determined vecs[0] is nonzero. If normal is true, then we need to check if it's
+                // a unit vector. If it is, then the set is orthonormal.
+                else return !normal || isUnit(vecs[0]);
             }
+
+            // Iterating through each vector in vecs
+            for (int i = 0; i < vecs.length; i++) {
+                // Comparing this vector to the others in vecs
+                for (int j = i; j < vecs.length; j++) {
+                    // Starting at j = i since dot products are commutative; as such, dotting the jth vector
+                    // with the ith vector for j < i is a redundant operation.
+                    if ((i != j && Math.abs(dot(vecs[i], vecs[j])) >= tol) ||
+                            (normal && 1 - magn(vecs[i]) >= tol)) {
+                        // If i != j, the vectors are distinct; as such, we want to check if their dot product is zero.
+                        // If i == j, we're looking at exactly one vector in vecs. In this case, if normal is true,
+                        // we want to check whether it's a unit vector. If it's false, just move to the next iteration.
+                        // We're only looking for an orthogonal set in this case, so we don't care about the individual
+                        // vectors; we only care about their relationships with the others.
+
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
-        return true;
+        catch (AssertionError ae) {
+            System.out.println("vecs must not be empty. Returning false.");
+            return false;
+        }
+
+        catch (InvalidMatrixException ime) {
+            System.out.println("The elements in vecs must be column vectors with the same size. Returning false.");
+            return false;
+        }
 
     }
 
 
     /**
-     * @return "true" if A contains col.
+     * @return "true" if col is equal to one of A's columns.
      */
     public static boolean hasCol(Matrix A, Matrix col) {
+        // If col doesn't have the same number of entries as the columns in A, then it can't be in A; by the invariant
+        // defining how matrices are built, all columns in a matrix must have the same number of entries.
         if (col.rows != A.rows) { return false; }
+
         for (int j = 0; j < A.cols; j++) {
-            if (col.equals( getCol(A, j + 1) )) { return true; }
+            // There's no need to verify if col is a column vector; if it isn't, then the .equals method will declare
+            // them unequal due to their mismatching sizes.
+            if (col.equals( getCol(A, j + 1) )) {
+                // Using j + 1 as the second argument in getCol to align its specification and the loop variable.
+                // I kind of flip-flop between starting at j = 0 and using j + 1 in getCol and starting at j = 1
+                // and using j in getCol; they both accomplish the same goal.
+                return true;
+            }
         }
 
         return false;
@@ -403,11 +486,15 @@ public class Matrix {
 
 
     /**
-     * @return "true" if A contains row.
+     * @return "true" if row is equal to one of A's rows.
      */
     public static boolean hasRow(Matrix A, Matrix row) {
+        // If row doesn't have the same number of entries as the rows in A, then it can't be in A; by the invariant
+        // defining how matrices are built, all row in a matrix must have the same number of entries.
         if (row.cols != A.cols) { return false; }
         for (int i = 0; i < A.rows; i++) {
+            // There's no need to verify if row is a row vector; if it isn't, then the .equals method will declare
+            // them unequal due to their mismatching sizes.
             if (row.equals( getCol(A, i + 1) )) { return true; }
         }
 
@@ -424,28 +511,42 @@ public class Matrix {
 
     /**
      * @return "true" if all the matrices in mats have the same dimension
-     * @throws AssertionError if mats is empty
      */
-    public static boolean sameSize(Matrix[] mats) throws AssertionError {
-        if (mats.length == 0) {
-            throw new AssertionError("Input array must not be empty.");
-        }
-
-        if (mats.length == 1) {return true;}
-
-        int rowCount = mats[0].rows;
-        int colCount = mats[0].cols;
-        for (int i = 1; i < mats.length; i++) {
-            if (mats[i].rows != rowCount || mats[i].cols != colCount) {
-                return false;
+    public static boolean sameSize(Matrix[] mats) {
+        try {
+            if (mats.length == 0) {
+                // Can't operate on an empty array
+                throw new AssertionError();
             }
+
+            if (mats.length == 1) {
+                // If there's only one element in mats, then it definitely has the same dimension as itself.
+                return true;
+            }
+
+            // Setting the row and column counts that each element of mats will be compared to
+            int rowCount = mats[0].rows;
+            int colCount = mats[0].cols;
+
+            // Starting at i = 1 since mats[0] was used to set the baseline values, so there's no point in checking it.
+            // In essence, we're checking that each element in mats is the same size as mats[0]
+            for (int i = 1; i < mats.length; i++) {
+                if (mats[i].rows != rowCount || mats[i].cols != colCount) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
-        return true;
+        catch (AssertionError ae) {
+            System.out.println("Input array must not be empty. Returning false.");
+            return false;
+        }
     }
 
 //-------------------------------------------------------------------------------------------------------------
-// GETTERS
+// GETTERS  (COMMENTED)
 
     /**
      * @return the number of rows in "A".
@@ -472,19 +573,20 @@ public class Matrix {
      * @throws AssertionError if j isn't a positive integer less than or equal to the number of columns A has.
      */
     public static Matrix getCol(Matrix A, int j) throws AssertionError {
-        if (j <= 0 || j > Matrix.cols(A)) {
+        if (j <= 0 || j > A.cols) {
             throw new AssertionError("j must be a positive integer less than or " +
                     "equal to the number of rows A has.");
         }
 
-        double[][] col = new double[Matrix.rows(A)][1];
+        // Initializing the column vector that'll hold the entries of A's jth column
+        double[][] col = new double[A.rows][1];
 
-        for (int i = 0; i < Matrix.rows(A); i++) {
+        for (int i = 0; i < A.rows; i++) {
+            // Using j - 1 to align the index input with how arrays are indexed in Java.
             col[i][0] = A.entries[i][j - 1];
         }
         return new Matrix(col);
     }
-
 
 
     /**
@@ -496,14 +598,16 @@ public class Matrix {
      * * @throws AssertionError if i isn't a positive integer less than or equal to the number of rows A has.
      */
     public static Matrix getRow(Matrix A, int i) throws AssertionError {
-        if (i <= 0 || i > Matrix.rows(A)) {
+        if (i <= 0 || i > A.rows) {
             throw new AssertionError("i must be a positive integer less than or " +
                     "equal to the number of columns A has.");
         }
 
-        double[][] row = new double[1][Matrix.cols(A)];
+        // Initializing the row vector that'll hold the entries of A's ith row
+        double[][] row = new double[1][A.cols];
 
-        for (int j = 0; j < Matrix.cols(A); j++) {
+        for (int j = 0; j < A.cols; j++) {
+            // Using i - 1 to align the input's indexing and Java's array indexing
             row[0][j] = A.entries[i - 1][j];
         }
         return new Matrix(row);
@@ -514,7 +618,7 @@ public class Matrix {
      * Returns a_ij.
      * @param A the matrix in question.
      * @param i the row that the desired entry is in, with indexing beginning at 1.
-     * @param j the column that the desired entry is in.
+     * @param j the column that the desired entry is in, with indexing beginning at 1.
      * @return the ij-entry of A.
      * @throws AssertionError if i isn't a positive integer less than or equal to A's row count, or
      * if j isn't a positive integer less than or equal to A's column count.
@@ -557,48 +661,10 @@ public class Matrix {
 
 
     /**
-     * Takes the vectors in vecs and concatenates them into a matrix. If the vectors are column vectors, they will
-     * be arranged from left to right in the order they appear in vecs; that is, vecs[i] will be column i
-     * in the resulting matrix, assuming indexing begins at one. Similarly, if the vectors are row vectors,
-     * they will be arranged from top to bottom in the order they appear in vecs; that is, vecs[i] will be row i
-     * in the resulting matrix.
-     * @param vecs the vectors being concatenated
-     * @return a new Matrix object representing the matrix formed by the vectors in vecs.
-     * @throws AssertionError if vecs is empty
-     * @throws InvalidMatrixException if the elements of vecs aren't vectors of the same size.
-     */
-    public static Matrix formMatrix(Matrix[] vecs) throws AssertionError, InvalidMatrixException {
-        if (vecs.length == 0) {
-            throw new AssertionError("Input array must not be empty.");
-        }
-
-        if (!isVec(vecs[0]) || !sameSize(vecs)) {
-            throw new InvalidMatrixException("All vectors in vecs must be vectors with the same size");
-        }
-
-        if (isColVec(vecs[0])) {
-            Matrix concatenated = vecs[0];
-            for (int i = 1; i < vecs.length; i++) {
-                concatenated = appendCol(concatenated, vecs[i]);
-            }
-            return concatenated;
-        }
-
-        else {
-            Matrix concatenated = vecs[0];
-            for (int i = 1; i < vecs.length; i++) {
-                concatenated = appendRow(concatenated, vecs[i]);
-            }
-            return concatenated;
-        }
-    }
-
-
-    /**
      * Returns the submatrix of A whose upper leftmost entry is the (topLeftRow, topLeftCol)-entry of A and whose
-     * bottom rightmost entry is the (botRightRow, botRightCol)-entry of A.
+     * bottom rightmost entry is the (botRightRow, botRightCol)-entry of A. All indexing begins at 1 in this method.
      * @param A the matrix in question
-     * @param topLeftRow the row index of the top left entry of the resulting submatrix, with indexing beginning at 1
+     * @param topLeftRow the row index of the top left entry of the resulting submatrix
      * @param topLeftCol the column index of the top left entry of the resulting submatrix
      * @param botRightRow the row index of the bottom right entry of the resulting submatrix
      * @param botRightCol the column index of the bottom right entry of the resulting submatrix
@@ -622,17 +688,21 @@ public class Matrix {
         }
 
         if (topLeftRow == 1 && topLeftCol == 1 && botRightRow == A.rows && botRightCol == A.cols) {
+            // This is just when the input indices correspond to the top leftmost entry and bottom rightmost entry of A.
             return copy(A);
         }
 
         if (topLeftRow == botRightRow && topLeftCol == botRightCol) {
+            // This is when both index pairs are equal; i.e., we're looking at a single entry in A.
             return new Matrix(new double[][] { {getEntry(A, topLeftRow, topLeftCol)} });
         }
 
+        // Initializing the dimensions of the submatrix
         double[][] subEntries = new double[botRightRow - topLeftRow + 1][botRightCol - topLeftCol + 1];
 
         for (int i = 0; i < botRightRow - topLeftRow + 1; i++) {
             for (int j = 0; j < botRightCol - topLeftCol + 1; j++) {
+                // Taking the appropriate entries in A and putting them in subEntries
                 subEntries[i][j] = A.entries[topLeftRow - 1 + i][topLeftCol - 1 + j];
             }
         }
@@ -642,7 +712,7 @@ public class Matrix {
     }
 
 //-------------------------------------------------------------------------------------------------------------
-// MATRIX MANIPULATION
+// MATRIX MANIPULATION  (COMMENTED)
 
     /**
      * Generates the partitioned matrix [A | v], where v is assumed to be a column vector.
@@ -653,10 +723,15 @@ public class Matrix {
      */
     private static Matrix appendCol(Matrix A, Matrix v) throws MatrixSizeMismatchException {
         if (v.rows != A.rows || !isColVec(v)) {
+            // This check is here to avoid violating the invariant stating that all matrices' columns must have
+            // the same number of entries
             throw new MatrixSizeMismatchException("v must be a column vector with as many rows as A.");
         }
 
+        // Initializing the augmented matrix
         double[][] entries = new double[A.rows][A.cols + 1];
+
+        // Manually copying over A's entries into entries
         for (int i = 0; i < A.rows; i++) {
             for (int j = 0; j < A.cols + 1; j++) {
                 if (j != A.cols) {
@@ -682,10 +757,15 @@ public class Matrix {
      */
     private static Matrix appendRow(Matrix A, Matrix v) throws MatrixSizeMismatchException {
         if (v.cols != A.cols || !isRowVec(v)) {
+            // This check is here to avoid violating the invariant stating that all matrices' rows must have
+            // the same number of entries
             throw new MatrixSizeMismatchException("v must be a row vector with as many columns as A.");
         }
 
+        // Initialized the augmented matrix
         double[][] entries = new double[A.rows + 1][A.cols];
+
+        // Copying the entries over
         for (int i = 0; i < A.rows + 1; i++) {
             for (int j = 0; j < A.cols; j++) {
                 if (i != A.rows) {
@@ -709,7 +789,7 @@ public class Matrix {
      * @throws MatrixSizeMismatchException if A and B don't have an equal number of rows.
      */
     public static Matrix append(Matrix A, Matrix B) throws MatrixSizeMismatchException {
-        if (rows(A) != rows(B)) {throw new MatrixSizeMismatchException("Matrices must have an equal number of rows.");}
+        if (A.rows != B.rows) {throw new MatrixSizeMismatchException("Matrices must have an equal number of rows.");}
 
         Matrix appended = copy(A);
         for (int j = 0; j < B.cols; j++) {
@@ -720,15 +800,65 @@ public class Matrix {
 
 
     /**
+     * Takes the vectors in vecs and concatenates them into a matrix. If the vectors are column vectors, they will
+     * be arranged from left to right in the order they appear in vecs; that is, vecs[i] will be column i
+     * in the resulting matrix, assuming indexing begins at zero. Similarly, if the vectors are row vectors,
+     * they will be arranged from top to bottom in the order they appear in vecs; that is, vecs[i] will be row i
+     * in the resulting matrix.
+     * @param vecs the vectors being concatenated
+     * @return a new Matrix object representing the matrix formed by the vectors in vecs.
+     * @throws AssertionError if vecs is empty
+     * @throws InvalidMatrixException if the elements of vecs aren't vectors of the same size.
+     */
+    public static Matrix formMatrix(Matrix[] vecs) throws AssertionError, InvalidMatrixException {
+        if (vecs.length == 0) {
+            // Can't operate on an empty array
+            throw new AssertionError("Input array must not be empty.");
+        }
+
+        if (!isVec(vecs[0]) || !sameSize(vecs)) {
+            throw new InvalidMatrixException("All vectors in vecs must be vectors with the same size");
+        }
+
+        if (isColVec(vecs[0])) {
+            // In the case where we're working with column vectors
+
+            // Initializing the matrix as the first vector in vecs
+            Matrix concatenated = vecs[0];
+            for (int i = 1; i < vecs.length; i++) {
+                // Sticking on the remaining vectors in vecs
+                concatenated = appendCol(concatenated, vecs[i]);
+            }
+            return concatenated;
+        }
+
+        else {
+            // In the case where we're working with row vectors
+
+            // Initializing the matrix as the first vector in vecs
+            Matrix concatenated = vecs[0];
+            for (int i = 1; i < vecs.length; i++) {
+                // Sticking on the remaining vectors in vecs
+                concatenated = appendRow(concatenated, vecs[i]);
+            }
+            return concatenated;
+        }
+    }
+
+
+    /**
      * Transposes v. Helper for Matrix.transpose().
      * @return the transpose of v.
+     * @throws InvalidMatrixException if v isn't a column or row vector.
      */
-    private static Matrix transposeVec(Matrix v) {
-        assert isVec(v);
+    private static Matrix transposeVec(Matrix v) throws InvalidMatrixException {
+        if (!isVec(v)) {
+            throw new InvalidMatrixException("Input must be a column vector or a row vector.");
+        }
 
         if (isRowVec(v)) {
-            double[][] newEntries = new double[cols(v)][1];
-            for (int i = 0; i < cols(v); i++) {
+            double[][] newEntries = new double[v.cols][1];
+            for (int i = 0; i < v.cols; i++) {
                 newEntries[i][0] = v.entries[0][i];
             }
 
@@ -736,8 +866,8 @@ public class Matrix {
         }
 
         else {
-            double[][] newEntries = new double[1][rows(v)];
-            for (int i = 0; i < cols(v); i++) {
+            double[][] newEntries = new double[1][v.rows];
+            for (int i = 0; i < v.rows; i++) {
                 newEntries[0][i] = v.entries[i][0];
             }
             return new Matrix(newEntries);
@@ -751,8 +881,11 @@ public class Matrix {
      * @return a new Matrix object representing the transpose of A.
      */
     public static Matrix transpose(Matrix A) {
+        // Initializing the transposed matrix by transposing A's first row
         Matrix transposed = transposeVec(getRow(A, 1));
-        for (int i = 1; i < rows(A); i++) {
+
+        for (int i = 1; i < A.rows; i++) {
+            // Transposing each remaining row of A, then appending it to the accumulator matrix
             transposed = appendCol( transposed, transposeVec(getRow(A, i + 1)) );
         }
         return transposed;
@@ -766,9 +899,10 @@ public class Matrix {
      * @param newCol the column that will replace the colNum'th row of A.
      * @return A new matrix with the colNum'th column of A replaced with newCol.
      * @throws AssertionError if colNum isn't a positive integer less than or equal to the number of columns in A.
-     * @throws MatrixSizeMismatchException if colNum doesn't have as many entries as A does rows.
+     * @throws MatrixSizeMismatchException if newCol doesn't have as many entries as A does rows.
      */
-    public static Matrix replaceCol(Matrix A, int colNum, Matrix newCol) throws AssertionError, MatrixSizeMismatchException {
+    public static Matrix replaceCol(Matrix A, int colNum, Matrix newCol)
+            throws AssertionError, MatrixSizeMismatchException {
         if (colNum <= 0 || colNum > A.cols) {
             throw new AssertionError("2nd input must be a positive number less than or equal to " +
                     "the number of columns in the 1st input.");
@@ -778,19 +912,23 @@ public class Matrix {
             throw new MatrixSizeMismatchException("3rd input must have the same number of rows as the 1st input.");
         }
 
-        if (newCol.equals(getRow(A, colNum))) {return copy(A);}
+        // Initializing the new matrix
+        double[][] replacedEntries = new double[A.rows][A.cols];
 
-        double[][] replacedEntries = Arrays.copyOf(A.entries, A.entries.length);
-
-        for (int j = 0; j < A.cols; j++) {
-            if (j == colNum - 1) {
-                for (int i = 0; i < A.rows; i++) {
+        for (int i = 0; i < A.rows; i++) {
+            for (int j = 0; j < A.cols; j++) {
+                if (j == colNum - 1) {
+                    // Only using the newCol entries when we've reached the column we're trying to replace
                     replacedEntries[i][j] = newCol.entries[i][0];
+                }
+                else {
+                    replacedEntries[i][j] = A.entries[i][j];
                 }
             }
         }
 
         return new Matrix(replacedEntries);
+
     }
 
 
@@ -801,9 +939,10 @@ public class Matrix {
      * @param newRow the row that will replace the rowNum'th row of A.
      * @return A new matrix with the rowNum'th row of A replaced with newRow.
      * @throws AssertionError if rowNum isn't a positive integer less than or equal to the number of rows in A.
-     * @throws MatrixSizeMismatchException if rowNum doesn't have as many entries as A does columns.
+     * @throws MatrixSizeMismatchException if newRow doesn't have as many entries as A does columns.
      */
-    public static Matrix replaceRow(Matrix A, int rowNum, Matrix newRow) throws AssertionError, MatrixSizeMismatchException {
+    public static Matrix replaceRow(Matrix A, int rowNum, Matrix newRow)
+            throws AssertionError, MatrixSizeMismatchException {
         if (rowNum <= 0 || rowNum > A.rows) {
             throw new AssertionError("2nd input must be a positive number less than or equal to " +
                     "the number of rows in the 1st input.");
@@ -813,13 +952,18 @@ public class Matrix {
             throw new MatrixSizeMismatchException("3rd input must have the same number of columns as the 1st input.");
         }
 
-        if (newRow.equals(getRow(A, rowNum))) {return copy(A);}
-
-        double[][] replacedEntries = Arrays.copyOf(A.entries, A.entries.length);
+        // Initializing the new matrix
+        double[][] replacedEntries = new double[A.rows][A.cols];
 
         for (int i = 0; i < A.rows; i++) {
-            if (i == rowNum - 1) {
-                replacedEntries[i] = Arrays.copyOf(newRow.entries[0], newRow.entries[0].length);
+            for (int j = 0; j < A.cols; j++) {
+                if (i == rowNum - 1) {
+                    // Only using the newRow entries when we've reached the row we're trying to replace
+                    replacedEntries[i][j] = newRow.entries[0][j];
+                }
+                else {
+                    replacedEntries[i][j] = A.entries[i][j];
+                }
             }
         }
 
@@ -828,9 +972,9 @@ public class Matrix {
 
 
     /**
-     * Returns A with its col1'th and col2'th columns swapped.
+     * Returns A with its col1'th and col2'th columns swapped. All indexing starts at 1.
      * @param A the matrix whose columns are being swapped
-     * @param col1 the index of the first column being swapped, with indexing starting at 1
+     * @param col1 the index of the first column being swapped
      * @param col2 the index of the second column being swapped
      * @return A new matrix with the col1'th and col2'th columns swapped.
      * @throws AssertionError if either col1 or col2 isn't a positive number less than or
@@ -838,16 +982,27 @@ public class Matrix {
      */
     public static Matrix swapCols(Matrix A, int col1, int col2) throws AssertionError {
         if ( (col1 <= 0 || col1 > A.cols) || (col2 <= 0 || col2 > A.cols) ) {
-            throw new AssertionError("Both index inputs must be " +
-                    "positive numbers less than or equal to the number of columns in the first input.");
+            throw new AssertionError("2nd and 3rd inputs must be " +
+                    "positive numbers less than or equal to the number of columns in the 1st input.");
         }
 
-        if (col1 == col2) {return copy(A);}
+        if (col1 == col2) {
+            // Swapping a column with itself amounts to doing nothing with the matrix
+            return copy(A);
+        }
 
+        // Copying A
         Matrix swapped = copy(A);
+
+        // Getting the columns that are being swapped
         Matrix firstCol = getCol(swapped, col1);
         Matrix secondCol = getCol(swapped, col2);
+
+        // Replacing the col1'th column of A with secondCol. Now two of A's columns are secondCol;
+        // one at index col1 (the result of the replacement) and the other at index col2 (the original position of col2)
         swapped = replaceCol(swapped, col1, secondCol);
+
+        // Replacing the col2'th column of A with firstCol. Now secondCol is at col1, and firstCol is at col2.
         swapped = replaceCol(swapped, col2, firstCol);
 
         return swapped;
@@ -869,7 +1024,11 @@ public class Matrix {
                     "positive numbers less than or equal to the number of rows in the first input.");
         }
 
-        if (row1 == row2) {return copy(A);}
+        // Same idea as in swapCols, just with rows this time
+
+        if (row1 == row2) {
+            return copy(A);
+        }
 
         Matrix swapped = copy(A);
         Matrix firstRow = getRow(swapped, row1);
@@ -886,28 +1045,34 @@ public class Matrix {
      * @param A the matrix in question
      * @param colInd the index of the column being removed, with indexing beginning at 1.
      * @return <ul>
-     *    <li>if A is not a column vector, a new Matrix object representing A, but with its colInd'th row removed.</li>
+     *    <li>if A is not a column vector, a new Matrix object representing A, but with its colInd'th column removed.</li>
      *    <li>if A is a column vector, the zero vector with the same dimensions as A.</li>
      * </ul>
      * @throws AssertionError if colInd isn't a positive integer less than or equal to the number of columns in A.
      */
     public static Matrix removeCol(Matrix A, int colInd) throws AssertionError {
-        if (isColVec(A)) {
-            return zeroMatrix(A.rows, 1);
-        }
-
         if (colInd <= 0 || colInd > A.cols) {
             throw new AssertionError("colInd must be a positive integer less than or equal to " +
                     "the number of columns in A.");
         }
 
+        if (isColVec(A)) {
+            // If we reach this point, colInd must equal 1
+            return zeroMatrix(A.rows, 1);
+        }
+
+        // Initializing the new matrix
         Matrix removed;
         if (colInd == 1) {
+            // If we're removing the first column, set removed to be the second column of A, then append the following
+            // columns to it. In essence, we're ignoring the first column rather than deleting it.
             removed = getCol(A, 2);
             for (int j = 3; j < A.cols + 1; j++) {
                 removed = appendCol(removed, getCol(A, j));
             }
         } else {
+            // If we're removing a column that isn't the first one, set removed to be the first column of A, then
+            // append all the following columns to it except for the colInd'th one.
             removed = getCol(A, 1);
             for (int j = 2; j < A.cols + 1; j++) {
                 if (j != colInd) {
@@ -930,13 +1095,15 @@ public class Matrix {
      * @throws AssertionError if rowInd isn't a positive integer less than or equal to the number of rows in A.
      */
     public static Matrix removeRow(Matrix A, int rowInd) throws AssertionError {
-        if (isRowVec(A)) {
-            return zeroMatrix(1, A.cols);
-        }
-
         if (rowInd <= 0 || rowInd > A.rows) {
             throw new AssertionError("colInd must be a positive integer less than or equal to " +
                     "the number of columns in A.");
+        }
+
+        // Same idea as in removeCol, just with rows
+
+        if (isRowVec(A)) {
+            return zeroMatrix(1, A.cols);
         }
 
         if (rowInd == 1) {
@@ -967,21 +1134,27 @@ public class Matrix {
      * @param n the number of columns the padded matrix will have
      * @param filler the number A is being padded with
      * @return a new Matrix object representing A, but padded with filler into an mxn matrix.
-     * @throws AssertionError if 1) m isn't a positive integer greater than or equal to the number of rows in A,
-     * 2) n isn't a positive integer greater than or equal to the number of columns in A
+     * @throws AssertionError if:
+     * <ul>
+     *     <li>1) m isn't a positive integer greater than or equal to the number of rows in A, or</li>
+     *     <li>2) n isn't a positive integer greater than or equal to the number of columns in A</li>
+     * </ul>
      */
     public static Matrix pad(Matrix A, int m, int n, double filler) throws AssertionError {
-        if (m <= 0 || m < A.rows || n <= 0 || n < A.cols) {
+        if (m < A.rows || n < A.cols) {
             throw new AssertionError("m and n must be positive integers within the dimensions of A.");
         }
         if (m == A.rows && n == A.cols) {
             return copy(A);
         }
 
+        // Initializing the padded matrix
         double[][] newEntries = new double[m][n];
+
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 if (i < A.rows && j < A.cols) {
+                    // If we're within the bounds of A's dimensions, use A's entries
                     newEntries[i][j] = A.entries[i][j];
                 }
                 else {
@@ -1006,45 +1179,60 @@ public class Matrix {
 
 
     /**
-     * @return the length of v.
-     * @throws InvalidMatrixException if v isn't a column or row vector.
+     * Returns v1 (dot) v2.
+     * @param v1 the first vector in the dot product.
+     * @param v2 the second vector in the dot product.
+     * @return v1 (dot) v2.
+     * @throws InvalidMatrixException if v1 and v2 aren't both column vectors or row vectors.
+     * @throws MatrixSizeMismatchException if v1 and v2 aren't vectors with the same size.
      */
-    public static double magn(Matrix v) throws InvalidMatrixException {
-        if (!isVec(v)) {
-            throw new InvalidMatrixException("Input must be a column or row vector.");
+    // COMMENTED
+    public static double dot(Matrix v1, Matrix v2) throws InvalidMatrixException, MatrixSizeMismatchException {
+        if ( !sameType(v1, v2) ) {
+            throw new InvalidMatrixException("Both inputs must be columns vectors or row vectors.");
         }
 
-        if (isColVec(v)) {
-            double magSquared = 0;
-            for (int i = 0; i < rows(v); i++) {
-                magSquared += v.entries[i][0] * v.entries[i][0];
+        // By definition, the dot product of two vectors is the sum of the products of the corresponding
+        // entries in each vector.
+
+        double dot = 0;
+
+        if (isColVec(v1)) {
+            if (v1.rows != v2.rows) {
+                throw new MatrixSizeMismatchException("Inputs must both be vectors of the same size.");
             }
-            return Math.sqrt(magSquared);
+
+            for (int i = 0; i < v1.rows; i++) {
+                dot += v1.entries[i][0] * v2.entries[i][0];
+            }
         }
 
         else {
-            double magSquared = 0;
-            for (int i = 0; i < cols(v); i++) {
-                magSquared += v.entries[0][i] * v.entries[0][i];
+            if (v1.cols != v2.cols) {
+                throw new MatrixSizeMismatchException("Inputs must both be vectors of the same size.");
             }
-            return Math.sqrt(magSquared);
+
+            for (int j = 0; j < v1.cols; j++) {
+                dot += v1.entries[0][j] * v2.entries[0][j];
+            }
         }
+
+        return dot;
     }
 
 
     /**
-     * Returns || v1 - v2 ||.
-     * @param v1 the first vector
-     * @param v2 the second vector
-     * @return the distance between v1 and v2
-     * @throws MatrixSizeMismatchException if v1 and v2 aren't both column or row vectors with the same size.
+     * @return the length of v.
+     * @throws InvalidMatrixException if v isn't a column or row vector.
      */
-    public static double distance(Matrix v1, Matrix v2) throws MatrixSizeMismatchException {
-        if (!isVec(v1) || !sameType(v1, v2)) {
-            throw new MatrixSizeMismatchException("Inputs must both be column or row vectors with the same size.");
+    // COMMENTED
+    public static double magn(Matrix v) throws InvalidMatrixException {
+        if (!isVec(v)) {
+            throw new InvalidMatrixException("Input must be a column vector or row vector.");
         }
 
-        return magn( sub(v1, v2) );
+        // By definition, the magnitude of a vector is just the square root of its dot product with itself.
+        return Math.sqrt(dot(v, v));
     }
 
 
@@ -1055,11 +1243,33 @@ public class Matrix {
      * @return the angle, in radians, between v1 and v2. This angle will be between 0 and pi.
      * @throws MatrixSizeMismatchException if v1 and v2 aren't both column or row vectors with the same size.
      */
+    // COMMENTED
     public static double angle(Matrix v1, Matrix v2) throws MatrixSizeMismatchException {
         if (!isVec(v1) || !sameType(v1, v2)) {
             throw new MatrixSizeMismatchException("Inputs must both be column or row vectors with the same size.");
         }
+
+        // The dot product can be equivalently defined as v1 (dot) v2 = ||v1|| * ||v2|| * cos(x), where x
+        // is the angle between v1 and v2 in radians.
+
         return Math.acos( dot(v1, v2) / (magn(v1) * magn(v2)) );
+    }
+
+
+    /**
+     * Returns || v1 - v2 ||.
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return the distance between v1 and v2
+     * @throws MatrixSizeMismatchException if v1 and v2 aren't both column or row vectors with the same size.
+     */
+    // COMMENTED
+    public static double distance(Matrix v1, Matrix v2) throws MatrixSizeMismatchException {
+        if (!isVec(v1) || !sameType(v1, v2)) {
+            throw new MatrixSizeMismatchException("Inputs must both be column or row vectors with the same size.");
+        }
+
+        return magn( sub(v1, v2) );
     }
 
 
@@ -1069,11 +1279,13 @@ public class Matrix {
      * @return a new Matrix object representing the unit vector pointing in the same direction as v.
      * @throws InvalidMatrixException if v isn't a nonzero vector
      */
+    // COMMENTED
     public static Matrix normalize(Matrix v) throws InvalidMatrixException {
-        if (!isVec(v) || magn(v) <= tol) {
+        if (!isVec(v) || magn(v) < tol) {
             throw new InvalidMatrixException("Input must be a nonzero vector.");
         }
 
+        // By definition, the unit vector pointing in the same direction as v is u = v / ||v||.
         return scale(v, 1 / magn(v));
     }
 
@@ -1081,61 +1293,18 @@ public class Matrix {
     /**
      * Normalizes each vector in vecs.
      * @param vecs the list of vectors being normalized
-     * @return an array of new Matrix objects representing the normalized version of the corresponding vector in vecs,
-     * in the other that they appear in vecs; that is, vecs[i] -> normedVecs[i] for each valid i.
+     * @return an array of new Matrix objects representing the normalized versions of each of
+     * the corresponding vector in vecs, in the other that they appear in vecs;
+     * that is, vecs[i] -> normedVecs[i] for each valid i.
      * @throws InvalidMatrixException if vecs doesn't contain only nonzero vectors.
      */
+    // COMMENTED
     public static Matrix[] normalize(Matrix[] vecs) throws InvalidMatrixException {
-        for (Matrix vec : vecs) {
-            if (!isVec(vec) || magn(vec) <= tol) {
-                throw new InvalidMatrixException("Each element in vecs must be a nonzero vector.");
-            }
-        }
-
         Matrix[] normedVecs = new Matrix[vecs.length];
         for (int i = 0; i < vecs.length; i++) {
-            normedVecs[i] = scale(vecs[i], 1 / magn(vecs[i]));
+            normedVecs[i] = normalize(vecs[i]);
         }
         return normedVecs;
-    }
-
-
-    /**
-     * Returns v1 (dot) v2.
-     * @param v1 the first vector in the dot product.
-     * @param v2 the second vector in the dot product.
-     * @return v1 (dot) v2.
-     * @throws InvalidMatrixException if v1 and v2 aren't both column vectors or row vectors.
-     * @throws MatrixSizeMismatchException if v1 and v2 aren't vectors with the same size.
-     */
-    public static double dot(Matrix v1, Matrix v2) throws InvalidMatrixException, MatrixSizeMismatchException {
-        if ( !sameType(v1, v2) ) {
-            throw new InvalidMatrixException("Both inputs must be columns vectors or row vectors.");
-        }
-
-        double sum = 0;
-
-        if (isColVec(v1)) {
-            if (rows(v1) != rows(v2)) {
-                throw new MatrixSizeMismatchException("Inputs must both be vectors of the same size.");
-            }
-
-            for (int i = 0; i < rows(v1); i++) {
-                sum += v1.entries[i][0] * v2.entries[i][0];
-            }
-        }
-
-        else {
-            if (cols(v1) != cols(v2)) {
-                throw new MatrixSizeMismatchException("Inputs must both be vectors of the same size.");
-            }
-
-            for (int j = 0; j < cols(v1); j++) {
-                sum += v1.entries[0][j] * v2.entries[0][j];
-            }
-        }
-
-        return sum;
     }
 
 
@@ -1145,11 +1314,16 @@ public class Matrix {
      * @return the trace of A.
      * @throws InvalidMatrixException if A isn't square.
      */
+    // COMMENTED
     public static double trace(Matrix A) throws InvalidMatrixException {
+        // Only square matrices have traces.
         if (!isSquare(A)) {
             throw new InvalidMatrixException("Input must be a square matrix.");
         }
 
+
+        // A matrix's trace is defined to be the sum of its diagonal entries.
+        // (It's also the sum of the matrix's eigenvalues, but that would obviously be much less efficient to use here.)
         double trace = 0;
         for (int i = 0; i < A.rows; i++) {
             trace += A.entries[i][i];
@@ -1157,6 +1331,7 @@ public class Matrix {
 
         return trace;
     }
+
 
     /**
      * Returns A + B.
@@ -1166,13 +1341,15 @@ public class Matrix {
      * @throws MatrixSizeMismatchException if A and B do not have the same number of rows and columns.
      */
     public static Matrix add(Matrix A, Matrix B) throws MatrixSizeMismatchException {
-        if (rows(A) != rows(B) || cols(A) != cols(B)) {
+        if (!sameSize(A, B)) {
             throw new MatrixSizeMismatchException("Both matrices must have the same size.");
         }
 
-        double[][] sum = new double[Matrix.rows(A)][Matrix.cols(A)];
-        for (int i = 0; i < Matrix.rows(A); i++) {
-            for (int j = 0; j < Matrix.cols(A); j++) {
+        // Initializing the sum matrix
+        double[][] sum = new double[A.rows][A.cols];
+        for (int i = 0; i < A.rows; i++) {
+            for (int j = 0; j < A.cols; j++) {
+                // Adding corresponding entries
                 sum[i][j] = A.entries[i][j] + B.entries[i][j];
             }
         }
@@ -1187,10 +1364,11 @@ public class Matrix {
      * @param c the scale factor.
      * @return a new Matrix object representing cA.
      */
+    // COMMENTED
     public static Matrix scale(Matrix A, double c) {
-        double[][] scaled = new double[rows(A)][cols(A)];
-        for (int i = 0; i < rows(A); i++) {
-            for (int j = 0; j < cols(A); j++) {
+        double[][] scaled = new double[A.rows][A.cols];
+        for (int i = 0; i < A.rows; i++) {
+            for (int j = 0; j < A.cols; j++) {
                 scaled[i][j] = c * A.entries[i][j];
             }
         }
@@ -1206,11 +1384,8 @@ public class Matrix {
      * @return a new Matrix object representing A - B.
      * @throws MatrixSizeMismatchException if A and B do not have the same number of rows and columns.
      */
+    // COMMENTED
     public static Matrix sub(Matrix A, Matrix B) throws MatrixSizeMismatchException {
-        if (rows(A) != rows(B) || cols(A) != cols(B)) {
-            throw new MatrixSizeMismatchException("Both matrices must have the same size.");
-        }
-
         return add(A, scale(B, -1));
     }
 
@@ -1222,16 +1397,19 @@ public class Matrix {
      * @return a new Matrix object representing the product AB.
      * @throws MatrixSizeMismatchException if the number of columns in "A" isn't equal to the number of rows in "B".
      */
+    // COMMENTED
     public static Matrix mult(Matrix A, Matrix B) throws MatrixSizeMismatchException {
-        if (cols(A) != rows(B)) {
+        if (A.cols != B.rows) {
             throw new MatrixSizeMismatchException("The number of columns in the first argument " +
                     "must equal the number of rows in the second.");
         }
 
-        double[][] prod = new double[rows(A)][cols(B)];
-        for (int i = 0; i < rows(A); i++) {
-            for (int j = 0; j < cols(B); j++) {
-                for (int k = 0; k < cols(A); k++) {
+        // In subscript-summation notation, a matrix product's entries are defined as (AB)_{ij} = (A)_{ik} * (B)_{kj}.
+
+        double[][] prod = new double[A.rows][B.cols];
+        for (int i = 0; i < A.rows; i++) {
+            for (int j = 0; j < B.cols; j++) {
+                for (int k = 0; k < A.cols; k++) {
                     prod[i][j] += A.entries[i][k] * B.entries[k][j];
                 }
             }
@@ -1246,27 +1424,34 @@ public class Matrix {
      * @param A the matrix being exponentiated.
      * @param n the exponent.
      * @return a new Matrix object representing A raised to the power of n.
-     * @throws InvalidMatrixException if
-     * 1) A isn't square, in general
-     * 2) A isn't invertible, if n < 0.
+     * @throws InvalidMatrixException if:
+     * <ul>
+     *     <li>1) A isn't square, in general</li>
+     *     <li>2) A isn't invertible, if n < 0.</li>
+     * </ul>
      */
+    // COMMENTED
     public static Matrix power(Matrix A, int n) throws InvalidMatrixException {
+        // A matrix power is only defined if the matrix is square.
         if (!isSquare(A)) { throw new InvalidMatrixException("Input must be a square matrix."); }
 
-        if (n == 0) {return new Matrix();}
+        // The zeroth power of a matrix is just the identity
+        if (n == 0) {return new Matrix(A.rows);}
 
         else if (n > 0) {
             Matrix product = copy(A);
-            for (int i = 0; i < n - 1; i++) {
+            for (int i = 1; i < n; i++) {
+                // Starting at i = 1 because product is initialized as A, so we're starting at the first power already.
                 product = mult(product, A);
             }
             return product;
         }
 
         else {
+            // By definition, A^n = (A^-1)^{-n} when n is negative.
             if (!isInvertible(A)) { throw new InvalidMatrixException("Input must be invertible."); }
             Matrix product = copy(inverse(A));
-            for (int i = 0; i < n - 1; i++) {
+            for (int i = 1; i < -n; i++) {
                 product = mult(product, A);
             }
             return product;
@@ -1279,73 +1464,145 @@ public class Matrix {
      * @param A the matrix being row-reduced.
      * @return a new Matrix object representing the reduced row echelon form of A.
      */
-    public static Matrix rowRed(Matrix A) {
-        if ( A.equals(zeroMatrix(A.rows, A.cols)) || A.equals(new Matrix(A.cols)) ) {return copy(A);}
+    //
+    public static Matrix rowRed(Matrix A, boolean rref) {
+        if ( A.equals(zeroMatrix(A.rows, A.cols)) || A.equals(new Matrix(A.cols)) ) {
+            // If A is a zero or identity matrix, just give it back to the user.
+            return copy(A);
+        }
 
         Matrix reduced = copy(A);
 
-        // moving any all-zero rows to the bottom
-        Matrix zeRow = zeroMatrix(1, A.cols);
-        for (int i = 1; i < A.rows; i++) {
-            // only looping until A.rows since we don't care about the bottom row
-            // if it's an all-zero row it's supposed to be there
-            Matrix curRow = getRow(reduced, i);
-            if (curRow.equals(zeRow)) {
-                for (int j = A.rows; j > i; j--) {
-                    if ( !getRow(reduced, j).equals(zeRow) ) {
-                        reduced = swapRows(reduced, i, j);
+        // From here, this is the process:
+        // 1) Start with the leftmost nonzero column. This is the current pivot column,
+        // and the pivot position is the top entry.
+        // 2) Select a nonzero entry in the pivot column as a pivot. If necessary, interchange rows to move this entry
+        // into the pivot position.
+        // 3) Use row replacements to zero out the entries below the pivot.
+        // 4) Ignore the row containing the pivot position and all rows above it, if any.
+        // Repeat steps 1 - 3 on this submatrix until there are no more nonzero rows left to modify.
+        // After this step is done, the matrix will be in an echelon form.
+        // 5) Beginning with the rightmost pivot and working upward to the leftmost pivot,
+        // scale the pivot row to make the pivot a 1, then zero out the entries above the pivot.
+        // After this step is done, the matrix will be in RREF.
+
+
+        int smallerOfTwo = Math.min(A.rows, A.cols); // only using this to determine the length of the loop
+        Matrix zeCol = zeroMatrix(A.rows, 1); // using this for comparisons
+        int curPivRowIndex = 1; // tracks the row index of the current pivot
+        int curPivColIndex = 1; // tracks the current column index
+        ArrayList<Integer[]> pivPositions = new ArrayList<>(); // tracks the pivot positions (row and column)
+        double detFactors = 1; // accumulates the determinant-changing factors rising from swaps and scales
+
+        for (int j = 1; j < smallerOfTwo + 1; j++) {
+            // Running from j = 1 to j = smallerOfTwo + 1 ensures that we check as many rows/columns as necessary since
+            // the number of pivots in A is bounded from above by the lesser of its row count and column count.
+            if (curPivRowIndex > A.rows || curPivColIndex > A.cols) {
+                // Making sure that there aren't any invalid getter calls
+                break;
+            }
+            // Obtaining the current column
+            Matrix curCol = getCol(reduced, curPivColIndex);
+            if (curCol.equals(zeCol)) { continue; }
+
+            if ( Math.abs(getEntry(curCol, curPivRowIndex, 1)) < tol ) {
+                // If we reach this point, the position where we think the pivot should be currently has a zero in it.
+                // Search for a nonzero entry below it in the column and swap it into that position.
+                // If a nonzero entry doesn't exist, then curCol isn't a pivot column.
+                boolean swapped = false;
+                for (int i = curPivRowIndex + 1; i < A.rows + 1; i++) {
+                    if ( Math.abs(getEntry(curCol, i, 1)) >= tol ) {
+                        reduced = swapRows(reduced, curPivRowIndex, i);
+                        detFactors *= -1;
+                        swapped = true;
                         break;
                     }
                 }
-            }
-        }
+                if (!swapped) {
+                    // If we reach this point, no swap happened. Search for a pivot position in the remaining columns.
+                    for (int k = curPivColIndex + 1; k < A.cols + 1; k++) {
+                        // Start immediately to the right of where we thought the pivot would be and search rightward.
+                        curCol = getCol(reduced, k);
+                        // Ignore any zero columns
+                        if (curCol.equals(zeCol)) { continue; }
 
-
-        Matrix zeCol = zeroMatrix(A.rows, 1);
-        int curRowIndex = 1;
-//        System.out.println("Initial: \n" + reduced);
-        for (int j = 1; j < A.cols + 1; j++) {
-            if (curRowIndex > A.rows) {
-                // breakout condition if the matrix has more columns than rows
-                // could also just change the loop variable to be the smaller of the rows and columns
-                break;
-            }
-
-            Matrix curCol = getCol(reduced, j);
-            Matrix replacements = zeroMatrix(A.rows, A.cols);
-
-            if ( curCol.equals(zeCol) ) {
-                continue;
-            }
-            else if ( Math.abs(getEntry(curCol, curRowIndex, 1)) <= tol ) {
-                for (int i = A.rows; i > curRowIndex; i--) {
-                    if ( Math.abs(getEntry(reduced, i, j)) >= tol ) {
-                        reduced = swapRows(reduced, curRowIndex, i);
-                        curCol = getCol(reduced, j);
-//                        System.out.println("Swapped: \n" + reduced);
+                        // Start in the row where we know the pivot should be and search downward
+                        for (int i = curPivRowIndex; i < A.rows + 1; i++) {
+                            if ( Math.abs( getEntry(curCol, i, 1) ) >= tol ) {
+                                if (i != curPivRowIndex) {
+                                    // Only perform a swap if we aren't already in the pivot row
+                                    reduced = swapRows(reduced, curPivRowIndex, i);
+                                    detFactors *= -1;
+                                }
+                                curPivColIndex = k;
+                                break;
+                            }
+                        }
                     }
                 }
-                if ( Math.abs(getEntry(curCol, curRowIndex, 1)) <= tol ) { // if all entries below are still zero somehow
-                    continue;
-                }
             }
 
-//            System.out.println("Current row: " + getRow(reduced, curRowIndex));
-//            System.out.println("Pivot: " + getEntry(curCol, curRowIndex, 1));
-            Matrix normedRow = scale(getRow(reduced, curRowIndex), 1 / getEntry(curCol, curRowIndex, 1));
-            reduced = replaceRow( reduced, curRowIndex, normedRow );
-            for (int i = 1; i < A.rows + 1; i++) {
-                if (i != curRowIndex) {
-                    replacements = replaceRow( replacements, i, scale( normedRow, -1 * getEntry(reduced, i, j) ) );
+            // Establishing the pivot and logging its position
+            double pivot = getEntry(reduced, curPivRowIndex, curPivColIndex);
+            pivPositions.add(new Integer[] {curPivRowIndex, curPivColIndex});
+
+            // Representing row replacements as another matrix
+            Matrix replacements = zeroMatrix(A.rows, A.cols);
+            // Loop through the rows below the pivot and scale them so that the replacements will
+            // zero out the non-pivot entries below the pivot
+            for (int i = curPivRowIndex + 1; i < A.rows + 1; i++) {
+                if ( Math.abs(getEntry(curCol, i, 1)) >= tol ) {
+                    // If the current non-pivot entry in the pivot column is nonzero,
+                    // scale the pivot row so that a replacement will zero out the non-pivot entry.
+                    double nonzeroEntry = getEntry(reduced, i, j);
+                    Matrix scaledRow = scale(getRow(reduced, curPivRowIndex), -( nonzeroEntry / pivot )   );
+                    replacements = replaceRow(replacements, i, scaledRow);
                 }
             }
+            // Executing the replacements
             reduced = add(reduced, replacements);
-//            System.out.println("Replaced: \n" + reduced);
 
-            curRowIndex++;
+            // The next pivot, if it exists, will be in row curPivRowIndex + 1. Ideally, it'll also be in
+            // column curPivColindex + 1, but if that isn't the case, the swapping mechanism at the start of the loop
+            // will handle it.
+            curPivRowIndex++;
+            curPivColIndex++;
         }
 
-        return reduced;
+        // At this point, the matrix is in an echelon form.
+        if (!rref) {
+            return reduced;
+        }
+
+        else {
+            // This is the rref branch
+            // Starting at the rightmost pivot and work up from there
+            for (int k = pivPositions.size() - 1; k >= 0; k--) {
+                // Just tracking a bunch of useful data with these variables
+                Integer[] pivPos = pivPositions.get(k);
+                int pivRowInd = pivPos[0];
+                int pivColInd = pivPos[1];
+                Matrix pivRow = getRow(reduced, pivRowInd);
+                double pivot = getEntry(reduced, pivRowInd, pivColInd);
+
+                // Scaling the pivot row by the reciprocal of the pivot
+                reduced = replaceRow(reduced, pivRowInd, scale(pivRow, 1 / pivot)  );
+                detFactors *= ( 1 / pivot );
+
+                // Setting up the matrix of replacements
+                Matrix replacements = zeroMatrix(A.rows, A.cols);
+                for (int i = pivRowInd - 1; i > 0; i--) {
+                    // If the current non-pivot entry in the pivot column is nonzero,
+                    // scale the pivot row so that a replacement will zero out the non-pivot entry.
+                    double nonzeroEntry = getEntry(reduced, i, pivColInd);
+                    Matrix scaledRow = scale(getRow(reduced, pivRowInd), -nonzeroEntry  );
+                    replacements = replaceRow(replacements, i, scaledRow);
+                }
+                reduced = add(reduced, replacements);
+            }
+
+            return reduced;
+        }
     }
 
 
@@ -1366,7 +1623,7 @@ public class Matrix {
         }
 
         // Augment A with the identity matrix, then row reduce it.
-        Matrix reduced = rowRed( append(new Matrix(cols(A)), A) );
+        Matrix reduced = rowRed( append(new Matrix(cols(A)), A), true );
 
         // Take the n + 1 to 2n columns of the augmented matrix; this matrix is A^-1.
         // n = A.rows (or A.cols) here
@@ -1463,16 +1720,14 @@ public class Matrix {
     private static int[][] pivotAndNonPivots(Matrix A) {
         ArrayList<Integer> basicCols = new ArrayList<>();
         ArrayList<Integer> freeCols = new ArrayList<>();
-        Matrix reduced = rowRed(A);
+        Matrix reduced = rowRed(A, true);
         int pivotsFound = 0;
         // the number of pivots a matrix can have is bounded from above
         // by the smaller of the number of rows and the number of columns
         int min = Math.min(reduced.rows, reduced.cols);
         for (int j = 0; j < reduced.cols; j++) {
             if (pivotsFound < min) {
-//                System.out.println("blah: " + reduced.rows + " " + (pivotsFound + 1));
                 Matrix pivCol = singleOneCol(reduced.rows, pivotsFound + 1);
-//            System.out.println("pivCol: \n" + pivCol);
                 if (getCol(A, j + 1).equals(pivCol)) {
                     // if the current column is a pivot column
                     basicCols.add(j + 1);
@@ -1542,7 +1797,7 @@ public class Matrix {
         try {
             int m = A.rows;
             int n = A.cols;
-            Matrix reduced = rowRed(append(A, b));
+            Matrix reduced = rowRed(append(A, b), true);
 //            System.out.println("Reduced: \n" + reduced + "\n");
             Matrix zeRow = zeroMatrix(1, n);
             // checking if the system is inconsistent
@@ -1678,7 +1933,7 @@ public class Matrix {
      * @return a new Matrix object whose columns form an orthogonal (or orthonormal) basis for Col(A).
      */
     public static Matrix columnSpace(Matrix A, boolean normal) {
-        Matrix reduced = rowRed(A);
+        Matrix reduced = rowRed(A, true);
         if (reduced.equals(zeroMatrix(A.rows, A.cols))) {
             return zeroMatrix(A.rows, 1);
         }
@@ -1943,7 +2198,6 @@ public class Matrix {
             acc = mult( curQR[1], curQR[0] );
         }
 
-//        System.out.println("acc: \n" + acc);
         if (!isTriangular(acc)) {
             throw new InvalidMatrixException("Input matrix likely has complex eigenvalues.");
         }
@@ -1961,8 +2215,6 @@ public class Matrix {
         }
 
         return eigens;
-
-        //TODO: need some way to handle complex eigenvalues
     }
 
 
@@ -2085,14 +2337,12 @@ public class Matrix {
     public static Matrix[] QR(Matrix A) {
         // ONB for Col(A)
         Matrix colA = columnSpace(A, true);
-//        System.out.println("Col A: \n" + colA);
 
         // ONB for Col(A)-perp = Nul(A^T), if necessary
         Matrix Q = colA;
 
         if (Q.cols < A.cols) {
             Matrix colAPerp = orthoComp(getCols(colA), true); // Col(A)-perp = Nul(A^T)
-//            System.out.println("Nul A^T: \n" + colAPerp);
             Q = append(Q, colAPerp);
         }
         Matrix R = mult( transpose(Q), A );
