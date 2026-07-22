@@ -1567,6 +1567,7 @@ public class Matrix {
             // will handle it.
             curPivRowIndex++;
             curPivColIndex++;
+            // making an edit so the commit hopefully goes through
         }
 
         // At this point, the matrix is in an echelon form.
