@@ -1,7 +1,7 @@
 /**
  * A library containing a bunch of matrix operations. Matrices are represented as 2D arrays of doubles.
  * Author: romander60  
- * Overall time spent on project: ~49 hours
+ * Overall time spent on project: ~50 hours
  * Last updated: July 22, 2026
  */
 
@@ -1465,21 +1465,18 @@ public class Matrix {
      *  <li>2) A 1x1 matrix containing the determinant-altering factors picked up in the process of row reduction.</li>
      *  <li>3) A row matrix whose entries correspond to the indices of A's pivot columns. Indexing begins at 1. If this
      *  matrix only contains a zero, then A has no pivot columns.</li>
-     *  <li>4) A row matrix whose entries correspond to the indices of A's non-pivot columns. Indexing begins at 1.
-     *  If this matrix only contains a zero, then A has no non-pivot columns.</li>
      * </ul>
      *
      * NOT COMPLETE
      */
     public static Matrix[] rowRed(Matrix A, boolean rref) {
-        // TODO: Fix this
         if ( A.equals(zeroMatrix(A.rows, A.cols)) || A.equals(new Matrix(A.cols)) ) {
             // If A is a zero or identity matrix, just give it back to the user.
             return new Matrix[] {copy(A), new Matrix(new double[][] { {1} } ) };
         }
 
         // Initializing the array that the function will return
-        Matrix[] returnedArray = new Matrix[4];
+        Matrix[] returnedArray = new Matrix[3];
 
         Matrix reduced = copy(A);
 
@@ -1498,20 +1495,104 @@ public class Matrix {
 
 
         int smallerOfTwo = Math.min(A.rows, A.cols); // only using this to determine the length of the loop
-        Matrix zeCol = zeroMatrix(A.rows, 1); // using this for comparisons
-        int curPivRowIndex = 1; // tracks the row index of the current pivot
-        int curPivColIndex = 1; // tracks the current column index
-        ArrayList<Integer[]> pivPositions = new ArrayList<>(); // tracks the pivot positions (row and column)
         ArrayList<Integer> pivCols = new ArrayList<>(); // tracks the indices of the pivot columns
-        pivCols.add(0);
-        ArrayList<Integer> nonPivCols = new ArrayList<>(); // tracks the indices of the non-pivot columns
-        nonPivCols.add(0);
         double detFactors = 1; // accumulates the determinant-changing factors rising from swaps and scales
-        boolean pivotsRemaining = true; // true if there are still pivots that need to be used
+        int pivotsFound = 0; // tracks the number of pivots found
+        int curColIndex = 1; // tracks the index of the current column
+        boolean pivotsRemaining = true; // true if there are still pivots that can be used
 
         for (int j = 1; j < smallerOfTwo + 1; j++) {
             // Running from j = 1 to j = smallerOfTwo + 1 ensures that we check as many rows/columns as necessary since
             // the number of pivots in A is bounded from above by the lesser of its row count and column count.
+            // (Starting from j = 1) to give the getter method calls nicer arguments
+
+            Matrix curCol = getCol(reduced, curColIndex);
+            boolean pivFound = false;
+            if ( Math.abs(getEntry(curCol, pivotsFound + 1, 1)) < tol ) {
+                // If we end up here, the spot where the pivot should be currently has a zero.
+                // Look for a nonzero entry below it and swap them if one is found. If one doesn't exist,
+                // move to the next loop iteration; this column won't contribute anything meaningful.
+                for (int i = pivotsFound + 2; i < reduced.rows + 1; i++) {
+                    // Start the search from the row right below where the pivot should be (pivotsFound + 1)
+                    if ( Math.abs(getEntry(curCol, i, 1)) >= tol ) {
+                        // If a nonzero entry is found, swap it into the pivot position
+                        reduced = swapRows(reduced, pivotsFound + 1, i);
+                        detFactors *= -1;
+                        pivFound = true;
+                        pivotsFound++;
+                    }
+                }
+            }
+            else {
+                pivotsFound++;
+                pivFound = true;
+            }
+
+            if (!pivFound) {
+                // If a pivot wasn't found in this column, move onto the next column and search there instead
+
+                curColIndex++; // Start searching in the column immediately to the right
+                while (curColIndex < reduced.cols + 1) {
+                    // Start searching in the column directly to the right of the latest one
+                    curCol = getCol(reduced, curColIndex);
+                    for (int i = pivotsFound + 1; i < reduced.rows + 1; i++) {
+                        // Start the search at the pivot row
+                        double currentEntry = getEntry(curCol, i, 1);
+                        if ( Math.abs(currentEntry) >= tol ) {
+                            // If a nonzero entry is found, swap it into the pivot position
+                            reduced = swapRows(reduced, pivotsFound + 1, i);
+                            detFactors *= -1;
+                            pivFound = true;
+                            pivotsFound++;
+                            break;
+                        }
+                    }
+                    if (pivFound) {
+                        // Break out of the loop once a pivot is found
+                        break;
+                    }
+                    if (curColIndex == reduced.cols) {
+                        // At this point, all the columns have been searched, but a pivot wasn't found
+                        pivotsRemaining = false;
+                    }
+                    // If we reach this point, a pivot still hasn't been found; increment curColIndex so that
+                    // the next column can be checked.
+                    curColIndex++;
+                }
+            }
+
+            if (pivotsRemaining && pivFound) {
+                // Using pivotsFound instead of pivotsFound + 1 because we just incremented
+                // pivotsFound if we've reached this point
+                double pivot = getEntry(reduced, pivotsFound, curColIndex);
+
+                if (pivCols.size() == 1 && pivCols.get(0) == 0) {
+                    pivCols.set(0, curColIndex);
+                }
+
+                else {
+                    pivCols.add(curColIndex);
+                }
+
+                // Representing row replacements as a matrix
+                Matrix replacements = zeroMatrix(reduced.rows, reduced.cols);
+
+                for (int i = pivotsFound + 1; i < reduced.rows + 1; i++) {
+                    // Starting at the row below the pivot that's being used
+                    double currentEntry = getEntry(curCol, i, 1);
+                    if (Math.abs(currentEntry) >= tol) {
+                        // If the current entry in this column is nonzero, determine the appropriate scale factor using it.
+                        // (technically I could remove this check since if the current entry is zero, the scale factor
+                        // would be zero, but I'd rather not have unnecessary computations)
+                        double scaleFactor = -(currentEntry / pivot);
+                        Matrix scaledRow = scale(getRow(reduced, pivotsFound), scaleFactor);
+                        replacements = replaceRow(replacements, i, scaledRow);
+                    }
+                }
+                // Executing the replacements
+                reduced = add(reduced, replacements);
+            }
+
 
         }
 
@@ -1521,68 +1602,53 @@ public class Matrix {
             returnedArray[0] = reduced;
             returnedArray[1] = new Matrix( new double[][] { {detFactors} } );
             double[][] pivotCols = new double[1][pivCols.size()];
-            double[][] nonPivotCols = new double[1][nonPivCols.size()];
             if ( !(pivCols.size() == 1 && pivCols.get(0) == 0) ) {
                 for (int j = 0; j < pivCols.size(); j++) {
                     pivotCols[0][j] = pivCols.get(j);
                 }
             }
-            if ( !(nonPivCols.size() == 1 && nonPivCols.get(0) == 0) ) {
-                for (int j = 0; j < nonPivCols.size(); j++) {
-                    nonPivotCols[0][j] = nonPivCols.get(j);
-                }
-            }
 
             returnedArray[2] = new Matrix(pivotCols);
-            returnedArray[3] = new Matrix(nonPivotCols);
             return returnedArray;
         }
 
         else {
             // This is the rref branch
             // Starting at the rightmost pivot and work up from there
-            for (int k = pivPositions.size() - 1; k >= 0; k--) {
+            for (int k = pivotsFound - 1; k > 0; k--) {
                 // Just tracking a bunch of useful data with these variables
-                Integer[] pivPos = pivPositions.get(k);
-                int pivRowInd = pivPos[0];
-                int pivColInd = pivPos[1];
-                Matrix pivRow = getRow(reduced, pivRowInd);
-                double pivot = getEntry(reduced, pivRowInd, pivColInd);
+                int pivColInd = pivCols.get(k);
+                Matrix pivRow = getRow(reduced, pivotsFound);
+                double pivot = getEntry(reduced, pivotsFound, pivColInd);
 
                 // Scaling the pivot row by the reciprocal of the pivot
-                reduced = replaceRow(reduced, pivRowInd, scale(pivRow, 1 / pivot)  );
+                reduced = replaceRow(reduced, pivotsFound, scale(pivRow, 1 / pivot)  );
                 detFactors *= ( 1 / pivot );
 
                 // Setting up the matrix of replacements
                 Matrix replacements = zeroMatrix(A.rows, A.cols);
-                for (int i = pivRowInd - 1; i > 0; i--) {
+                for (int i = pivotsFound - 1; i > 0; i--) {
                     // If the current non-pivot entry in the pivot column is nonzero,
                     // scale the pivot row so that a replacement will zero out the non-pivot entry.
                     double nonzeroEntry = getEntry(reduced, i, pivColInd);
-                    Matrix scaledRow = scale(getRow(reduced, pivRowInd), -nonzeroEntry  );
+                    Matrix scaledRow = scale(getRow(reduced, pivotsFound), -nonzeroEntry  );
                     replacements = replaceRow(replacements, i, scaledRow);
                 }
                 reduced = add(reduced, replacements);
+                pivotsFound--;
             }
 
             // Setting the elements of the returned array
             returnedArray[0] = reduced;
             returnedArray[1] = new Matrix( new double[][] { {detFactors} } );
             double[][] pivotCols = new double[1][pivCols.size()];
-            double[][] nonPivotCols = new double[1][nonPivCols.size()];
             if ( !(pivCols.size() == 1 && pivCols.get(0) == 0) ) {
                 for (int j = 0; j < pivCols.size(); j++) {
                     pivotCols[0][j] = pivCols.get(j);
                 }
             }
-            if ( !(nonPivCols.size() == 1 && nonPivCols.get(0) == 0) ) {
-                for (int j = 0; j < nonPivCols.size(); j++) {
-                    nonPivotCols[0][j] = nonPivCols.get(j);
-                }
-            }
 
             returnedArray[2] = new Matrix(pivotCols);
-            returnedArray[3] = new Matrix(nonPivotCols);
             return returnedArray;
         }
     }

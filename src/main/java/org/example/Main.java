@@ -55,7 +55,10 @@ public class Main {
         };
 
         Matrix m = new Matrix(test3);
-        System.out.println("Null: \n" + Matrix.nullSpace(m, true));
+        Matrix[] blah = Matrix.rowRed(m, true);
+        System.out.println("Final: \n" + blah[0]);
+        System.out.println("Det Factors: \n" + blah[1]);
+        System.out.println("Pivot Cols: \n" + blah[2]);
 //        Matrix m1 = Matrix.getSubmatrix(m, 1, 1, Matrix.rows(m), Matrix.cols(m) - 1);
 //        Matrix m2 = Matrix.getCol(m, Matrix.cols(m));
 //        Matrix[] ls = Matrix.leastSquares(m1, m2, true);
