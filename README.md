@@ -29,3 +29,4 @@ Currently implemented functionality (NT = not tested):
 AI Usage:
 - Gemini
   - Used to verify my thought process for the row reduction algorithm
+  - Used to teach myself how to algorithmically compute eigenvalues
