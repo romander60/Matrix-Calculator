@@ -1,7 +1,5 @@
 package org.example;
 
-import java.util.Arrays;
-
 public class Main {
     public static void main(String[] args) {
 
@@ -17,8 +15,8 @@ public class Main {
                 {5, 7, 9, 1}
         };
         double[][] test3 = new double[][] {
-                {1, -2, -9, 5},
-                {0, 1, 2, -6},
+                {1, 2, 0, 3},
+                {2, 4, 1, 4},
         };
 
         double[][] test4 = new double[][] {
@@ -56,12 +54,8 @@ public class Main {
                 {2, -2}
         };
 
-        double[][] test11 = new double[][] {
-                {9, -9},
-                {-9, 9}
-        };
-
-        Matrix m = new Matrix(test10);
+        Matrix m = new Matrix(test3);
+        System.out.println("Null: \n" + Matrix.nullSpace(m, true));
 //        Matrix m1 = Matrix.getSubmatrix(m, 1, 1, Matrix.rows(m), Matrix.cols(m) - 1);
 //        Matrix m2 = Matrix.getCol(m, Matrix.cols(m));
 //        Matrix[] ls = Matrix.leastSquares(m1, m2, true);
@@ -75,13 +69,13 @@ public class Main {
 //        System.out.println("PD: \n" + Matrix.mult(diag[0], diag[1]));
 //        System.out.println(Matrix.mult(m, diag[0]).equals(Matrix.mult(diag[0], diag[1])));
 
-        Matrix[] svd = Matrix.SVD(m);
-        System.out.println("U: \n" + svd[0]);
-        System.out.println("S: \n" + svd[1]);
-        System.out.println("V^T: \n" + Matrix.transpose(svd[2]));
-        Matrix US = Matrix.mult(svd[0], svd[1]);
-        Matrix USVT = Matrix.mult(US, Matrix.transpose(svd[2]));
-        System.out.println("Product: \n" + USVT);
-        System.out.println(USVT.equals(m));
+//        Matrix[] svd = Matrix.SVD(m);
+//        System.out.println("U: \n" + svd[0]);
+//        System.out.println("S: \n" + svd[1]);
+//        System.out.println("V^T: \n" + Matrix.transpose(svd[2]));
+//        Matrix US = Matrix.mult(svd[0], svd[1]);
+//        Matrix USVT = Matrix.mult(US, Matrix.transpose(svd[2]));
+//        System.out.println("Product: \n" + USVT);
+//        System.out.println(USVT.equals(m));
     }
 }
