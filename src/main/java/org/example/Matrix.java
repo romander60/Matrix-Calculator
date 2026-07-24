@@ -1,8 +1,8 @@
 /**
  * A library containing a bunch of matrix operations. Matrices are represented as 2D arrays of doubles.
  * Author: romander60  
- * Overall time spent on project: ~50 hours
- * Last updated: July 22, 2026
+ * Overall time spent on project: ~51 hours
+ * Last updated: July 23, 2026
  */
 
 
@@ -32,7 +32,7 @@ public class Matrix {
     // THERE'S CURRENTLY NO ROUNDING FUNCTIONALITY; THAT'LL BE ADDED WHEN I TEST ALL THESE FUNCTIONS AS THEY ARE
 
 //-------------------------------------------------------------------------------------------------------------
-// MATRIX GENERATORS (COMMENTED)
+// MATRIX GENERATORS
 
     /**
      * Generates a new Matrix object representing the 3x3 identity matrix.
@@ -194,7 +194,7 @@ public class Matrix {
         return new Matrix(entries);
     }
 //-------------------------------------------------------------------------------------------------------------
-// BOOLEAN OPERATIONS (COMMENTED)
+// BOOLEAN OPERATIONS
 
 
     /**
@@ -315,6 +315,7 @@ public class Matrix {
         // By the Invertible Matrix Theorem, a matrix is invertible iff it's row equivalent to the identity matrix
         return isSquare(A) && rowRed(A, true)[0].equals( new Matrix(A.rows) );
     }
+
 
     /**
      * @return "true" if A is equal to its transpose.
@@ -534,7 +535,7 @@ public class Matrix {
     }
 
 //-------------------------------------------------------------------------------------------------------------
-// GETTERS  (COMMENTED)
+// GETTERS
 
     /**
      * @return the number of rows in "A".
@@ -629,9 +630,7 @@ public class Matrix {
 
         double[][] copy = new double[A.rows][A.cols];
         for (int i = 0; i < A.rows; i++) {
-            System.out.println("bah");
             for (int j = 0; j < A.cols; j++) {
-                System.out.println("gah");
                 copy[i][j] = A.entries[i][j];
             }
         }
@@ -720,7 +719,7 @@ public class Matrix {
     }
 
 //-------------------------------------------------------------------------------------------------------------
-// MATRIX MANIPULATION  (COMMENTED)
+// MATRIX MANIPULATION
 
     /**
      * Generates the partitioned matrix [A | v], where v is assumed to be a column vector.
@@ -1175,7 +1174,7 @@ public class Matrix {
     }
 
 //-------------------------------------------------------------------------------------------------------------
-// MATRIX OPERATIONS (COMMENTED)
+// MATRIX OPERATIONS
 
     /**
      * Creates a new matrix with the same entries as A.
@@ -1466,8 +1465,6 @@ public class Matrix {
      *  <li>3) A row matrix whose entries correspond to the indices of A's pivot columns. Indexing begins at 1. If this
      *  matrix only contains a zero, then A has no pivot columns.</li>
      * </ul>
-     *
-     * NOT COMPLETE
      */
     public static Matrix[] rowRed(Matrix A, boolean rref) {
         if ( A.equals(zeroMatrix(A.rows, A.cols)) || A.equals(new Matrix(A.cols)) ) {
@@ -1711,7 +1708,7 @@ public class Matrix {
     }
 
 //-------------------------------------------------------------------------------------------------------------
-// SUBSPACES  (COMMENTED)
+// SUBSPACES
 
     /**
      * Returns the dimension of the subspace spanned by the vectors in vecs.
@@ -1792,22 +1789,35 @@ public class Matrix {
      * NOT COMPLETE
      */
     public static Matrix nullSpace(Matrix A, boolean normal) {
-        // TODO: finish implementing this
         // Getting the rref of A and finding its non-pivot columns
         Matrix[] rowRed = rowRed(A, true);
         Matrix reduced = rowRed[0];
-        double[][] frees = getEntries(rowRed[3]);
+        double[][] basics = getEntries(rowRed[2]);
+        System.out.println("Basics: \n" + rowRed[2]);
+        double[] frees = new double[A.cols - basics[0].length];
+        int freesAdded = 0;
         System.out.println("Reduced: \n" + reduced);
-        System.out.print("Frees: ");
-        for (int i = 0; i < frees[0].length; i++) {
-            System.out.print(frees[i] + ", ");
+        for (int i = 1; i < A.cols + 1; i++) {
+            if (!arrayContains(basics[0], i)) {
+                frees[freesAdded] = i;
+                freesAdded++;
+            }
         }
 
+        System.out.print("Frees: ");
+        for (int i = 0; i < frees.length; i++) {
+            System.out.print(frees[i] + ", ");
+        }
+        System.out.println();
+
         // Initializing the basis vectors
-        // The dimension of A's null space is the number of non-pivot columns it has
-        Matrix[] basis = new Matrix[frees[0].length];
+        // The dimension of A's null space is the number of non-pivot columns it has. So,
+        // the basis array's length just needs to be the number of non-pivot columns in A.
+        Matrix[] basis = new Matrix[frees.length];
         for (int k = 0; k < basis.length; k++) {
-            basis[k] = singleOneCol(A.cols, (int) frees[0][k]);
+            // When x_i is a free variable, the basis vector corresponding to x_i
+            // will have a 1 in its ith row.
+            basis[k] = singleOneCol(A.cols, (int) frees[k]);
         }
 
         // Iterating though the rows of A's rref
@@ -1815,11 +1825,16 @@ public class Matrix {
             // Getting the current row
             Matrix curRow = getRow(reduced, i);
             boolean pivotFound = false; // tracks whether we've found the pivot in this row yet
-            int pivotLoc = 0; // logs the position of the pivot in this row
             int freesFound = 0; // tracks the number of free variables that have been found in this row
 
             // Iterating through the elements of the current row
             for (int j = 1; j < A.cols + 1; j++) {
+                if (arrayContains(frees, j)) {
+                    // Keeping track of the number of free variables found in this row so far.
+                    // Knowing this value will ensure that coefficients get placed in
+                    // the correct basis vectors.
+                    freesFound++;
+                }
                 if ( !pivotFound && Math.abs(getEntry(curRow, 1, j)) < tol ) {
                     // If a pivot hasn't been found yet and the current entry is a 0, move to the next iteration;
                     // this isn't a pivot either.
@@ -1829,15 +1844,19 @@ public class Matrix {
                     // If a pivot hasn't been found yet and the current entry is a 1, then we just found the
                     // pivot. From here, we're going to fill out the entries of each basis vector that
                     // constitute the basic variable the pivot represents.
-                    pivotLoc = j;
                     pivotFound = true;
                 }
                 else if (pivotFound) {
-                    if (arrayContains( frees[0], j)) {
+                    // If we've already found the pivot, each subsequent entry in this row will contribute to
+                    // the linear combination of free variables that define the current basic variable.
+                    if (arrayContains(frees, j)) {
+                        // If we're in a column corresponding to a free variable, negate the entry in that position.
+                        // Assuming that x_k is the current basic variable, put this negated entry in
+                        // the kth entry of this free variable's basis vector.
+                        // Since each row represents a linear equation, negating the entry effectively
+                        // makes progress toward isolating the basic variable in that row.
                         Matrix coeff = new Matrix(new double[][] {{-getEntry(curRow, 1, j)}} );
-                        System.out.println(pivotLoc);
-                        basis[freesFound] = replaceRow(basis[freesFound], pivotLoc, coeff);
-                        freesFound++;
+                        basis[freesFound - 1] = replaceRow(basis[freesFound - 1], (int) basics[0][i - 1], coeff);
                     }
                 }
             }
@@ -1859,24 +1878,12 @@ public class Matrix {
 
 
 //-------------------------------------------------------------------------------------------------------------
-// THE SYSTEM SOLVER  (COMMENTED)
-
-    /**
-     * Helper for solve()
-     */
-    private static boolean arrayContains(double[] arr, int val) {
-        for (double j : arr) {
-            if (val == j) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+// THE SYSTEM SOLVER
 
     /**
      * Returns a particular solution to the equation Ax = b. This solution, if it exists, will be a vector p
-     * such that Ap = b.
+     * such that Ap = b.<br>
+     * NOTE: This method does not capture A's null space; for that, call the nullSpace method.
      * @param A the coefficient matrix
      * @param b the target vector
      * @return <ul>
@@ -1887,6 +1894,7 @@ public class Matrix {
      */
     public static Matrix solve(Matrix A, Matrix b)
             throws MatrixSizeMismatchException {
+        // of the reduced matrix is a pivot column
         if (b.rows != A.rows || !isColVec(b)) {
             throw new MatrixSizeMismatchException("b must be a column vector with as many rows as A.");
         }
@@ -1897,18 +1905,13 @@ public class Matrix {
             int n = A.cols;
             Matrix[] rowRed = rowRed(equation, true);
             Matrix reduced = rowRed[0];
-            Matrix zeRow = zeroMatrix(1, n);
+            double[][] pivCols = getEntries( rowRed[2] );
+
             // Checking if the system is inconsistent
-            for (int i = m; i > 0; i--) {
-                // Starting from the bottom since any all-zero rows should be towards the bottom
-                Matrix curRow = getRow(reduced, i);
-                Matrix lhs = getSubmatrix(curRow, 1, 1, 1, n);
-                double rhs = getEntry(curRow, 1, n + 1);
-                if ( lhs.equals(zeRow) && Math.abs(rhs) >= tol ) {
-                    // This branch is reached when there's a row of the form [0 0  ...  0  |  c] for some c != 0.
-                    // In this case, the system is inconsistent.
-                    throw new InconsistentSystemException("Equation was inconsistent.");
-                }
+            if (arrayContains(pivCols[0], reduced.cols)) {
+                // A system of equations is inconsistent iff the rightmost column
+                // of its augmented matrix is a pivot column.
+                throw new InconsistentSystemException("Equation was inconsistent.");
             }
 
             // Getting the indices of the pivot columns
@@ -1955,7 +1958,7 @@ public class Matrix {
 
 
 //-------------------------------------------------------------------------------------------------------------
-// ORTHOGONALITY AND LEAST SQUARES  (COMMENTED)
+// ORTHOGONALITY AND LEAST SQUARES
 
     /**
      * Returns the orthogonal projection of v onto projVec.
@@ -2167,7 +2170,7 @@ public class Matrix {
 
 
 //-------------------------------------------------------------------------------------------------------------
-// EIGENSTUFF  (COMMENTED)
+// EIGENSTUFF
 
     /**
      * Returns an approximation of A's eigenvalues.
@@ -2281,7 +2284,7 @@ public class Matrix {
 
 
 //-------------------------------------------------------------------------------------------------------------
-// MATRIX FACTORIZATIONS  (COMMENTED)
+// MATRIX FACTORIZATIONS
 
     /**
      * Returns a QR factorization of A
@@ -2524,6 +2527,19 @@ public class Matrix {
         }
 
         return uniques;
+    }
+
+
+    /**
+     * Returns true if arr contains val as an element.
+     */
+    private static boolean arrayContains(double[] arr, double val) {
+        for (double j : arr) {
+            if (val == j) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
