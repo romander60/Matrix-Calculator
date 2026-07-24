@@ -1,6 +1,8 @@
 This is my attempt at a Java implementation of a calculator that can perform operations on real-valued matrices.
 For the time being, efficiency isn't the goal; functionality is. I want to get the functions working, then optimize them afterwards.
 
+Last Updated: July 22, 2026
+
 Currently implemented functionality (NT = not tested):
 - Matrix Addition NT
 - Matrix Multiplication NT
@@ -19,13 +21,12 @@ Currently implemented functionality (NT = not tested):
 - Column/Null Space Basis Computations NT
 - Least Squares Approximation NT
 - Orthogonal Complements of Subspaces NT
-
-Functionality I'm hoping to implement:
-- Eigenvalue/Eigenvector Computations
-- (Orthogonal) Diagonalization
-- QR Factorization
-- Singular Value Decomposition
+- Eigenvalue/Eigenvector Computations NT
+- Diagonalization NT
+- QR Factorization NT
+- Singular Value Decomposition NT
 
 AI Usage:
 - Gemini
   - Used to verify my thought process for the row reduction algorithm
+  - Used to teach myself how to algorithmically compute eigenvalues
