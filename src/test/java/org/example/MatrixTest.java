@@ -13,7 +13,7 @@ class MatrixTest {
     @Test
     void MatrixGenTest() {
         // Test 1: No Args
-        Matrix m1 = new Matrix();;
+        Matrix m1 = new Matrix();
         Assertions.assertEquals(new Matrix(new double[][] {
                 {1, 0, 0},
                 {0, 1, 0},
@@ -144,39 +144,6 @@ class MatrixTest {
     }
 
     @Test
-    void getEntryTest() {
-        // Test 1: Square Matrix
-        Matrix m1 = new Matrix(new double[][] {
-                {1, 2, 3, 4, 5},
-                {-3, 8, 39, 39, -15},
-                {40, -4, 76, -9, 0},
-                {6, 10, -6, 1, -1},
-                {-57, 32, -45, 43, -7}
-        } );
-        Assertions.assertEquals(-9, Matrix.getEntry(m1, 3, 4));
-        Assertions.assertEquals(-7, Matrix.getEntry(m1, 5, 5));
-        Assertions.assertEquals(1, Matrix.getEntry(m1, 1, 1));
-        Assertions.assertEquals(10, Matrix.getEntry(m1, 4, 2));
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m1, -3, 5);} );
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m1, 6, 4);} );
-
-        // Test 2: Non-square Matrix
-        Matrix m2 = new Matrix(new double[][] {
-                {0, -2, 4},
-                {-4, 5, 7},
-                {3, -3, 30},
-                {-41, 17, -59}
-        } );
-
-        Assertions.assertEquals(4, Matrix.getEntry(m2, 1, 3));
-        Assertions.assertEquals(30, Matrix.getEntry(m2, 3, 3));
-        Assertions.assertEquals(7, Matrix.getEntry(m2, 2, 3));
-        Assertions.assertEquals(-4, Matrix.getEntry(m2, 2, 1));
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m2, 2, -1);} );
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m2, 3, 7);} );
-    }
-
-    @Test
     void getColTest() {
         // Test 1: Column Vector
         Matrix m1 = new Matrix(new double[][] {
@@ -299,6 +266,78 @@ class MatrixTest {
         }), Matrix.getRow(m3, 5));
         Assertions.assertThrows(AssertionError.class, () -> {Matrix.getRow(m3, 6);} );
         Assertions.assertThrows(AssertionError.class, () -> {Matrix.getRow(m3, -2);} );
+    }
+
+    @Test
+    void getEntryTest() {
+        // Test 1: Square Matrix
+        Matrix m1 = new Matrix(new double[][] {
+                {1, 2, 3, 4, 5},
+                {-3, 8, 39, 39, -15},
+                {40, -4, 76, -9, 0},
+                {6, 10, -6, 1, -1},
+                {-57, 32, -45, 43, -7}
+        } );
+        Assertions.assertEquals(-9, Matrix.getEntry(m1, 3, 4));
+        Assertions.assertEquals(-7, Matrix.getEntry(m1, 5, 5));
+        Assertions.assertEquals(1, Matrix.getEntry(m1, 1, 1));
+        Assertions.assertEquals(10, Matrix.getEntry(m1, 4, 2));
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m1, -3, 5);} );
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m1, 6, 4);} );
+
+        // Test 2: Non-square Matrix
+        Matrix m2 = new Matrix(new double[][] {
+                {0, -2, 4},
+                {-4, 5, 7},
+                {3, -3, 30},
+                {-41, 17, -59}
+        } );
+
+        Assertions.assertEquals(4, Matrix.getEntry(m2, 1, 3));
+        Assertions.assertEquals(30, Matrix.getEntry(m2, 3, 3));
+        Assertions.assertEquals(7, Matrix.getEntry(m2, 2, 3));
+        Assertions.assertEquals(-4, Matrix.getEntry(m2, 2, 1));
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m2, 2, -1);} );
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m2, 3, 7);} );
+    }
+
+    @Test
+    void getEntriesTest() {
+        // The getEntries function is basically the inverse of the matrix generator functions.
+
+        // Test 1: 1x1 Matrix
+        double[][] entries1 = new double[][] {
+                {2}
+        };
+        Matrix t1 = new Matrix(entries1);
+        Assertions.assertArrayEquals(Matrix.getEntries(t1), entries1);
+
+        // Test 2: Row Vector
+        double[][] entries2 = new double[][] {
+                {1, 4, 5, 2, 7}
+        };
+        Matrix t2 = new Matrix(entries2);
+        Assertions.assertArrayEquals(Matrix.getEntries(t2), entries2);
+
+        // Test 3: Column Vector
+        double[][] entries3 = new double[][] {
+                {3},
+                {-2},
+                {5},
+                {0},
+                {-6}
+        };
+        Matrix t3 = new Matrix(entries3);
+        Assertions.assertArrayEquals(Matrix.getEntries(t3), entries3);
+
+        // Test 4: Just another matrix
+        double[][] entries4 = new double[][] {
+                {3, 5, -2, 5},
+                {1, 2, 9, 0},
+                {-3, -3, 7, 6}
+        };
+        Matrix t4 = new Matrix(entries4);
+        Assertions.assertArrayEquals(Matrix.getEntries(t4), entries4);
     }
 
     @Test
@@ -498,7 +537,7 @@ class MatrixTest {
     }
 
     //-------------------------------------------------------------------------------------------------------
-    // BOOLEAN FUNCTION TESTS
+    // BOOLEAN FUNCTION TESTS - COMPLETE
 
     @Test
     void isColVecTest() {
@@ -579,6 +618,413 @@ class MatrixTest {
                 {-9, 6, 7}
         });
         Assertions.assertFalse(Matrix.isVec(m3));
+    }
+
+    @Test
+    void hasColTest() {
+        // Test 1: Valid size, Contained
+        Matrix t1 = new Matrix(new double[][] {
+                {2, 3, 1},
+                {2, 4, 5},
+                {2, 1, 6}
+        });
+        Assertions.assertTrue(Matrix.hasCol(t1, new Matrix(new double[][] {
+                {2},
+                {2},
+                {2}
+        })));
+        Assertions.assertTrue(Matrix.hasCol(t1, new Matrix(new double[][] {
+                {3},
+                {4},
+                {1}
+        })));
+        Assertions.assertTrue(Matrix.hasCol(t1, new Matrix(new double[][] {
+                {1},
+                {5},
+                {6}
+        })));
+
+
+        Matrix t2 = new Matrix(new double[][] {
+                {7},
+                {-4}
+        });
+        Assertions.assertTrue(Matrix.hasCol(t2, new Matrix(new double[][] {
+                {7},
+                {-4},
+        })));
+
+        Matrix t3 = new Matrix(4);
+        Assertions.assertTrue(Matrix.hasCol(t3, new Matrix(new double[][] {
+                {1},
+                {0},
+                {0},
+                {0}
+        })));
+        Assertions.assertTrue(Matrix.hasCol(t3, new Matrix(new double[][] {
+                {0},
+                {1},
+                {0},
+                {0}
+        })));
+        Assertions.assertTrue(Matrix.hasCol(t3, new Matrix(new double[][] {
+                {0},
+                {0},
+                {1},
+                {0}
+        })));
+        Assertions.assertTrue(Matrix.hasCol(t3, new Matrix(new double[][] {
+                {0},
+                {0},
+                {0},
+                {1}
+        })));
+
+        // Test 2: Valid size, Not contained
+        Assertions.assertFalse(Matrix.hasCol(t1, new Matrix(new double[][] {
+                {2},
+                {2},
+                {3}
+        })));
+        Assertions.assertFalse(Matrix.hasCol(t1, new Matrix(new double[][] {
+                {3},
+                {4},
+                {-1}
+        })));
+        Assertions.assertFalse(Matrix.hasCol(t2, new Matrix(new double[][] {
+                {-7},
+                {6}
+        })));
+        Assertions.assertFalse(Matrix.hasCol(t2, new Matrix(new double[][] {
+                {2},
+                {-4}
+        })));
+        Assertions.assertFalse(Matrix.hasCol(t3, new Matrix(new double[][] {
+                {1},
+                {0},
+                {0},
+                {1}
+        })));
+        Assertions.assertFalse(Matrix.hasCol(t2, new Matrix(new double[][] {
+                {0},
+                {-1},
+                {0},
+                {0}
+        })));
+
+        // Test 3: Invalid size
+        Assertions.assertFalse(Matrix.hasCol(t1, new Matrix(new double[][] {
+                {1, 3, 7}
+        })));
+        Assertions.assertFalse(Matrix.hasCol(t1, new Matrix(new double[][] {
+                {3},
+                {4},
+                {1},
+                {0}
+        })));
+        Assertions.assertFalse(Matrix.hasCol(t2, new Matrix(new double[][] {
+                {7},
+                {-4},
+                {1}
+        })));
+        Assertions.assertFalse(Matrix.hasCol(t2, new Matrix(new double[][] {
+                {5, 6}
+        })));
+        Assertions.assertFalse(Matrix.hasCol(t3, new Matrix(new double[][] {
+                {1, 0, 0},
+                {0, 1, 0},
+                {0, 0, 1}
+        })));
+        Assertions.assertFalse(Matrix.hasCol(t3, new Matrix(new double[][] {
+                {1},
+                {0}
+        })));
+    }
+
+    @Test
+    void hasRowTest() {
+        // Test 1: Valid size, Contained
+        Matrix t1 = new Matrix(new double[][] {
+                {2, 3, 1},
+                {2, 4, 5},
+                {2, 1, 6}
+        });
+        Assertions.assertTrue(Matrix.hasRow(t1, new Matrix(new double[][] {
+                {2, 3, 1}
+        })));
+        Assertions.assertTrue(Matrix.hasRow(t1, new Matrix(new double[][] {
+                {2, 4, 5}
+        })));
+        Assertions.assertTrue(Matrix.hasRow(t1, new Matrix(new double[][] {
+                {2, 1, 6}
+        })));
+
+        Matrix t2 = new Matrix(new double[][] {
+                {7},
+                {-4}
+        });
+        Assertions.assertTrue(Matrix.hasRow(t2, new Matrix(new double[][] {
+                {7}
+        })));
+        Assertions.assertTrue(Matrix.hasRow(t2, new Matrix(new double[][] {
+                {-4}
+        })));
+
+        Matrix t3 = new Matrix(4);
+        Assertions.assertTrue(Matrix.hasRow(t3, new Matrix(new double[][] {
+                {1, 0, 0, 0}
+        })));
+        Assertions.assertTrue(Matrix.hasRow(t3, new Matrix(new double[][] {
+                {0, 1, 0, 0}
+        })));
+        Assertions.assertTrue(Matrix.hasRow(t3, new Matrix(new double[][] {
+                {0, 0, 1, 0}
+        })));
+        Assertions.assertTrue(Matrix.hasRow(t3, new Matrix(new double[][] {
+                {0, 0, 0, 1}
+        })));
+
+        // Test 2: Valid size, Not contained
+        Assertions.assertFalse(Matrix.hasRow(t1, new Matrix(new double[][] {
+                {2, 3, 2}
+        })));
+        Assertions.assertFalse(Matrix.hasRow(t1, new Matrix(new double[][] {
+                {2, 4, -5}
+        })));
+        Assertions.assertFalse(Matrix.hasRow(t2, new Matrix(new double[][] {
+                {-7}
+        })));
+        Assertions.assertFalse(Matrix.hasRow(t2, new Matrix(new double[][] {
+                {10}
+        })));
+        Assertions.assertFalse(Matrix.hasRow(t3, new Matrix(new double[][] {
+                {1, 0, 4, 0}
+        })));
+        Assertions.assertFalse(Matrix.hasRow(t3, new Matrix(new double[][] {
+                {0, 6, 0, 0}
+        })));
+
+        // Test 3: Invalid size
+        Assertions.assertFalse(Matrix.hasRow(t1, new Matrix(new double[][] {
+                {1},
+                {3},
+                {7}
+        })));
+        Assertions.assertFalse(Matrix.hasRow(t1, new Matrix(new double[][] {
+                {3, 4, 1, 0}
+        })));
+        Assertions.assertFalse(Matrix.hasRow(t2, new Matrix(new double[][] {
+                {7, -4, 1}
+        })));
+        Assertions.assertFalse(Matrix.hasRow(t2, new Matrix(new double[][] {
+                {5},
+                {6}
+        })));
+        Assertions.assertFalse(Matrix.hasRow(t3, new Matrix(new double[][] {
+                {1, 0, 0},
+                {0, 0, 1}
+        })));
+        Assertions.assertFalse(Matrix.hasRow(t3, new Matrix(new double[][] {
+                {1, 3}
+        })));
+    }
+
+    @Test
+    void sameSizeTest() {
+        // Test 1 (Pair): Column vectors, same size
+        Matrix t1 = new Matrix(new double[][] {
+                {1},
+                {0}
+        });
+        Matrix t2 = new Matrix(new double[][] {
+                {-9},
+                {6}
+        });
+        Assertions.assertTrue(Matrix.sameSize(t1, t2));
+
+        // Test 2 (Pair): Column vectors, different sizes
+        Matrix t3 = new Matrix(new double[][] {
+                {3},
+                {-6},
+                {-2}
+        });
+        Assertions.assertFalse(Matrix.sameSize(t3, t1));
+
+        // Test 3 (Pair): Row vectors, same size
+        Matrix t4 = new Matrix(new double[][] {
+                {1, 0}
+        });
+        Matrix t5 = new Matrix(new double[][] {
+                {-9, 6}
+        });
+        Assertions.assertTrue(Matrix.sameSize(t4, t5));
+
+        // Test 4 (Pair): Row vectors, different sizes
+        Matrix t6 = new Matrix(new double[][] {
+                {3, -6, 2}
+        });
+        Assertions.assertFalse(Matrix.sameSize(t6, t4));
+
+        // Test 5 (Pair): Arbitrary matrices, some same size, some different
+        Matrix t7 = new Matrix(new double[][] {
+                {2, 3},
+                {1, 4}
+        });
+        Matrix t8 = new Matrix(new double[][] {
+                {5, 6},
+                {7, -8}
+        });
+        Matrix t9 = new Matrix(new double[][] {
+                {-4, 8},
+                {-9, 0},
+                {1, 1},
+                {4, 3}
+        });
+        Matrix t10 = new Matrix(new double[][] {
+                {-8, 1},
+                {3, 2},
+                {3, 3},
+                {0, -4}
+        });
+        Matrix t11 = new Matrix(new double[][] {
+                {6, -7, 1},
+                {-6, 1, 3}
+        });
+        Assertions.assertTrue(Matrix.sameSize(t7, t8));
+        Assertions.assertTrue(Matrix.sameSize(t9, t10));
+        Assertions.assertFalse(Matrix.sameSize(t7, t9));
+        Assertions.assertFalse(Matrix.sameSize(t11, t8));
+        Assertions.assertFalse(Matrix.sameSize(t11, t10));
+
+        // Test 6 (Array): Empty set
+        Matrix[] t12 = new Matrix[0];
+        Assertions.assertFalse(Matrix.sameSize(t12));
+
+        // Test 7 (Array): Sets of column vectors, same size elements
+        Matrix[] t13 = new Matrix[4];
+        t13[0] = t1;
+        t13[1] = t2;
+        t13[2] = new Matrix(new double[][] {
+                {3},
+                {-1}
+        });
+        t13[3] = new Matrix(new double[][] {
+                {14},
+                {-4}
+        });
+        Assertions.assertTrue(Matrix.sameSize(t13));
+
+        Matrix[] t14 = new Matrix[4];
+        t14[0] = t3;
+        t14[1] = new Matrix(new double[][] {
+                {6},
+                {1},
+                {4}
+        });
+        t14[2] = new Matrix(new double[][] {
+                {-1},
+                {5},
+                {3}
+        });
+        t14[3] = new Matrix(new double[][] {
+                {8},
+                {-3},
+                {9}
+        });
+        Assertions.assertTrue(Matrix.sameSize(t14));
+
+        // Test 8 (Array): Sets of column vectors, different size elements
+        Matrix[] t15 = new Matrix[4];
+        t15[0] = t13[0];
+        t15[1] = t13[1];
+        t15[2] = t13[2];
+        t15[3] = t14[0];
+        Assertions.assertFalse(Matrix.sameSize(t15));
+
+        Matrix[] t16 = new Matrix[4];
+        t16[0] = t13[2];
+        t16[1] = t14[1];
+        t16[2] = t14[2];
+        t16[3] = t14[3];
+        Assertions.assertFalse(Matrix.sameSize(t16));
+
+        // Test 9 (Array): Sets of row vectors, same size elements
+        Matrix[] t17 = new Matrix[4];
+        t17[0] = t4;
+        t17[1] = t5;
+        t17[2] = new Matrix(new double[][] {
+                {13, -42}
+        });
+        t17[3] = new Matrix(new double[][] {
+                {4, 64}
+        });
+        Assertions.assertTrue(Matrix.sameSize(t17));
+
+        Matrix[] t18 = new Matrix[4];
+        t18[0] = t6;
+        t18[1] = new Matrix(new double[][] {
+                {5, -4, 2}
+        });
+        t18[2] = new Matrix(new double[][] {
+                {0, 0, -6}
+        });
+        t18[3] = new Matrix(new double[][] {
+                {7, -5, -19}
+        });
+        Assertions.assertTrue(Matrix.sameSize(t18));
+
+        // Test 10 (Array): Sets of row vectors, different size elements
+        Matrix[] t19 = new Matrix[4];
+        t19[0] = t17[0];
+        t19[1] = t18[0];
+        t19[2] = t18[1];
+        t19[3] = t18[2];
+        Assertions.assertFalse(Matrix.sameSize(t19));
+
+        Matrix[] t20 = new Matrix[4];
+        t20[0] = t18[3];
+        t20[1] = t17[1];
+        t20[2] = t17[2];
+        t20[3] = t17[3];
+        Assertions.assertFalse(Matrix.sameSize(t20));
+
+        // Test 11 (Array): Sets of arbitrary matrices, some same size, some different
+        Matrix[] t21 = new Matrix[4];
+        t21[0] = t7;
+        t21[1] = t8;
+        t21[2] = new Matrix(new double[][] {
+                {5, -6},
+                {9, 0}
+        });
+        t21[3] = new Matrix(new double[][] {
+                {2, -5},
+                {8, -7}
+        });
+        Assertions.assertTrue(Matrix.sameSize(t21));
+
+        Matrix[] t22 = new Matrix[4];
+        t22[0] = t9;
+        t22[1] = t10;
+        t22[2] = new Matrix(new double[][] {
+                {-16, 5},
+                {23, 56},
+                {9, -4},
+                {0, 33}
+        });
+        t22[3] = new Matrix(new double[][] {
+                {3, 5},
+                {3, -5},
+                {-50, -2},
+                {7, -6}
+        });
+        Assertions.assertTrue(Matrix.sameSize(t22));
+
+        Matrix[] t23 = new Matrix[4];
+        t23[0] = t21[0];
+        t23[1] = t21[1];
+        t23[2] = t22[0];
+        t23[3] = t22[1];
+        Assertions.assertFalse(Matrix.sameSize(t23));
     }
 
     @Test
@@ -672,104 +1118,637 @@ class MatrixTest {
         Assertions.assertFalse( Matrix.isSquare(Matrix.getRow(m7, 2)) );
     }
 
-    @Test // INCOMPLETE
+    @Test
     void isUpperTriangularTest() {
         // Test 1: Upper Triangular
+        Matrix t1 = new Matrix(new double[][] {
+                {3, 2, 3},
+                {0, -7, -1},
+                {0, 0, 6}
+        });
+        Assertions.assertTrue(Matrix.isUpperTriangular(t1));
+
         // Test 2: Lower Triangular
+        Matrix t2 = new Matrix(new double[][] {
+                {3, 0, 0},
+                {2, -7, 0},
+                {3, -1, 6}
+        });
+        Assertions.assertFalse(Matrix.isUpperTriangular(t2));
+
         // Test 3: Diagonal
+        Matrix t3 = Matrix.diag(new double[] { 3, 4, 5, 6 });
+        Assertions.assertTrue(Matrix.isUpperTriangular(t3));
+
         // Test 4: Square, Non-Triangular
+        Matrix t4 = new Matrix(new double[][] {
+                {3, 2, 3},
+                {0, -7, -1},
+                {4, 0, 6}
+        });
+        Assertions.assertFalse(Matrix.isUpperTriangular(t4));
+
         // Test 5: Non-square
+        Matrix t5 = new Matrix(new double[][] {
+                {3, 2, 3},
+                {0, -7, -1}
+        });
+        Assertions.assertFalse(Matrix.isUpperTriangular(t5));
     }
 
-    @Test // INCOMPLETE
+    @Test
     void isLowerTriangularTest() {
         // Test 1: Upper Triangular
+        Matrix t1 = new Matrix(new double[][] {
+                {3, 2, 3},
+                {0, -7, -1},
+                {0, 0, 6}
+        });
+        Assertions.assertFalse(Matrix.isLowerTriangular(t1));
+
         // Test 2: Lower Triangular
+        Matrix t2 = new Matrix(new double[][] {
+                {3, 0, 0},
+                {2, -7, 0},
+                {3, -1, 6}
+        });
+        Assertions.assertTrue(Matrix.isLowerTriangular(t2));
+
         // Test 3: Diagonal
+        Matrix t3 = Matrix.diag(new double[] { 3, 4, 5, 6 });
+        Assertions.assertTrue(Matrix.isLowerTriangular(t3));
+
         // Test 4: Square, Non-Triangular
+        Matrix t4 = new Matrix(new double[][] {
+                {3, 2, 3},
+                {0, -7, -1},
+                {4, 0, 6}
+        });
+        Assertions.assertFalse(Matrix.isLowerTriangular(t4));
+
         // Test 5: Non-square
+        Matrix t5 = new Matrix(new double[][] {
+                {3, 2, 3},
+                {0, -7, -1}
+        });
+        Assertions.assertFalse(Matrix.isLowerTriangular(t5));
     }
 
-    @Test // INCOMPLETE
+    @Test
     void isTriangularTest() {
         // Test 1: Upper Triangular
+        Matrix t1 = new Matrix(new double[][] {
+                {3, 2, 3},
+                {0, -7, -1},
+                {0, 0, 6}
+        });
+        Assertions.assertTrue(Matrix.isTriangular(t1));
+
         // Test 2: Lower Triangular
+        Matrix t2 = new Matrix(new double[][] {
+                {3, 0, 0},
+                {2, -7, 0},
+                {3, -1, 6}
+        });
+        Assertions.assertTrue(Matrix.isTriangular(t2));
+
         // Test 3: Diagonal
+        Matrix t3 = Matrix.diag(new double[] { 3, 4, 5, 6 });
+        Assertions.assertTrue(Matrix.isTriangular(t3));
+
         // Test 4: Square, Non-Triangular
+        Matrix t4 = new Matrix(new double[][] {
+                {3, 2, 3},
+                {0, -7, -1},
+                {4, 0, 6}
+        });
+        Assertions.assertFalse(Matrix.isTriangular(t4));
+
         // Test 5: Non-square
+        Matrix t5 = new Matrix(new double[][] {
+                {3, 2, 3},
+                {0, -7, -1}
+        });
+        Assertions.assertFalse(Matrix.isTriangular(t5));
     }
 
-    @Test // INCOMPLETE
+    @Test
     void isDiagonalTest() {
         // Test 1: Identity
+        Matrix t1 = new Matrix();
+        Assertions.assertTrue(Matrix.isDiagonal(t1));
+
+        // Test 2: 1x1 Matrix
+        Matrix t2 = new Matrix(new double[][] {
+                {3}
+        });
+        Assertions.assertTrue(Matrix.isDiagonal(t2));
+
+        // Test 3: Diagonal
+        Matrix t3 = Matrix.diag(new double[] {3, 4, 5, 6, 7});
+        Assertions.assertTrue(Matrix.isDiagonal(t3));
+
+        // Test 4: Diagonal Zero Matrix
+        Matrix t4 = Matrix.zeroMatrix(4, 4);
+        Assertions.assertTrue(Matrix.isDiagonal(t4));
+
+        // Test 5: Square, non-diagonal
+        Matrix t5 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Assertions.assertFalse(Matrix.isDiagonal(t5));
+
+        // Test 6: Non-square
+        Matrix t6 = Matrix.zeroMatrix(4, 5);
+        Assertions.assertFalse(Matrix.isDiagonal(t6));
     }
 
-    @Test // INCOMPLETE
+    @Test
     void isInvertibleTest() {
         // Test 1: Invertible
+        Matrix t1 = new Matrix();
+        Assertions.assertTrue(Matrix.isInvertible(t1));
+
+        Matrix t2 = new Matrix(new double[][] {
+                {1, 0, -2},
+                {-3, 1, 4},
+                {2, -3, 4}
+        });
+        Assertions.assertTrue(Matrix.isInvertible(t2));
+
         // Test 2: Square, Non-invertible
+        Matrix t3 = new Matrix(new double[][] {
+                {3, 6, 2},
+                {6, 12, -3},
+                {2, 4, -6}
+        });
+        Assertions.assertFalse(Matrix.isInvertible(t3));
+
         // Test 3: Non-square
+        Matrix t4 = new Matrix(new double[][] {
+                {3, 2, -1},
+                {0, 4, -6}
+        });
+        Assertions.assertFalse(Matrix.isInvertible(t4));
     }
 
-    @Test // INCOMPLETE
+    @Test
     void isSymmetricTest() {
         // Test 1: Symmetric
+        Matrix t1 = new Matrix(new double[][] {
+                {3, 2, 1},
+                {2, 4, 5},
+                {1, 5, 2}
+        });
+        Assertions.assertTrue(Matrix.isSymmetric(t1));
+
         // Test 2: Square, Non-symmetric
-        // Test 3: Non-square
+        Matrix t2 = new Matrix(new double[][] {
+                {3, 2, 1},
+                {6, 5, 4},
+                {9, 8, 7}
+        });
+        Assertions.assertFalse(Matrix.isSymmetric(t2));
+
+        // Test 3: Diagonal Matrix
+        Matrix t3 = new Matrix();
+        Assertions.assertTrue(Matrix.isSymmetric(t3));
+
+        Matrix t4 = Matrix.diag(new double[] {3, 4, 5, 6});
+        Assertions.assertTrue(Matrix.isSymmetric(t4));
+
+        // Test 4: Zero Matrix
+        Matrix t5 = Matrix.zeroMatrix(4, 4);
+        Assertions.assertTrue(Matrix.isSymmetric(t5));
+
+        Matrix t6 = Matrix.zeroMatrix(3, 4);
+        Assertions.assertFalse(Matrix.isSymmetric(t6));
+
+        // Test 5: 1x1 Matrix
+        Matrix t7 = new Matrix(new double[][] {
+                {-7}
+        });
+        Assertions.assertTrue(Matrix.isSymmetric(t7));
+
+        // Test 6: Non-square
+        Matrix t8 = new Matrix(new double[][] {
+                {5, 1, -9},
+                {6, 0, 2},
+                {-3, -5, -1},
+                {9, 0, 0}
+        });
+        Assertions.assertFalse(Matrix.isSymmetric(t8));
     }
 
-    @Test // INCOMPLETE
+    @Test
     void isUnitTest() {
         // Test 1: Unit Column Vector
+        Matrix t1 = new Matrix(new double[][] {
+                {1},
+                {0},
+                {0}
+        });
+        Assertions.assertTrue(Matrix.isUnit(t1));
+
+        Matrix t2 = new Matrix(new double[][] {
+                {0},
+                {1 / Math.sqrt(3)},
+                {1 / Math.sqrt(3)},
+                {0},
+                {1 / Math.sqrt(3)}
+        });
+        Assertions.assertTrue(Matrix.isUnit(t2));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {1 / Math.sqrt(4)},
+                {0},
+                {-1 / Math.sqrt(4)},
+                {1 / Math.sqrt(2)}
+        });
+        Assertions.assertTrue(Matrix.isUnit(t3));
+
         // Test 2: Unit Row Vector
+        Matrix t4 = new Matrix(new double[][] {
+                {1, 0, 0}
+        });
+        Assertions.assertTrue(Matrix.isUnit(t4));
+
+        Matrix t5 = new Matrix(new double[][] {
+                {0, 1 / Math.sqrt(3), 1 / Math.sqrt(3), 0, 1 / Math.sqrt(3)}
+        });
+        Assertions.assertTrue(Matrix.isUnit(t5));
+
+        Matrix t6 = new Matrix(new double[][] {
+                {1 / Math.sqrt(4), 0, -1 / Math.sqrt(4), 1 / Math.sqrt(2)}
+        });
+        Assertions.assertTrue(Matrix.isUnit(t6));
+
         // Test 3: Non-unit Column Vector
+        Matrix t7 = new Matrix(new double[][] {
+                {2}
+        });
+        Assertions.assertFalse(Matrix.isUnit(t7));
+
+        Matrix t8 = new Matrix(new double[][] {
+                {1},
+                {0},
+                {1},
+                {0}
+        });
+        Assertions.assertFalse(Matrix.isUnit(t8));
+
+        Matrix t9 = new Matrix(new double[][] {
+                {-4},
+                {-2},
+                {1},
+                {4}
+        });
+        Assertions.assertFalse(Matrix.isUnit(t9));
+
         // Test 4: Non-unit Row Vector
+        Matrix t10 = new Matrix(new double[][] {
+                {1, 0, 1, 0}
+        });
+        Assertions.assertFalse(Matrix.isUnit(t10));
+
+        Matrix t11 = new Matrix(new double[][] {
+                {-4, -2, 1, 4}
+        });
+        Assertions.assertFalse(Matrix.isUnit(t11));
+
+        Matrix t12 = new Matrix(new double[][] {
+                {0.5, 0.25, 0.25}
+        });
+        Assertions.assertFalse(Matrix.isUnit(t12));
+
         // Test 5: Non-vector
+        Matrix t13 = new Matrix();
+        Assertions.assertFalse(Matrix.isUnit(t13));
+
+        Matrix t14 = Matrix.zeroMatrix(3, 3);
+        Assertions.assertFalse(Matrix.isUnit(t14));
+
+        Matrix t15 = new Matrix(new double[][] {
+                {3, -8, 1},
+                {1, -1, 2},
+                {-5, 5, 2}
+        });
+        Assertions.assertFalse(Matrix.isUnit(t15));
+
+        Matrix t16 = new Matrix(new double[][] {
+                {0, -2, 1, 5},
+                {9, -9, 8, -3}
+        });
+        Assertions.assertFalse(Matrix.isUnit(t16));
     }
 
-    @Test // INCOMPLETE
+    @Test
     void areOrthoTest() {
         // Test 1: Orthogonal Column Vectors
+        Matrix t1 = Matrix.zeroMatrix(3, 1);
+        Matrix t2 = Matrix.zeroMatrix(3, 1);
+        Assertions.assertTrue(Matrix.areOrtho(t1, t2));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {2},
+                {1},
+                {0}
+        });
+        Matrix t4 = new Matrix(new double[][] {
+                {0},
+                {0},
+                {3}
+        });
+        Assertions.assertTrue(Matrix.areOrtho(t3, t4));
+
+        Matrix t5 = new Matrix(new double[][] {
+                {-2},
+                {1}
+        });
+        Matrix t6 = new Matrix(new double[][] {
+                {1},
+                {2}
+        });
+        Assertions.assertTrue(Matrix.areOrtho(t5, t6));
+
         // Test 2: Orthogonal Row Vectors
+        Matrix t7 = Matrix.zeroMatrix(1, 3);
+        Matrix t8 = Matrix.zeroMatrix(1, 3);
+        Assertions.assertTrue(Matrix.areOrtho(t7, t8));
+
+        Matrix t9 = new Matrix(new double[][] {
+                {2, 1, 0},
+        });
+        Matrix t10 = new Matrix(new double[][] {
+                {0, 0, 3}
+        });
+        Assertions.assertTrue(Matrix.areOrtho(t9, t10));
+
+        Matrix t11 = new Matrix(new double[][] {
+                {-2, 1}
+        });
+        Matrix t12 = new Matrix(new double[][] {
+                {1, 2}
+        });
+        Assertions.assertTrue(Matrix.areOrtho(t11, t12));
+
         // Test 3: Non-orthogonal Column Vectors
+        Matrix t13 = new Matrix(new double[][] {
+                {4},
+                {-2},
+                {1},
+                {5}
+        });
+        Matrix t14 = new Matrix(new double[][] {
+                {-4},
+                {2},
+                {-1},
+                {-5}
+        });
+        Assertions.assertFalse(Matrix.areOrtho(t13, t14));
+
+        Matrix t15 = new Matrix(new double[][] {
+                {0},
+                {1}
+        });
+        Matrix t16 = new Matrix(new double[][] {
+                {0},
+                {-1}
+        });
+        Assertions.assertFalse(Matrix.areOrtho(t15, t16));
+
+        Matrix t17 = new Matrix(new double[][] {
+                {3},
+                {-1},
+                {0}
+        });
+        Matrix t18 = new Matrix(new double[][] {
+                {3},
+                {1},
+                {0}
+        });
+        Assertions.assertFalse(Matrix.areOrtho(t17, t18));
+
         // Test 4: Non-orthogonal Row Vectors
-        // Test 5: Non-vectors
+        Matrix t19 = new Matrix(new double[][] {
+                {4, -2, 1, 5}
+        });
+        Matrix t20 = new Matrix(new double[][] {
+                {-4, 2, -1, -5}
+        });
+        Assertions.assertFalse(Matrix.areOrtho(t19, t20));
+
+        Matrix t21 = new Matrix(new double[][] {
+                {0, 1}
+        });
+        Matrix t22 = new Matrix(new double[][] {
+                {0, -1}
+        });
+        Assertions.assertFalse(Matrix.areOrtho(t21, t22));
+
+        Matrix t23 = new Matrix(new double[][] {
+                {3, -1, 0}
+        });
+        Matrix t24 = new Matrix(new double[][] {
+                {3, 1, 0}
+        });
+        Assertions.assertFalse(Matrix.areOrtho(t23, t24));
+
+        // Test 5: Vectors of Different Sizes
+        Assertions.assertFalse(Matrix.areOrtho(t1, t5));
+        Assertions.assertFalse(Matrix.areOrtho(t14, t15));
+        Assertions.assertFalse(Matrix.areOrtho(t19, t21));
+        Assertions.assertFalse(Matrix.areOrtho(t22, t24));
+        Assertions.assertFalse(Matrix.areOrtho(t1, t23));
+        Assertions.assertFalse(Matrix.areOrtho(t14, t20));
+
+        // Test 6: Non-vectors
+        Matrix t25 = Matrix.zeroMatrix(2, 2);
+        Assertions.assertFalse(Matrix.areOrtho(t25, t21));
+        Assertions.assertFalse(Matrix.areOrtho(t25, t15));
+
+        Matrix t26 = Matrix.diag(new double[] {3, 4, 5, 6});
+        Assertions.assertFalse(Matrix.areOrtho(t26, t13));
+        Assertions.assertFalse(Matrix.areOrtho(t26, t20));
+
     }
 
-    @Test // INCOMPLETE
-    void isOrthoTest() {
-        // Test 1 (matrix version): Orthogonal
-        // Test 2 (matrix version): Square, Non-orthogonal
-        // Test 3 (matrix version): Non-square
-        // Test 4: Just one vector
-    }
+    @Test
+    void hasOrthoColsAndIsOrthoTest() {
+        // hasOrthoCols tests
+        // Test 1: Orthonormal Columns
+        Matrix t1 = new Matrix();
+        Assertions.assertTrue(Matrix.hasOrthoCols(t1, false));
+        Assertions.assertTrue(Matrix.hasOrthoCols(t1, true));
 
-    @Test // INCOMPLETE
-    void hasColTest() {
-        // Test 1: Valid size, Contained
-        // Test 2: Valid size, Not contained
-        // Test 3: Invalid size
-    }
+        Matrix t2 = new Matrix(new double[][] {
+                {3/Math.sqrt(11), -1/Math.sqrt(6), -1/Math.sqrt(66)},
+                {1/Math.sqrt(11), 2/Math.sqrt(6), -4/Math.sqrt(66)},
+                {1/Math.sqrt(11), 1/Math.sqrt(6), 7/Math.sqrt(66)}
+        });
+        Assertions.assertTrue(Matrix.hasOrthoCols(t2, false));
+        Assertions.assertTrue(Matrix.hasOrthoCols(t2, true));
 
-    @Test // INCOMPLETE
-    void hasRowTest() {
-        // Test 1: Valid size, Contained
-        // Test 2: Valid size, Not contained
-        // Test 3: Invalid size
-    }
+        Matrix t3 = new Matrix(new double[][] {
+                {2/Math.sqrt(30), -2/Math.sqrt(6)},
+                {5/Math.sqrt(30), 1/Math.sqrt(6)},
+                {-1/Math.sqrt(30), 1/Math.sqrt(6)}
+        });
+        Assertions.assertTrue(Matrix.hasOrthoCols(t3, false));
+        Assertions.assertTrue(Matrix.hasOrthoCols(t3, true));
 
-    @Test // INCOMPLETE
-    void sameSizeTest() {
-        // Test 1: Column vectors, same size
-        // Test 2: Column vectors, different sizes
-        // Test 3: Row vectors, same size
-        // Test 4: Row vectors, different sizes
-        // Test 5: Arbitrary matrices, some same size, some different
-        // Test 6: Set of column vectors, all same size
-        // Test 7: Set of column vectors, some different size
-        // Test 8: Set of row vectors, all same size
-        // Test 9: Set of row vectors, all different size
-        // Test 10: Set of arbitrary matrices some same size, some different
+        // Test 2: Orthogonal Columns, but Not Orthonormal
+        Matrix t4 = Matrix.scale(new Matrix(), 3);
+        Assertions.assertTrue(Matrix.hasOrthoCols(t4, false));
+        Assertions.assertFalse(Matrix.hasOrthoCols(t4, true));
+
+        Matrix t5 = new Matrix(new double[][] {
+                {3, -1, -1},
+                {1, 2, -4},
+                {1, 1, 7}
+        });
+        Assertions.assertTrue(Matrix.hasOrthoCols(t5, false));
+        Assertions.assertFalse(Matrix.hasOrthoCols(t5, true));
+
+        Matrix t6 = new Matrix(new double[][] {
+                {2, -2},
+                {5, 1},
+                {-1, 1}
+        });
+        Assertions.assertTrue(Matrix.hasOrthoCols(t6, false));
+        Assertions.assertFalse(Matrix.hasOrthoCols(t6, true));
+
+        Matrix t7 = Matrix.zeroMatrix(3, 3);
+        Assertions.assertTrue(Matrix.hasOrthoCols(t7, false));
+        Assertions.assertFalse(Matrix.hasOrthoCols(t7, true));
+
+        // Test 3: Column Vectors
+        Matrix t8 = new Matrix(new double[][] {
+                {3},
+                {-4},
+                {-1}
+        });
+        Assertions.assertTrue(Matrix.hasOrthoCols(t8, false));
+        Assertions.assertFalse(Matrix.hasOrthoCols(t8, true));
+
+        Matrix t9 = new Matrix(new double[][] {
+                {1 / Math.sqrt(2)},
+                {-1 / Math.sqrt(2)},
+                {0}
+        });
+        Assertions.assertTrue(Matrix.hasOrthoCols(t9, false));
+        Assertions.assertTrue(Matrix.hasOrthoCols(t9, true));
+
+        Matrix t10 = Matrix.zeroMatrix(3, 1);
+        Assertions.assertTrue(Matrix.hasOrthoCols(t10, false));
+        Assertions.assertFalse(Matrix.hasOrthoCols(t10, true));
+
+        // Test 4: Non-orthogonal Columns
+        Matrix t11 = new Matrix(new double[][] {
+                {1, 2},
+                {3, 4}
+        });
+        Assertions.assertFalse(Matrix.hasOrthoCols(t11, false));
+        Assertions.assertFalse(Matrix.hasOrthoCols(t11, true));
+
+        Matrix t12 = new Matrix(new double[][] {
+                {2, 0, -3},
+                {3, 0, -2},
+                {0, 2, 1},
+        });
+        Assertions.assertFalse(Matrix.hasOrthoCols(t12, false));
+        Assertions.assertFalse(Matrix.hasOrthoCols(t12, true));
+
+        Matrix t13 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {2, 4, 6},
+                {3, 6, 9}
+        });
+        Assertions.assertFalse(Matrix.hasOrthoCols(t13, false));
+        Assertions.assertFalse(Matrix.hasOrthoCols(t13, true));
+
+        // isOrtho tests
+        // Test 1: Invalid inputs
+        Matrix[] t14 = new Matrix[0];
+        Assertions.assertFalse(Matrix.isOrtho(t14, false));
+        Assertions.assertFalse(Matrix.isOrtho(t14, true));
+
+        Matrix[] t15 = new Matrix[] {
+                new Matrix(new double[][] {
+                        {2, 3},
+                        {4, 1}
+                }),
+                new Matrix(new double[][] {
+                        {-4, 1},
+                        {7, 6}
+                }),
+                new Matrix(new double[][] {
+                        {11, -2},
+                        {-5, 4}
+                })
+        };
+        Assertions.assertFalse(Matrix.isOrtho(t15, false));
+        Assertions.assertFalse(Matrix.isOrtho(t15, true));
+
+        // Test 2: Orthonormal Columns
+        Matrix[] t16 = Matrix.getCols(t1);
+        Assertions.assertTrue(Matrix.isOrtho(t16, false));
+        Assertions.assertTrue(Matrix.isOrtho(t16, true));
+
+        Matrix[] t17 = Matrix.getCols(t2);
+        Assertions.assertTrue(Matrix.isOrtho(t17, false));
+        Assertions.assertTrue(Matrix.isOrtho(t17, true));
+
+        Matrix[] t18 = Matrix.getCols(t3);
+        Assertions.assertTrue(Matrix.isOrtho(t18, false));
+        Assertions.assertTrue(Matrix.isOrtho(t18, true));
+
+        // Test 3: Orthogonal Columns, but Not Orthonormal
+        Matrix[] t19 = Matrix.getCols(t4);
+        Assertions.assertTrue(Matrix.isOrtho(t19, false));
+        Assertions.assertFalse(Matrix.isOrtho(t19, true));
+
+        Matrix[] t20 = Matrix.getCols(t5);
+        Assertions.assertTrue(Matrix.isOrtho(t20, false));
+        Assertions.assertFalse(Matrix.isOrtho(t20, true));
+
+        Matrix[] t21 = Matrix.getCols(t6);
+        Assertions.assertTrue(Matrix.isOrtho(t21, false));
+        Assertions.assertFalse(Matrix.isOrtho(t21, true));
+
+        Matrix[] t22 = Matrix.getCols(t7);
+        Assertions.assertTrue(Matrix.isOrtho(t22, false));
+        Assertions.assertFalse(Matrix.isOrtho(t22, true));
+
+        // Test 4: Sets with One Vector
+        Matrix[] t23 = Matrix.getCols(t8);
+        Assertions.assertTrue(Matrix.isOrtho(t23, false));
+        Assertions.assertFalse(Matrix.isOrtho(t23, true));
+
+        Matrix[] t24 = Matrix.getCols(t9);
+        Assertions.assertTrue(Matrix.isOrtho(t24, false));
+        Assertions.assertTrue(Matrix.isOrtho(t24, true));
+
+        Matrix[] t25 = Matrix.getCols(t10);
+        Assertions.assertTrue(Matrix.isOrtho(t25, false));
+        Assertions.assertFalse(Matrix.isOrtho(t25, true));
+
+        // Test 5: Non-orthogonal Columns
+        Matrix[] t26 = Matrix.getCols(t11);
+        Assertions.assertFalse(Matrix.isOrtho(t26, false));
+        Assertions.assertFalse(Matrix.isOrtho(t26, true));
+
+        Matrix[] t27 = Matrix.getCols(t12);
+        Assertions.assertFalse(Matrix.isOrtho(t27, false));
+        Assertions.assertFalse(Matrix.isOrtho(t27, true));
+
+        Matrix[] t28 = Matrix.getCols(t13);
+        Assertions.assertFalse(Matrix.isOrtho(t28, false));
+        Assertions.assertFalse(Matrix.isOrtho(t28, true));
+
+
     }
 
     //-------------------------------------------------------------------------------------------------------

@@ -221,6 +221,90 @@ public class Matrix {
 
 
     /**
+     * @return "true" if col is equal to one of A's columns.
+     */
+    public static boolean hasCol(Matrix A, Matrix col) {
+        // If col doesn't have the same number of entries as the columns in A, then it can't be in A; by the invariant
+        // defining how matrices are built, all columns in a matrix must have the same number of entries.
+        if (col.rows != A.rows) { return false; }
+
+        for (int j = 0; j < A.cols; j++) {
+            // There's no need to verify if col is a column vector; if it isn't, then the .equals method will declare
+            // them unequal due to their mismatching sizes.
+            if (col.equals( getCol(A, j + 1) )) {
+                // Using j + 1 as the second argument in getCol to align its specification and the loop variable.
+                // I kind of flip-flop between starting at j = 0 and using j + 1 in getCol and starting at j = 1
+                // and using j in getCol; they both accomplish the same goal.
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * @return "true" if row is equal to one of A's rows.
+     */
+    public static boolean hasRow(Matrix A, Matrix row) {
+        // If row doesn't have the same number of entries as the rows in A, then it can't be in A; by the invariant
+        // defining how matrices are built, all row in a matrix must have the same number of entries.
+        if (row.cols != A.cols) { return false; }
+        for (int i = 0; i < A.rows; i++) {
+            // There's no need to verify if row is a row vector; if it isn't, then the .equals method will declare
+            // them unequal due to their mismatching sizes.
+            if (row.equals( getRow(A, i + 1) )) { return true; }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * @return "true" if A and B have the same dimension.
+     */
+    public static boolean sameSize(Matrix A, Matrix B) {
+        return (A.rows == B.rows) && (A.cols == B.cols);
+    }
+
+    /**
+     * @return "true" if all the matrices in mats have the same dimension
+     */
+    public static boolean sameSize(Matrix[] mats) {
+        try {
+            if (mats.length == 0) {
+                // Can't operate on an empty array
+                throw new AssertionError();
+            }
+
+            if (mats.length == 1) {
+                // If there's only one element in mats, then it definitely has the same dimension as itself.
+                return true;
+            }
+
+            // Setting the row and column counts that each element of mats will be compared to
+            int rowCount = mats[0].rows;
+            int colCount = mats[0].cols;
+
+            // Starting at i = 1 since mats[0] was used to set the baseline values, so there's no point in checking it.
+            // In essence, we're checking that each element in mats is the same size as mats[0]
+            for (int i = 1; i < mats.length; i++) {
+                if (mats[i].rows != rowCount || mats[i].cols != colCount) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        catch (AssertionError ae) {
+            System.out.println("Input array must not be empty. Returning false.");
+            return false;
+        }
+    }
+
+
+    /**
      * @return "true" if v1 and v2 are either both column vectors or both row vectors.
      */
     public static boolean sameType(Matrix v1, Matrix v2) {
@@ -276,7 +360,7 @@ public class Matrix {
             Matrix curRow = getRow(A, i);
             for (int j = i + 1; j < A.cols + 1; j++) {
                 // Starting at j = i + 1 because we only care about the entries to the right of the main diagonal.
-                if ( Math.abs(getEntry(curRow, 1, j)) >= 0 ) {
+                if ( Math.abs(getEntry(curRow, 1, j)) >= tol ) {
                     // Values within the tolerance range are treated as being "close enough" to zero.
                     // Anything outside that range is considered nonzero.
                     return false;
@@ -351,7 +435,7 @@ public class Matrix {
     public static boolean areOrtho(Matrix v1, Matrix v2) {
         try {
             // Anything within the tolerance range is considered to be zero.
-            return sameType(v1, v2) && Math.abs(dot(v1, v2)) < tol;
+            return Math.abs(dot(v1, v2)) < tol;
         }
 
         catch (InvalidMatrixException ime) {
@@ -367,10 +451,16 @@ public class Matrix {
 
 
     /**
-     * @return "true" if A has orthonormal columns; that is, if A^T * A = I.
+     * @return <ul>
+     *     <li>1) if normal is false: "true" if A's columns form an orthogonal set.</li>
+     *     <li>2) if normal is true: "true" if A's columns form an orthonormal set.</li>
+     * </ul>
      */
-    public static boolean isOrtho(Matrix A) {
-        return mult(transpose(A), A).equals( new Matrix(cols(A)) );
+    public static boolean hasOrthoCols(Matrix A, boolean normal) {
+        // A's columns form an orthogonal set iff A^TA is a diagonal matrix.
+        // A's columns form an orthonormal set iff A^TA = I.
+        return (!normal && isDiagonal( mult(transpose(A), A) ))
+                || (normal && mult(transpose(A),A).equals(new Matrix(A.cols)));
     }
 
     /**
@@ -381,61 +471,7 @@ public class Matrix {
      */
     public static boolean isOrtho(Matrix[] vecs, boolean normal) {
         try {
-            if (vecs.length == 0) {
-                // Can't operate on an empty array
-                throw new AssertionError();
-            }
-
-            if (!isColVec(vecs[0]) || !sameSize(vecs)) {
-                // The first conditional checks if the first element is a column vector. If it isn't, an exception
-                // gets thrown because we're only operating on column vectors. The second conditional checks if all
-                // the vectors in vecs have the same size; i.e., the same size as vecs[0]. If they don't, an
-                // exception is thrown because we can only operate on vectors of the same size to check their
-                // orthogonality.
-                // (All things considered, I could just return false if the second conditional fails, but it feels more
-                // natural to put these two conditionals together like this.)
-                throw new InvalidMatrixException("");
-            }
-
-            // Making an all-zero column with the same size as the vectors in vecs
-            // Just an edge case for when vecs only has 1 vector in it. In this case, the set is orthogonal
-            // iff it isn't the zero vector.
-            Matrix zeCol = zeroMatrix(vecs[0].rows, 1);
-            if (vecs.length == 1) {
-                // If we've reached this point and normal is false, then the set is orthogonal because we've
-                // already determined vecs[0] is nonzero. If normal is true, then we need to check if it
-                if ((normal && !isUnit(vecs[0])) || vecs[0].equals(zeCol)) {
-                    // If normal is true and vecs[0] isn't a unit vector, then vecs isn't an orthonormal set.
-                    // Additionally, if vecs[0] is the zero vector, it's definitely not an orthogonal set.
-                    return false;
-                }
-
-                // If we've reached this point and normal is false, then the set is orthogonal because we've
-                // already determined vecs[0] is nonzero. If normal is true, then we need to check if it's
-                // a unit vector. If it is, then the set is orthonormal.
-                else return !normal || isUnit(vecs[0]);
-            }
-
-            // Iterating through each vector in vecs
-            for (int i = 0; i < vecs.length; i++) {
-                // Comparing this vector to the others in vecs
-                for (int j = i; j < vecs.length; j++) {
-                    // Starting at j = i since dot products are commutative; as such, dotting the jth vector
-                    // with the ith vector for j < i is a redundant operation.
-                    if ((i != j && Math.abs(dot(vecs[i], vecs[j])) >= tol) ||
-                            (normal && 1 - magn(vecs[i]) >= tol)) {
-                        // If i != j, the vectors are distinct; as such, we want to check if their dot product is zero.
-                        // If i == j, we're looking at exactly one vector in vecs. In this case, if normal is true,
-                        // we want to check whether it's a unit vector. If it's false, just move to the next iteration.
-                        // We're only looking for an orthogonal set in this case, so we don't care about the individual
-                        // vectors; we only care about their relationships with the others.
-
-                        return false;
-                    }
-                }
-            }
-
-            return true;
+            return hasOrthoCols( formMatrix(vecs), normal);
         }
 
         catch (AssertionError ae) {
@@ -447,92 +483,8 @@ public class Matrix {
             System.out.println("The elements in vecs must be column vectors with the same size. Returning false.");
             return false;
         }
-
     }
 
-
-    /**
-     * @return "true" if col is equal to one of A's columns.
-     */
-    public static boolean hasCol(Matrix A, Matrix col) {
-        // If col doesn't have the same number of entries as the columns in A, then it can't be in A; by the invariant
-        // defining how matrices are built, all columns in a matrix must have the same number of entries.
-        if (col.rows != A.rows) { return false; }
-
-        for (int j = 0; j < A.cols; j++) {
-            // There's no need to verify if col is a column vector; if it isn't, then the .equals method will declare
-            // them unequal due to their mismatching sizes.
-            if (col.equals( getCol(A, j + 1) )) {
-                // Using j + 1 as the second argument in getCol to align its specification and the loop variable.
-                // I kind of flip-flop between starting at j = 0 and using j + 1 in getCol and starting at j = 1
-                // and using j in getCol; they both accomplish the same goal.
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
-    /**
-     * @return "true" if row is equal to one of A's rows.
-     */
-    public static boolean hasRow(Matrix A, Matrix row) {
-        // If row doesn't have the same number of entries as the rows in A, then it can't be in A; by the invariant
-        // defining how matrices are built, all row in a matrix must have the same number of entries.
-        if (row.cols != A.cols) { return false; }
-        for (int i = 0; i < A.rows; i++) {
-            // There's no need to verify if row is a row vector; if it isn't, then the .equals method will declare
-            // them unequal due to their mismatching sizes.
-            if (row.equals( getCol(A, i + 1) )) { return true; }
-        }
-
-        return false;
-    }
-
-
-    /**
-     * @return "true" if A and B have the same dimension.
-     */
-    public static boolean sameSize(Matrix A, Matrix B) {
-        return (A.rows == B.rows) && (A.cols == B.cols);
-    }
-
-    /**
-     * @return "true" if all the matrices in mats have the same dimension
-     */
-    public static boolean sameSize(Matrix[] mats) {
-        try {
-            if (mats.length == 0) {
-                // Can't operate on an empty array
-                throw new AssertionError();
-            }
-
-            if (mats.length == 1) {
-                // If there's only one element in mats, then it definitely has the same dimension as itself.
-                return true;
-            }
-
-            // Setting the row and column counts that each element of mats will be compared to
-            int rowCount = mats[0].rows;
-            int colCount = mats[0].cols;
-
-            // Starting at i = 1 since mats[0] was used to set the baseline values, so there's no point in checking it.
-            // In essence, we're checking that each element in mats is the same size as mats[0]
-            for (int i = 1; i < mats.length; i++) {
-                if (mats[i].rows != rowCount || mats[i].cols != colCount) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        catch (AssertionError ae) {
-            System.out.println("Input array must not be empty. Returning false.");
-            return false;
-        }
-    }
 
 //-------------------------------------------------------------------------------------------------------------
 // GETTERS
@@ -2011,7 +1963,6 @@ public class Matrix {
         }
 
         // Obtaining the nonzero vectors in vecs
-        // (If the set is orthogonal, there shouldn't be any zero vectors in vecs, but this is here just in case.)
         Matrix zeCol = zeroMatrix(vecs[0].rows, 1);
         ArrayList<Matrix> nonzeros = new ArrayList<>();
         for (Matrix vec : vecs) {
