@@ -1,3 +1,10 @@
+/**
+ * The test suite for the Matrix Calculator
+ * Author: romander60
+ * Last updated: August 13, 2026
+ */
+
+
 package org.example;
 
 import org.junit.jupiter.api.Assertions;
@@ -5,10 +12,10 @@ import org.junit.jupiter.api.Test;
 
 class MatrixTest {
 
+    double tol = 0.0001;
+
     //-------------------------------------------------------------------------------------------------------
     // GENERATOR TESTS - COMPLETE
-
-    double tol = 0.0001;
 
     @Test
     void MatrixGenTest() {
@@ -1756,52 +1763,922 @@ class MatrixTest {
 
     @Test
     void appendTest() {
-        // Test 1: Valid size (vectors, matrices)
-        // Test 2: Invalid size
+        // Test 1 (Right-Append): Valid Size
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Matrix t2 = new Matrix(new double[][] {
+                {10, 11, 12},
+                {13, 14, 15},
+                {16, 17, 18}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3, 10, 11, 12},
+                {4, 5, 6, 13, 14, 15},
+                {7, 8, 9, 16, 17, 18}
+        }), Matrix.append(t1, t2, true));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {10, 11, 12, 1, 2, 3},
+                {13, 14, 15, 4, 5, 6},
+                {16, 17, 18, 7, 8, 9}
+        }), Matrix.append(t2, t1, true));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {3},
+                {4}
+        });
+        Matrix t4 = new Matrix(new double[][] {
+                {4, 1, -7},
+                {1, -2, 9}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3, 4, 1, -7},
+                {4, 1, -2, 9}
+        }), Matrix.append(t3, t4, true));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 1, -7, 3},
+                {1, -2, 9, 4}
+        }), Matrix.append(t4, t3, true));
+
+        // Test 2 (Right-Append): Invalid Size
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
+        {Matrix.append(t1, t4, true);});
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
+        {Matrix.append(t4, t1, true);});
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
+        {Matrix.append(t2, t3, true);});
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
+        {Matrix.append(t3, t2, true);});
+
+
+        // Test 3 (Bottom-Append): Valid Size
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9},
+                {10, 11, 12},
+                {13, 14, 15},
+                {16, 17, 18}
+        }), Matrix.append(t1, t2, false));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {10, 11, 12},
+                {13, 14, 15},
+                {16, 17, 18},
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        }), Matrix.append(t2, t1, false));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9},
+                {4, 1, -7},
+                {1, -2, 9}
+        }), Matrix.append(t1, t4, false));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 1, -7},
+                {1, -2, 9},
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        }), Matrix.append(t4, t1, false));
+
+
+        // Test 4 (Bottom-Append): Invalid Size
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
+        {Matrix.append(t1, t3, false);});
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
+        {Matrix.append(t3, t1, false);});
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
+        {Matrix.append(t3, t4, false);});
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
+        {Matrix.append(t4, t3, false);});
+
     }
 
     @Test
-    void transposeTest() {
-        // Test 1: Arbitrary Matrix
-        // Test 2: Column Vector
-        // Test 3: Row Vector
-        // Test 4: Symmetric Matrix
+    void formMatrixTest() {
+        // Test 1 (Column Vectors): Valid Input Array
+        Matrix[] t1 = new Matrix[2];
+        t1[0] = new Matrix(new double[][] {
+                {1},
+                {3}
+
+        });
+        t1[1] = new Matrix(new double[][] {
+                {2},
+                {4}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2},
+                {3, 4}
+        }), Matrix.formMatrix(t1));
+
+        Matrix[] t2 = new Matrix[3];
+        t2[0] = new Matrix(new double[][] {
+                {1},
+                {2},
+                {3},
+                {4}
+        });
+        t2[1] = new Matrix(new double[][] {
+                {5},
+                {6},
+                {7},
+                {8}
+        });
+        t2[2] = new Matrix(new double[][] {
+                {9},
+                {10},
+                {11},
+                {12}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 5, 9},
+                {2, 6, 10},
+                {3, 7, 11},
+                {4, 8, 12}
+        }), Matrix.formMatrix(t2));
+
+        // Test 2 (Column Vectors): Invalid Input Array
+        Matrix[] t3 = new Matrix[0];
+        Assertions.assertThrows(AssertionError.class, () -> {Matrix.formMatrix(t3);});
+
+        Matrix[] t4 = new Matrix[3];
+        t4[0] = new Matrix(new double[][] {
+                {1, 2},
+                {3, 4}
+        });
+        t4[1] = new Matrix(new double[][] {
+                {5, 6},
+                {7, 8}
+        });
+        t4[2] = new Matrix(new double[][] {
+                {9},
+                {10}
+        });
+        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.formMatrix(t4);});
+
+        Matrix[] t5 = new Matrix[3];
+        t5[0] = new Matrix(new double[][] {
+                {1},
+                {2},
+                {3}
+        });
+        t5[1] = new Matrix(new double[][] {
+                {4},
+                {5}
+        });
+        t5[2] = new Matrix(new double[][] {
+                {6},
+                {7},
+                {8}
+        });
+        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.formMatrix(t5);});
+
+        // Test 3 (Row Vectors): Valid Input Array
+        Matrix[] t6 = new Matrix[2];
+        t6[0] = Matrix.transpose(t1[0]);
+        t6[1] = Matrix.transpose(t1[1]);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 3},
+                {2, 4}
+        }), Matrix.formMatrix(t6));
+
+         Matrix[] t7 = new Matrix[3];
+         t7[0] = Matrix.transpose(t2[0]);
+         t7[1] = Matrix.transpose(t2[1]);
+         t7[2] = Matrix.transpose(t2[2]);
+         Assertions.assertEquals(new Matrix(new double[][] {
+                 {1, 2, 3, 4},
+                 {5, 6, 7, 8},
+                 {9, 10, 11, 12}
+         }),  Matrix.formMatrix(t7));
+
+        // Test 4 (Row Vectors): Invalid Input Array
+        Matrix[] t8 = new Matrix[3];
+        t8[0] = new Matrix(new double[][] {
+                {4, 7, 2},
+                {3, 4, 5},
+                {6, 5, 3}
+        });
+        t8[1] = new Matrix(new double[][] {
+                {5, 6, 1},
+                {7, 8, -1}
+        });
+        t8[2] = new Matrix(new double[][] {
+                {9, -10, 2}
+        });
+        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.formMatrix(t8);});
+
+        Matrix[] t9 = new Matrix[4];
+        t9[0] = new Matrix(new double[][] {
+                {1, 2, 3, 4}
+        });
+        t9[1] = new Matrix(new double[][] {
+                {5, 6, 7, 8}
+        });
+        t9[2] = new Matrix(new double[][] {
+                {9, 10, 11}
+        });
+        t9[3] = new Matrix(new double[][] {
+                {12}
+        });
+        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.formMatrix(t9);});
+
+        // Test 5: Matrix Creation -> getCols (or getRows) -> formMatrix = Identity operation
+        Matrix t10 = new Matrix(new double[][] {
+                {1}
+        });
+        Assertions.assertEquals(t10, Matrix.formMatrix(Matrix.getCols(t10)));
+        Assertions.assertEquals(t10, Matrix.formMatrix(Matrix.getRows(t10)));
+        Matrix t11 = new Matrix(new double[][] {
+                {3, 4, 9},
+                {3, -1, 0},
+                {-2, 10, -2}
+        });
+        Assertions.assertEquals(t11, Matrix.formMatrix(Matrix.getCols(t11)));
+        Assertions.assertEquals(t11, Matrix.formMatrix(Matrix.getRows(t11)));
+        Matrix t12 = new Matrix(new double[][] {
+                {1, -3},
+                {0, 0},
+                {9, -9},
+                {5, 12},
+                {6, 8}
+        });
+        Assertions.assertEquals(t12, Matrix.formMatrix(Matrix.getCols(t12)));
+        Assertions.assertEquals(t12, Matrix.formMatrix(Matrix.getRows(t12)));
+
     }
 
     @Test
     void replaceColTest() {
         // Test 1: Valid index, Valid column
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Matrix c1 = new Matrix(new double[][] {
+                {-1},
+                {-2},
+                {-3}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, 2, 3},
+                {-2, 5, 6},
+                {-3, 8, 9}
+        }), Matrix.replaceCol(t1, 1, c1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, -1, 3},
+                {4, -2, 6},
+                {7, -3, 9}
+        }), Matrix.replaceCol(t1, 2, c1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, -1},
+                {4, 5, -2},
+                {7, 8, -3}
+        }), Matrix.replaceCol(t1, 3, c1));
+
+        Matrix t2 = new Matrix(new double[][] {
+                {-1, -6},
+                {3, 3},
+                {6, 7},
+                {-9, 2}
+        });
+        Matrix c2 = new Matrix(new double[][] {
+                {1},
+                {2},
+                {3},
+                {4}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, -6},
+                {2, 3},
+                {3, 7},
+                {4, 2}
+        }), Matrix.replaceCol(t2, 1, c2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, 1},
+                {3, 2},
+                {6, 3},
+                {-9, 4}
+        }), Matrix.replaceCol(t2, 2, c2));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {4, 6, 1, 5},
+                {0, 0, 2, 5}
+        });
+        Matrix c3 = new Matrix(new double[][] {
+                {-10},
+                {-10}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-10, 6, 1, 5},
+                {-10, 0, 2, 5}
+        }), Matrix.replaceCol(t3, 1, c3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, -10, 1, 5},
+                {0, -10, 2, 5}
+        }), Matrix.replaceCol(t3, 2, c3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 6, 1, -10},
+                {0, 0, 2, -10}
+        }), Matrix.replaceCol(t3, 4, c3));
+
+
         // Test 2: Valid index, Invalid column
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t1, 1, c2);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t1, 2, c2);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t1, 1, c3);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t1, 3, c3);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t2, 1, c1);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t2, 2, c1);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t2, 1, c3);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t2, 2, c3);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t3, 1, c1);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t3, 2, c1);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t3, 3, c2);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t3, 4, c2);} );
+
         // Test 3: Invalid index
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t1, 0, c1);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t1, -1, c1);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t1, 4, c1);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t1, 7, c1);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t2, 0, c2);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t2, -1, c2);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t2, 3, c2);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t2, 6, c2);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t3, 0, c3);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t3, -1, c3);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t3, 5, c3);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t3, 14, c3);} );
     }
 
     @Test
     void replaceRowTest() {
         // Test 1: Valid index, Valid row
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Matrix r1 = new Matrix(new double[][] {
+                {-1, -2, -3}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, -2, -3},
+                {4, 5, 6},
+                {7, 8, 9}
+        }), Matrix.replaceRow(t1, 1, r1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {-1, -2, -3},
+                {7, 8, 9}
+        }), Matrix.replaceRow(t1, 2, r1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {-1, -2, -3}
+        }), Matrix.replaceRow(t1, 3, r1));
+
+        Matrix t2 = new Matrix(new double[][] {
+                {-1, -6},
+                {3, 3},
+                {6, 7},
+                {-9, 2}
+        });
+        Matrix r2 = new Matrix(new double[][] {
+                {5, 5}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {5, 5},
+                {3, 3},
+                {6, 7},
+                {-9, 2}
+        }), Matrix.replaceRow(t2, 1, r2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, -6},
+                {5, 5},
+                {6, 7},
+                {-9, 2}
+        }), Matrix.replaceRow(t2, 2, r2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, -6},
+                {3, 3},
+                {5, 5},
+                {-9, 2}
+        }), Matrix.replaceRow(t2, 3, r2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, -6},
+                {3, 3},
+                {6, 7},
+                {5, 5}
+        }), Matrix.replaceRow(t2, 4, r2));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {4, 6, 1, 5},
+                {0, 0, 2, 5}
+        });
+        Matrix r3 = new Matrix(new double[][] {
+                {-10, -10, -10, -10}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-10, -10, -10, -10},
+                {0, 0, 2, 5}
+        }), Matrix.replaceRow(t3, 1, r3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 6, 1, 5},
+                {-10, -10, -10, -10}
+        }), Matrix.replaceRow(t3, 2, r3));
+
+
         // Test 2: Valid index, Invalid row
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t1, 1, r2);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t1, 2, r2);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t1, 1, r3);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t1, 3, r3);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t2, 1, r1);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t2, 2, r1);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t2, 3, r3);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t2, 4, r3);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t3, 1, r1);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t3, 2, r1);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t3, 1, r2);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t3, 2, r2);} );
+
         // Test 3: Invalid index
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t1, 0, r1);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t1, -1, r1);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t1, 4, r1);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t1, 7, r1);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t2, 0, r2);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t2, -1, r2);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t2, 5, r2);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t2, 14, r2);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t3, 0, r3);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t3, -1, r3);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t3, 3, r3);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t3, 10, r3);} );
     }
 
     @Test
     void swapColsTest() {
         // Test 1: Valid indices
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2, 1, 3},
+                {5, 4, 6},
+                {8, 7, 9}
+        }), Matrix.swapCols(t1, 1, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2, 1, 3},
+                {5, 4, 6},
+                {8, 7, 9}
+        }), Matrix.swapCols(t1, 2, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 3, 2},
+                {4, 6, 5},
+                {7, 9, 8}
+        }), Matrix.swapCols(t1, 2, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 3, 2},
+                {4, 6, 5},
+                {7, 9, 8}
+        }), Matrix.swapCols(t1, 3, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3, 2, 1},
+                {6, 5, 4},
+                {9, 8, 7}
+        }), Matrix.swapCols(t1, 1, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3, 2, 1},
+                {6, 5, 4},
+                {9, 8, 7}
+        }), Matrix.swapCols(t1, 3, 1));
+        Assertions.assertEquals(t1, Matrix.swapCols(t1, 1, 1));
+        Assertions.assertEquals(t1, Matrix.swapCols(t1, 2, 2));
+        Assertions.assertEquals(t1, Matrix.swapCols(t1, 3, 3));
+
+        Matrix t2 = new Matrix(new double[][] {
+                {-1, -6},
+                {3, 3},
+                {6, 7},
+                {-9, 2}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-6, -1},
+                {3, 3},
+                {7, 6},
+                {2, -9}
+        }), Matrix.swapCols(t2, 1, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-6, -1},
+                {3, 3},
+                {7, 6},
+                {2, -9}
+        }), Matrix.swapCols(t2, 2, 1));
+        Assertions.assertEquals(t2, Matrix.swapCols(t2, 1, 1));
+        Assertions.assertEquals(t2, Matrix.swapCols(t2, 2, 2));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {4, 6, 1, 5},
+                {0, 0, 2, 5}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {6, 4, 1, 5},
+                {0, 0, 2, 5}
+        }), Matrix.swapCols(t3, 1, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 6, 4, 5},
+                {2, 0, 0, 5}
+        }), Matrix.swapCols(t3, 1, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {5, 6, 1, 4},
+                {5, 0, 2, 0}
+        }), Matrix.swapCols(t3, 1, 4));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 1, 6, 5},
+                {0, 2, 0, 5}
+        }), Matrix.swapCols(t3, 2, 3));
+        Assertions.assertEquals(t3, Matrix.swapCols(t3, 1, 1));
+        Assertions.assertEquals(t3, Matrix.swapCols(t3, 2, 2));
+        Assertions.assertEquals(t3, Matrix.swapCols(t3, 3, 3));
+        Assertions.assertEquals(t3, Matrix.swapCols(t3, 4, 4));
+
         // Test 2: Invalid indices
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapCols(t1, 0, 1) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapCols(t1, -1, 1) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapCols(t1, 4, 1) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapCols(t2, 1, 0) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapCols(t2, 1, -1) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapCols(t2, 1, 3) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapCols(t3, 0, 0) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapCols(t3, -1, -1) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapCols(t3, 5, 6) );
+
     }
 
     @Test
     void swapRowsTest() {
         // Test 1: Valid indices
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 5, 6},
+                {1, 2, 3},
+                {7, 8, 9}
+        }), Matrix.swapRows(t1, 1, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 5, 6},
+                {1, 2, 3},
+                {7, 8, 9}
+        }), Matrix.swapRows(t1, 2, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {7, 8, 9},
+                {4, 5, 6}
+        }), Matrix.swapRows(t1, 2, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {7, 8, 9},
+                {4, 5, 6}
+        }), Matrix.swapRows(t1, 3, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {7, 8, 9},
+                {4, 5, 6},
+                {1, 2, 3}
+        }), Matrix.swapRows(t1, 1, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {7, 8, 9},
+                {4, 5, 6},
+                {1, 2, 3}
+        }), Matrix.swapRows(t1, 3, 1));
+        Assertions.assertEquals(t1, Matrix.swapRows(t1, 1, 1));
+        Assertions.assertEquals(t1, Matrix.swapRows(t1, 2, 2));
+        Assertions.assertEquals(t1, Matrix.swapRows(t1, 3, 3));
+
+        Matrix t2 = new Matrix(new double[][] {
+                {-1, -6},
+                {3, 3},
+                {6, 7},
+                {-9, 2}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3, 3},
+                {-1, -6},
+                {6, 7},
+                {-9, 2}
+        }), Matrix.swapRows(t2, 1, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {6, 7},
+                {3, 3},
+                {-1, -6},
+                {-9, 2}
+        }), Matrix.swapRows(t2, 1, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-9, 2},
+                {3, 3},
+                {6, 7},
+                {-1, -6}
+        }), Matrix.swapRows(t2, 1, 4));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, -6},
+                {6, 7},
+                {3, 3},
+                {-9, 2}
+        }), Matrix.swapRows(t2, 2, 3));
+        Assertions.assertEquals(t2, Matrix.swapRows(t2, 1, 1));
+        Assertions.assertEquals(t2, Matrix.swapRows(t2, 2, 2));
+        Assertions.assertEquals(t2, Matrix.swapRows(t2, 3, 3));
+        Assertions.assertEquals(t2, Matrix.swapRows(t2, 4, 4));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {4, 6, 1, 5},
+                {0, 0, 2, 5}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0, 0, 2, 5},
+                {4, 6, 1, 5}
+        }), Matrix.swapRows(t3, 1, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0, 0, 2, 5},
+                {4, 6, 1, 5}
+        }), Matrix.swapRows(t3, 2, 1));
+        Assertions.assertEquals(t3, Matrix.swapRows(t3, 1, 1));
+        Assertions.assertEquals(t3, Matrix.swapRows(t3, 2, 2));
+
         // Test 2: Invalid indices
-    }
-
-    @Test
-    void removeRowTest() {
-
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapRows(t1, 0, 1) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapRows(t1, -1, 1) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapRows(t1, 4, 1) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapRows(t2, 1, 0) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapRows(t2, 1, -1) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapRows(t2, 1, 5) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapRows(t3, 0, 0) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapRows(t3, -1, -1) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.swapRows(t3, 3, 6) );
     }
 
     @Test
     void removeColTest() {
+        // Test 1: Valid index
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2, 3},
+                {5, 6},
+                {8, 9}
+        }), Matrix.removeCol(t1, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 3},
+                {4, 6},
+                {7, 9}
+        }), Matrix.removeCol(t1, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2},
+                {4, 5},
+                {7, 8}
+        }), Matrix.removeCol(t1, 3));
 
+        Matrix t2 = new Matrix(new double[][] {
+                {-1, -6},
+                {3, 3},
+                {6, 7},
+                {-9, 2}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-6},
+                {3},
+                {7},
+                {2}
+        }), Matrix.removeCol(t2, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1},
+                {3},
+                {6},
+                {-9}
+        }), Matrix.removeCol(t2, 2));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {4, 6, 1, 5},
+                {0, 0, 2, 5}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {6, 1, 5},
+                {0, 2, 5}
+        }), Matrix.removeCol(t3, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 1, 5},
+                {0, 2, 5}
+        }), Matrix.removeCol(t3, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 6, 5},
+                {0, 0, 5}
+        }), Matrix.removeCol(t3, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 6, 1},
+                {0, 0, 2}
+        }), Matrix.removeCol(t3, 4));
+
+        // Test 2: Sequential removals
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2},
+                {5},
+                {8}
+        }), Matrix.removeCol(Matrix.removeCol(t1, 1), 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0},
+                {0},
+                {0},
+                {0}
+        }), Matrix.removeCol(Matrix.removeCol(Matrix.removeCol(t2, 1), 1), 1));
+        // Third removal should effectively do nothing; the second removal will result in a zero vector.
+
+        // Test 3: Invalid index
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.removeCol(t1, 0) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.removeCol(t1, -1) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.removeCol(t1, 4) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.removeCol(t2, 3) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.removeCol(t3, 5) );
+    }
+
+    @Test
+    void removeRowTest() {
+        // Test 1: Valid index
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 5, 6},
+                {7, 8, 9}
+        }), Matrix.removeRow(t1, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {7, 8, 9}
+        }), Matrix.removeRow(t1, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6}
+        }), Matrix.removeRow(t1, 3));
+
+        Matrix t2 = new Matrix(new double[][] {
+                {-1, -6},
+                {3, 3},
+                {6, 7},
+                {-9, 2}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3, 3},
+                {6, 7},
+                {-9, 2}
+        }), Matrix.removeRow(t2, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, -6},
+                {6, 7},
+                {-9, 2}
+        }), Matrix.removeRow(t2, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, -6},
+                {3, 3},
+                {-9, 2}
+        }), Matrix.removeRow(t2, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, -6},
+                {3, 3},
+                {6, 7}
+        }), Matrix.removeRow(t2, 4));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {4, 6, 1, 5},
+                {0, 0, 2, 5}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0, 0, 2, 5}
+        }), Matrix.removeRow(t3, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 6, 1, 5}
+        }), Matrix.removeRow(t3, 2));
+
+        // Test 2: Sequential removals
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 5, 6}
+        }), Matrix.removeRow(Matrix.removeRow(t1, 1), 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0, 0, 0, 0}
+        }), Matrix.removeRow(Matrix.removeRow(Matrix.removeRow(t3, 1), 1), 1));
+        // Third removal should effectively do nothing; the second removal will result in a zero vector.
+
+        // Test 3: Invalid index
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.removeRow(t1, 0) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.removeRow(t1, -1) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.removeRow(t1, 4) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.removeRow(t2, 5) );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.removeRow(t3, 3) );
+    }
+
+    @Test // INCOMPLETE
+    void padTest() {
+        // Test 1: Padding Rows
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9},
+                {-4, -4, -4}
+        }), Matrix.pad(t1, 4, 3, -4));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9},
+                {0, 0, 0},
+                {0, 0, 0},
+                {0, 0, 0}
+        }), Matrix.pad(t1, 6, 3, 0));
+
+        // Test 2: Padding Columns
+        Matrix t2 = new Matrix(new double[][] {
+                {-1, -6},
+                {3, 3},
+                {6, 7},
+                {-9, 2}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, -6, 2, 2},
+                {3, 3, 2, 2},
+                {6, 7, 2, 2},
+                {-9, 2, 2, 2}
+        }), Matrix.pad(t2, 4, 4, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, -6, 14, 14, 14, 14},
+                {3, 3, 14, 14, 14, 14},
+                {6, 7, 14, 14, 14, 14},
+                {-9, 2, 14, 14, 14, 14}
+        }), Matrix.pad(t2, 4, 6, 14));
+
+        // Test 3: Padding Rows and Columns
+        Matrix t3 = new Matrix(new double[][] {
+                {4, 6, 1, 5},
+                {0, 0, 2, 5}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 6, 1, 5, 0},
+                {0, 0, 2, 5, 0},
+                {0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0}
+        }), Matrix.pad(t3, 5, 5, 0));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 6, 1, 5, 1},
+                {0, 0, 2, 5, 1},
+                {1, 1, 1, 1, 1},
+                {1, 1, 1, 1, 1},
+                {1, 1, 1, 1, 1},
+                {1, 1, 1, 1, 1},
+                {1, 1, 1, 1, 1}
+        }), Matrix.pad(t3, 7, 5, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 6, 1, 5, 3, 3},
+                {0, 0, 2, 5, 3, 3},
+                {3, 3, 3, 3, 3, 3}
+        }), Matrix.pad(t3, 3, 6, 3));
+
+        // Test 4: Invalid Inputs
+
+        // quick edge cases
+        Assertions.assertEquals(t1, Matrix.pad(t1, Matrix.rows(t1), Matrix.cols(t1), 0));
+        Assertions.assertEquals(t2, Matrix.pad(t2, Matrix.rows(t2), Matrix.cols(t2), 0));
+        Assertions.assertEquals(t3, Matrix.pad(t3, Matrix.rows(t3), Matrix.cols(t3), 0));
+
+        // actual invalid inputs
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t1, 0, 3, 0);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t1, -1, 3, 0);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t1, 2, 3, 0);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t2, 4, 0, 0);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t2, 4, -1, 0);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t2, 4, 1, 0);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t3, 0, 0, 0);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t3, -1, -1, 0);} );
+        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t3, 1, 3, 0);} );
     }
 
     //-------------------------------------------------------------------------------------------------------
@@ -1813,10 +2690,11 @@ class MatrixTest {
     }
 
     @Test
-    void magnTest() {
-        // Test 1: Column vector
-        // Test 2: Row vector
-        // Test 3: Non-vector
+    void transposeTest() {
+        // Test 1: Arbitrary Matrix
+        // Test 2: Column Vector
+        // Test 3: Row Vector
+        // Test 4: Symmetric Matrix
     }
 
     @Test
@@ -1828,20 +2706,36 @@ class MatrixTest {
     }
 
     @Test
+    void magnTest() {
+        // Test 1: Column vector
+        // Test 2: Row vector
+        // Test 3: Non-vector
+    }
+
+    @Test
+    void angleTest() {}
+
+    @Test
+    void distanceTest() {}
+
+    @Test
+    void normalizeTest() {}
+
+    @Test
     void traceTest() {
         // Test 1: Square Matrices
         // Test 2: Non-square Matrices
     }
 
     @Test
-    void scaleTest() {
-        // Test 1: Matrices
-    }
-
-    @Test
     void addTest() {
         // Test 1: Valid sizes
         // Test 2: Invalid sizes
+    }
+
+    @Test
+    void scaleTest() {
+        // Test 1: Matrices
     }
 
     @Test
@@ -1888,6 +2782,34 @@ class MatrixTest {
 
 
     //-------------------------------------------------------------------------------------------------------
+    // SUBSPACE TESTS
+
+    @Test
+    void dimensionTest() {}
+
+    @Test
+    void columnSpaceTest() {}
+
+    @Test
+    void rankTest() {}
+
+    @Test
+    void nullSpaceTest() {}
+
+    @Test
+    void nullityTest() {}
+
+    //-------------------------------------------------------------------------------------------------------
+    // SYSTEM SOLVER TESTS
+
+    @Test
+    void solveTest() {
+        // Test 1: Consistent Systems (various ranks)
+        // Test 2: Inconsistent Systems
+    }
+
+
+    //-------------------------------------------------------------------------------------------------------
     // ORTHOGONALITY / LEAST SQUARES TESTS
     @Test
     void projTest() {
@@ -1909,10 +2831,37 @@ class MatrixTest {
 
     }
 
+
+    //-------------------------------------------------------------------------------------------------------
+    // EIGENSTUFF TEST
+
+    @Test
+    void eigenvaluesTest() {}
+
+    @Test
+    void eigenvectorsTest() {}
+
+    @Test
+    void singularValuesTest() {}
+
+
+    //-------------------------------------------------------------------------------------------------------
+    // MATRIX FACTORIZATION TESTS
+
+    @Test
+    void QRTest() {}
+
+    @Test
+    void diagonalizeTest() {}
+
+    @Test
+    void SVDTest() {}
+
+
     //-------------------------------------------------------------------------------------------------------
     // MISC TESTS
 
-    // not really sure how to test these tbh, they behave as i want them to so i don't think it's necessary
+    // not really sure how to test these tbh, they behave as I want them to so I don't think it's necessary
     @Test
     void toStringTest() {
         // Test 1: Random Matrix

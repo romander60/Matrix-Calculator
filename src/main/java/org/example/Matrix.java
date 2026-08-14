@@ -1,8 +1,8 @@
 /**
  * A library containing a bunch of matrix operations. Matrices are represented as 2D arrays of doubles.
  * Author: romander60  
- * Overall time spent on project: ~51 hours
- * Last updated: July 23, 2026
+ * Overall time spent on project: ~55 hours
+ * Last updated: August 6, 2026
  */
 
 
@@ -463,6 +463,7 @@ public class Matrix {
                 || (normal && mult(transpose(A),A).equals(new Matrix(A.cols)));
     }
 
+
     /**
      * @return <ul>
      *     <li>"true" if the vectors in vecs form an orthogonal set, if normal is false</li>
@@ -721,7 +722,7 @@ public class Matrix {
             throw new MatrixSizeMismatchException("v must be a row vector with as many columns as A.");
         }
 
-        // Initialized the augmented matrix
+        // Initializing the augmented matrix
         double[][] entries = new double[A.rows + 1][A.cols];
 
         // Copying the entries over
@@ -731,7 +732,7 @@ public class Matrix {
                     entries[i][j] = A.entries[i][j];
                 }
                 else {
-                    entries[i][j] = v.entries[0][i];
+                    entries[i][j] = v.entries[0][j];
                 }
             }
         }
@@ -741,18 +742,35 @@ public class Matrix {
 
 
     /**
-     * Returns the partitioned matrix [A | B].
+     * Returns the partitioned matrix [A | B] or [A^T | B^T]^T, depending on the horiz parameter.
      * @param A the matrix that's being appended to.
      * @param B the matrix that's getting appended to A.
-     * @return a new Matrix object representing A, but with B as an augmented matrix.
-     * @throws MatrixSizeMismatchException if A and B don't have an equal number of rows.
+     * @param horiz determines whether B is appended to the right or bottom of A. "true" will append it to the right,
+     * and "false" will append it to the bottom.
+     * @return a new Matrix object representing A, but with B appended to it in the position determined by orientation.
+     * @throws MatrixSizeMismatchException if: <ul>
+     *     <li>A and B do not have an equal number of rows, if horiz is true.</li>
+     *     <li>A and B do not have an equal number of columns, if horiz is false.</li>
+     * </ul>
      */
-    public static Matrix append(Matrix A, Matrix B) throws MatrixSizeMismatchException {
-        if (A.rows != B.rows) {throw new MatrixSizeMismatchException("Matrices must have an equal number of rows.");}
+    public static Matrix append(Matrix A, Matrix B, boolean horiz)
+            throws MatrixSizeMismatchException {
 
         Matrix appended = copy(A);
-        for (int j = 0; j < B.cols; j++) {
-            appended = appendCol(appended, getCol(B, j + 1));
+        if (horiz) {
+            if (A.rows != B.rows) {throw new MatrixSizeMismatchException("Matrices must have an equal number " +
+                    "of rows for a horizontal append.");}
+            for (int j = 0; j < B.cols; j++) {
+                appended = appendCol(appended, getCol(B, j + 1));
+            }
+        }
+
+        else {
+            if (A.cols != B.cols) {throw new MatrixSizeMismatchException("Matrices must have an equal number " +
+                    "of columns for a vertical append.");}
+            for (int i = 0; i < B.rows; i++) {
+                appended = appendRow(appended, getRow(B, i + 1));
+            }
         }
         return appended;
     }
@@ -769,14 +787,15 @@ public class Matrix {
      * @throws AssertionError if vecs is empty
      * @throws InvalidMatrixException if the elements of vecs aren't vectors of the same size.
      */
-    public static Matrix formMatrix(Matrix[] vecs) throws AssertionError, InvalidMatrixException {
+    public static Matrix formMatrix(Matrix[] vecs)
+            throws AssertionError, InvalidMatrixException {
         if (vecs.length == 0) {
             // Can't operate on an empty array
             throw new AssertionError("Input array must not be empty.");
         }
 
         if (!isVec(vecs[0]) || !sameSize(vecs)) {
-            throw new InvalidMatrixException("All vectors in vecs must be vectors with the same size");
+            throw new InvalidMatrixException("All elements of vecs must be vectors with the same size");
         }
 
         if (isColVec(vecs[0])) {
@@ -802,52 +821,6 @@ public class Matrix {
             }
             return concatenated;
         }
-    }
-
-
-    /**
-     * Transposes v. Helper for Matrix.transpose().
-     * @return the transpose of v.
-     * @throws InvalidMatrixException if v isn't a column or row vector.
-     */
-    private static Matrix transposeVec(Matrix v) throws InvalidMatrixException {
-        if (!isVec(v)) {
-            throw new InvalidMatrixException("Input must be a column vector or a row vector.");
-        }
-
-        if (isRowVec(v)) {
-            double[][] newEntries = new double[v.cols][1];
-            for (int i = 0; i < v.cols; i++) {
-                newEntries[i][0] = v.entries[0][i];
-            }
-
-            return new Matrix(newEntries);
-        }
-
-        else {
-            double[][] newEntries = new double[1][v.rows];
-            for (int i = 0; i < v.rows; i++) {
-                newEntries[0][i] = v.entries[i][0];
-            }
-            return new Matrix(newEntries);
-        }
-
-    }
-
-
-    /**
-     * Returns A^T.
-     * @return a new Matrix object representing the transpose of A.
-     */
-    public static Matrix transpose(Matrix A) {
-        // Initializing the transposed matrix by transposing A's first row
-        Matrix transposed = transposeVec(getRow(A, 1));
-
-        for (int i = 1; i < A.rows; i++) {
-            // Transposing each remaining row of A, then appending it to the accumulator matrix
-            transposed = appendCol( transposed, transposeVec(getRow(A, i + 1)) );
-        }
-        return transposed;
     }
 
 
@@ -939,7 +912,8 @@ public class Matrix {
      * @throws AssertionError if either col1 or col2 isn't a positive number less than or
      * equal to the number of columns in A.
      */
-    public static Matrix swapCols(Matrix A, int col1, int col2) throws AssertionError {
+    public static Matrix swapCols(Matrix A, int col1, int col2)
+            throws AssertionError {
         if ( (col1 <= 0 || col1 > A.cols) || (col2 <= 0 || col2 > A.cols) ) {
             throw new AssertionError("2nd and 3rd inputs must be " +
                     "positive numbers less than or equal to the number of columns in the 1st input.");
@@ -977,7 +951,8 @@ public class Matrix {
      * @throws AssertionError if either row1 or row2 isn't a positive number less than or
      * equal to the number of rows in A.
      */
-    public static Matrix swapRows(Matrix A, int row1, int row2) throws AssertionError {
+    public static Matrix swapRows(Matrix A, int row1, int row2)
+            throws AssertionError {
         if ( (row1 <= 0 || row1 > A.rows) || (row2 <= 0 || row2 > A.rows) ) {
             throw new AssertionError("Both index inputs must be " +
                     "positive numbers less than or equal to the number of rows in the first input.");
@@ -1009,7 +984,8 @@ public class Matrix {
      * </ul>
      * @throws AssertionError if colInd isn't a positive integer less than or equal to the number of columns in A.
      */
-    public static Matrix removeCol(Matrix A, int colInd) throws AssertionError {
+    public static Matrix removeCol(Matrix A, int colInd)
+            throws AssertionError {
         if (colInd <= 0 || colInd > A.cols) {
             throw new AssertionError("colInd must be a positive integer less than or equal to " +
                     "the number of columns in A.");
@@ -1053,7 +1029,8 @@ public class Matrix {
      * </ul>
      * @throws AssertionError if rowInd isn't a positive integer less than or equal to the number of rows in A.
      */
-    public static Matrix removeRow(Matrix A, int rowInd) throws AssertionError {
+    public static Matrix removeRow(Matrix A, int rowInd)
+            throws AssertionError {
         if (rowInd <= 0 || rowInd > A.rows) {
             throw new AssertionError("colInd must be a positive integer less than or equal to " +
                     "the number of columns in A.");
@@ -1075,7 +1052,7 @@ public class Matrix {
 
         else {
             Matrix removed = getRow(A, 1);
-            for (int i = 2; i < A.cols + 1; i++) {
+            for (int i = 2; i < A.rows + 1; i++) {
                 if (i != rowInd) {
                     removed = appendRow(removed, getRow(A, i));
                 }
@@ -1099,7 +1076,8 @@ public class Matrix {
      *     <li>2) n isn't a positive integer greater than or equal to the number of columns in A</li>
      * </ul>
      */
-    public static Matrix pad(Matrix A, int m, int n, double filler) throws AssertionError {
+    public static Matrix pad(Matrix A, int m, int n, double filler)
+            throws AssertionError {
         if (m < A.rows || n < A.cols) {
             throw new AssertionError("m and n must be positive integers within the dimensions of A.");
         }
@@ -1134,6 +1112,52 @@ public class Matrix {
      */
     public static Matrix copy(Matrix A) {
         return new Matrix(A.entries);
+    }
+
+    /**
+     * Transposes v. Helper for Matrix.transpose().
+     * @return the transpose of v.
+     * @throws InvalidMatrixException if v isn't a column or row vector.
+     */
+    private static Matrix transposeVec(Matrix v)
+            throws InvalidMatrixException {
+        if (!isVec(v)) {
+            throw new InvalidMatrixException("Input must be a column vector or a row vector.");
+        }
+
+        if (isRowVec(v)) {
+            double[][] newEntries = new double[v.cols][1];
+            for (int i = 0; i < v.cols; i++) {
+                newEntries[i][0] = v.entries[0][i];
+            }
+
+            return new Matrix(newEntries);
+        }
+
+        else {
+            double[][] newEntries = new double[1][v.rows];
+            for (int i = 0; i < v.rows; i++) {
+                newEntries[0][i] = v.entries[i][0];
+            }
+            return new Matrix(newEntries);
+        }
+
+    }
+
+
+    /**
+     * Returns A^T.
+     * @return a new Matrix object representing the transpose of A.
+     */
+    public static Matrix transpose(Matrix A) {
+        // Initializing the transposed matrix by transposing A's first row
+        Matrix transposed = transposeVec(getRow(A, 1));
+
+        for (int i = 1; i < A.rows; i++) {
+            // Transposing each remaining row of A, then appending it to the accumulator matrix
+            transposed = appendCol( transposed, transposeVec(getRow(A, i + 1)) );
+        }
+        return transposed;
     }
 
 
@@ -1622,7 +1646,7 @@ public class Matrix {
         }
 
         // Augment A with the identity matrix, then row reduce it.
-        Matrix reduced = rowRed( append(A, new Matrix(A.cols)), true )[0];
+        Matrix reduced = rowRed( append(A, new Matrix(A.cols), true), true )[0];
 
         // Take the n + 1 to 2n columns of the augmented matrix; this matrix is A^-1.
         // n = A.rows (or A.cols) here
@@ -1850,7 +1874,7 @@ public class Matrix {
         if (b.rows != A.rows || !isColVec(b)) {
             throw new MatrixSizeMismatchException("b must be a column vector with as many rows as A.");
         }
-        Matrix equation = append(A, b);
+        Matrix equation = append(A, b, true);
 
         try {
             int m = A.rows;
@@ -2259,7 +2283,7 @@ public class Matrix {
             // If we're missing some columns, then A is rank-deficient. Find an orthonormal basis for
             // Nul(A^T) and attach those vectors to the columns already in Q.
             Matrix colAPerp = orthoComp(getCols(Q), true); // Col(A)-perp = Nul(A^T)
-            Q = append(Q, colAPerp);
+            Q = append(Q, colAPerp, true);
         }
         Matrix R = mult( transpose(Q), A );
 
@@ -2289,7 +2313,7 @@ public class Matrix {
         // Initializing P as the first eigenspace and appending the remaining eigenspaces
         Matrix P = eigenvectors[0];
         for (int i = 1; i < eigenvectors.length; i++) {
-            P = append(P, eigenvectors[i]);
+            P = append(P, eigenvectors[i], true);
         }
 
         // If P doesn't have as many columns as A, then its eigenspaces can't form a basis for R^n, meaning that
@@ -2361,13 +2385,13 @@ public class Matrix {
             }
             else {
                 // In this case, U has some nonzero vectors in it; attach uCol to it.
-                U = append(U, uCol);
+                U = append(U, uCol, true);
             }
         }
         if (U.cols < A.cols) {
             // If we're here, we need to fill the rest of U with an orthonormal basis for Nul(A^T)
             Matrix nulAT = orthoComp(getCols(columnSpace(A, true)), true);
-            U = append(U, nulAT);
+            U = append(U, nulAT, true);
         }
 
         return new Matrix[] {U, S, V};
