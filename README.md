@@ -17,7 +17,7 @@ Currently implemented functionality (NT = not tested):
 - Matrix Inverse
 - Orthogonal Projections NT
 - The Gram-Schmidt Process NT
-- Linear System Solver NT
+- Linear System Solver
 - Column/Null Space Basis Computations NT
 - Least Squares Approximation NT
 - Orthogonal Complements of Subspaces NT
