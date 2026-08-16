@@ -53,29 +53,9 @@ public class Main {
                 {-2, 2},
                 {2, -2}
         };
-
-        Matrix m = new Matrix(test3);
-        System.out.println("Null: \n" + Matrix.nullSpace(m, false) );
-//        Matrix m1 = Matrix.getSubmatrix(m, 1, 1, Matrix.rows(m), Matrix.cols(m) - 1);
-//        Matrix m2 = Matrix.getCol(m, Matrix.cols(m));
-//        Matrix[] ls = Matrix.leastSquares(m1, m2, true);
-//        System.out.println("Particular solution: \n" + ls[0]);
-//        System.out.println("Null space: \n" + ls[1]);
-
-//        Matrix[] diag = Matrix.diagonalize(m);
-//        System.out.println("P: \n" + diag[0]);
-//        System.out.println("D: \n" + diag[1]);
-//        System.out.println("AP: \n" + Matrix.mult(m, diag[0]));
-//        System.out.println("PD: \n" + Matrix.mult(diag[0], diag[1]));
-//        System.out.println(Matrix.mult(m, diag[0]).equals(Matrix.mult(diag[0], diag[1])));
-
-//        Matrix[] svd = Matrix.SVD(m);
-//        System.out.println("U: \n" + svd[0]);
-//        System.out.println("S: \n" + svd[1]);
-//        System.out.println("V^T: \n" + Matrix.transpose(svd[2]));
-//        Matrix US = Matrix.mult(svd[0], svd[1]);
-//        Matrix USVT = Matrix.mult(US, Matrix.transpose(svd[2]));
-//        System.out.println("Product: \n" + USVT);
-//        System.out.println(USVT.equals(m));
+        double[][] test11 = new double[][] {
+                {0, 1},
+                {2, 3}
+        };
     }
 }

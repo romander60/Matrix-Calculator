@@ -1,7 +1,7 @@
 /**
  * The test suite for the Matrix Calculator
  * Author: romander60
- * Last updated: August 13, 2026
+ * Last updated: August 15, 2026
  */
 
 
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 class MatrixTest {
 
-    double tol = 0.0001;
+    double tol = 0.000001;
 
     //-------------------------------------------------------------------------------------------------------
     // GENERATOR TESTS - COMPLETE
@@ -28,18 +28,19 @@ class MatrixTest {
         }), m1);
 
         // Test 2: Invalid Args
-        Assertions.assertThrows(AssertionError.class, () -> {new Matrix(0);} );
-        Assertions.assertThrows(AssertionError.class, () -> {new Matrix(-5);} );
-        Assertions.assertThrows(InvalidMatrixException.class, () -> { new Matrix(new double[][] {
+        Assertions.assertThrows(AssertionError.class, () -> new Matrix(0) );
+        Assertions.assertThrows(AssertionError.class, () -> new Matrix(-5) );
+        Assertions.assertThrows(InvalidMatrixException.class, () -> new Matrix(new double[][] {
                 {}
-        } ); }  );
-        Assertions.assertThrows(InvalidMatrixException.class, () -> { new Matrix(new double[][] {
+        })  );
+        Assertions.assertThrows(InvalidMatrixException.class, () -> new Matrix(new double[][] {}));
+        Assertions.assertThrows(InvalidMatrixException.class, () -> new Matrix(new double[][] {
                 {2, 3, 4},
                 {3, 5},
                 {2},
                 {4, 5, 2, 5, 6},
                 {}
-        } ); }  );
+        })  );
     }
 
     @Test
@@ -67,11 +68,11 @@ class MatrixTest {
 
 
         // Test 4: Invalid Matrices
-        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.zeroMatrix(m, 0);});
-        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.zeroMatrix(0, n);});
-        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.zeroMatrix(0, 0);});
-        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.zeroMatrix(m, -3);});
-        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.zeroMatrix(-6, n);});
+        Assertions.assertThrows(InvalidMatrixException.class, () -> Matrix.zeroMatrix(m, 0));
+        Assertions.assertThrows(InvalidMatrixException.class, () -> Matrix.zeroMatrix(0, n));
+        Assertions.assertThrows(InvalidMatrixException.class, () -> Matrix.zeroMatrix(0, 0));
+        Assertions.assertThrows(InvalidMatrixException.class, () -> Matrix.zeroMatrix(m, -3));
+        Assertions.assertThrows(InvalidMatrixException.class, () -> Matrix.zeroMatrix(-6, n));
 
     }
 
@@ -109,7 +110,7 @@ class MatrixTest {
 
 
         // Test 5: Invalid Input
-        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.diag(new double[] {});} );
+        Assertions.assertThrows(InvalidMatrixException.class, () -> Matrix.diag(new double[] {}) );
     }
 
     //-------------------------------------------------------------------------------------------------------
@@ -160,9 +161,9 @@ class MatrixTest {
                 {-4}
         });
         Assertions.assertEquals(m1, Matrix.getCol(m1, 1));
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m1, 2);});
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m1, -3);});
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m1, 0);});
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getCol(m1, 2));
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getCol(m1, -3));
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getCol(m1, 0));
 
         // Test 2: Row Vector
         Matrix m2 = new Matrix(new double[][] {
@@ -180,8 +181,8 @@ class MatrixTest {
         Assertions.assertEquals(new Matrix(new double[][] {
                 {-6}
         }), Matrix.getCol(m2, 4));
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m2, 5);});
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m2, -1);});
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getCol(m2, 5));
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getCol(m2, -1));
 
         // Tests 3: Non-vector
         Matrix m3 = new Matrix(new double[][] {
@@ -212,7 +213,7 @@ class MatrixTest {
                 {-59},
                 {22}
         }), Matrix.getCol(m3, 3));
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m3, 4);} );
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getCol(m3, 4) );
     }
 
     @Test
@@ -236,17 +237,17 @@ class MatrixTest {
         Assertions.assertEquals(new Matrix(new double[][] {
                 {-4}
         }), Matrix.getRow(m1, 4));
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m1, 5);});
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m1, -1);});
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getCol(m1, 0);});
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getCol(m1, 5));
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getCol(m1, -1));
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getCol(m1, 0));
 
         // Test 2: Row Vector
         Matrix m2 = new Matrix(new double[][] {
                 {4, -5, 2, -6}
         } );
         Assertions.assertEquals(m2, Matrix.getRow(m2, 1));
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getRow(m2, 2);});
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getRow(m2, -1);});
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getRow(m2, 2));
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getRow(m2, -1));
 
         // Tests 3: Non-vector
         Matrix m3 = new Matrix(new double[][] {
@@ -271,8 +272,8 @@ class MatrixTest {
         Assertions.assertEquals(new Matrix(new double[][] {
                 {9, -1, 22}
         }), Matrix.getRow(m3, 5));
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getRow(m3, 6);} );
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getRow(m3, -2);} );
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getRow(m3, 6) );
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getRow(m3, -2) );
     }
 
     @Test
@@ -289,8 +290,8 @@ class MatrixTest {
         Assertions.assertEquals(-7, Matrix.getEntry(m1, 5, 5));
         Assertions.assertEquals(1, Matrix.getEntry(m1, 1, 1));
         Assertions.assertEquals(10, Matrix.getEntry(m1, 4, 2));
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m1, -3, 5);} );
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m1, 6, 4);} );
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getEntry(m1, -3, 5) );
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getEntry(m1, 6, 4) );
 
         // Test 2: Non-square Matrix
         Matrix m2 = new Matrix(new double[][] {
@@ -304,8 +305,8 @@ class MatrixTest {
         Assertions.assertEquals(30, Matrix.getEntry(m2, 3, 3));
         Assertions.assertEquals(7, Matrix.getEntry(m2, 2, 3));
         Assertions.assertEquals(-4, Matrix.getEntry(m2, 2, 1));
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m2, 2, -1);} );
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.getEntry(m2, 3, 7);} );
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getEntry(m2, 2, -1) );
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.getEntry(m2, 3, 7) );
     }
 
     @Test
@@ -475,11 +476,11 @@ class MatrixTest {
         }), Matrix.getSubmatrix(m1, 4, 1, 4, 1));
 
         Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m1, 1, -1, 1, 1);} );
+            Matrix.getSubmatrix(m1, 1, -1, 1, 1) );
         Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m1, 4, 1, 2, 1);});
+            Matrix.getSubmatrix(m1, 4, 1, 2, 1));
         Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m1, 2, 1, 1, 1);});
+            Matrix.getSubmatrix(m1, 2, 1, 1, 1));
 
         // Test 2: Row Vector
         Matrix m2 = new Matrix(new double[][] {
@@ -494,11 +495,11 @@ class MatrixTest {
         }), Matrix.getSubmatrix(m2, 1, 3, 1, 4));
 
         Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m2, 1, 1, 3, 1);} );
+            Matrix.getSubmatrix(m2, 1, 1, 3, 1));
         Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m2, 0, 1, 1, 4);} );
+            Matrix.getSubmatrix(m2, 0, 1, 1, 4));
         Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m2, 1, 4, 1, 1);} );
+            Matrix.getSubmatrix(m2, 1, 4, 1, 1));
 
 
         // Tests 3: Non-vector
@@ -530,17 +531,17 @@ class MatrixTest {
                 Matrix.getSubmatrix(m3, 3, 1, 3, 3));
 
         Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m3, 4, 3, 2, 2);});
+            Matrix.getSubmatrix(m3, 4, 3, 2, 2));
         Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m3, 6, 2, 5, 3);});
+            Matrix.getSubmatrix(m3, 6, 2, 5, 3));
         Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m3, 2, 5, 5, 3);});
+            Matrix.getSubmatrix(m3, 2, 5, 5, 3));
         Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m3, 2, 2, -2, 3);});
+            Matrix.getSubmatrix(m3, 2, 2, -2, 3));
         Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m3, 2, 2, 5, -1);});
+            Matrix.getSubmatrix(m3, 2, 2, 5, -1));
         Assertions.assertThrows(AssertionError.class, () ->
-            {Matrix.getSubmatrix(m3, 2, 2, 5, 4);});
+            Matrix.getSubmatrix(m3, 2, 2, 5, 4));
     }
 
     //-------------------------------------------------------------------------------------------------------
@@ -1759,7 +1760,7 @@ class MatrixTest {
     }
 
     //-------------------------------------------------------------------------------------------------------
-    // MATRIX MANIPULATION TESTS
+    // MATRIX MANIPULATION TESTS - COMPLETE
 
     @Test
     void appendTest() {
@@ -1803,14 +1804,10 @@ class MatrixTest {
         }), Matrix.append(t4, t3, true));
 
         // Test 2 (Right-Append): Invalid Size
-        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
-        {Matrix.append(t1, t4, true);});
-        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
-        {Matrix.append(t4, t1, true);});
-        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
-        {Matrix.append(t2, t3, true);});
-        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
-        {Matrix.append(t3, t2, true);});
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () -> Matrix.append(t1, t4, true));
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () -> Matrix.append(t4, t1, true));
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () -> Matrix.append(t2, t3, true));
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () -> Matrix.append(t3, t2, true));
 
 
         // Test 3 (Bottom-Append): Valid Size
@@ -1847,14 +1844,10 @@ class MatrixTest {
 
 
         // Test 4 (Bottom-Append): Invalid Size
-        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
-        {Matrix.append(t1, t3, false);});
-        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
-        {Matrix.append(t3, t1, false);});
-        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
-        {Matrix.append(t3, t4, false);});
-        Assertions.assertThrows(MatrixSizeMismatchException.class, () ->
-        {Matrix.append(t4, t3, false);});
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () -> Matrix.append(t1, t3, false));
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () -> Matrix.append(t3, t1, false));
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () -> Matrix.append(t3, t4, false));
+        Assertions.assertThrows(MatrixSizeMismatchException.class, () -> Matrix.append(t4, t3, false));
 
     }
 
@@ -1904,7 +1897,7 @@ class MatrixTest {
 
         // Test 2 (Column Vectors): Invalid Input Array
         Matrix[] t3 = new Matrix[0];
-        Assertions.assertThrows(AssertionError.class, () -> {Matrix.formMatrix(t3);});
+        Assertions.assertThrows(AssertionError.class, () -> Matrix.formMatrix(t3));
 
         Matrix[] t4 = new Matrix[3];
         t4[0] = new Matrix(new double[][] {
@@ -1919,7 +1912,7 @@ class MatrixTest {
                 {9},
                 {10}
         });
-        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.formMatrix(t4);});
+        Assertions.assertThrows(InvalidMatrixException.class, () -> Matrix.formMatrix(t4));
 
         Matrix[] t5 = new Matrix[3];
         t5[0] = new Matrix(new double[][] {
@@ -1936,7 +1929,7 @@ class MatrixTest {
                 {7},
                 {8}
         });
-        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.formMatrix(t5);});
+        Assertions.assertThrows(InvalidMatrixException.class, () -> Matrix.formMatrix(t5));
 
         // Test 3 (Row Vectors): Valid Input Array
         Matrix[] t6 = new Matrix[2];
@@ -1971,7 +1964,7 @@ class MatrixTest {
         t8[2] = new Matrix(new double[][] {
                 {9, -10, 2}
         });
-        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.formMatrix(t8);});
+        Assertions.assertThrows(InvalidMatrixException.class, () -> Matrix.formMatrix(t8));
 
         Matrix[] t9 = new Matrix[4];
         t9[0] = new Matrix(new double[][] {
@@ -1986,7 +1979,7 @@ class MatrixTest {
         t9[3] = new Matrix(new double[][] {
                 {12}
         });
-        Assertions.assertThrows(InvalidMatrixException.class, () -> {Matrix.formMatrix(t9);});
+        Assertions.assertThrows(InvalidMatrixException.class, () -> Matrix.formMatrix(t9));
 
         // Test 5: Matrix Creation -> getCols (or getRows) -> formMatrix = Identity operation
         Matrix t10 = new Matrix(new double[][] {
@@ -2090,32 +2083,32 @@ class MatrixTest {
 
 
         // Test 2: Valid index, Invalid column
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t1, 1, c2);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t1, 2, c2);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t1, 1, c3);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t1, 3, c3);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t2, 1, c1);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t2, 2, c1);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t2, 1, c3);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t2, 2, c3);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t3, 1, c1);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t3, 2, c1);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t3, 3, c2);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceCol(t3, 4, c2);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceCol(t1, 1, c2));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceCol(t1, 2, c2));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceCol(t1, 1, c3));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceCol(t1, 3, c3));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceCol(t2, 1, c1));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceCol(t2, 2, c1));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceCol(t2, 1, c3));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceCol(t2, 2, c3));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceCol(t3, 1, c1));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceCol(t3, 2, c1));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceCol(t3, 3, c2));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceCol(t3, 4, c2));
 
         // Test 3: Invalid index
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t1, 0, c1);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t1, -1, c1);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t1, 4, c1);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t1, 7, c1);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t2, 0, c2);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t2, -1, c2);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t2, 3, c2);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t2, 6, c2);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t3, 0, c3);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t3, -1, c3);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t3, 5, c3);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceCol(t3, 14, c3);} );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceCol(t1, 0, c1));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceCol(t1, -1, c1));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceCol(t1, 4, c1));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceCol(t1, 7, c1));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceCol(t2, 0, c2));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceCol(t2, -1, c2));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceCol(t2, 3, c2));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceCol(t2, 6, c2));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceCol(t3, 0, c3));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceCol(t3, -1, c3));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceCol(t3, 5, c3));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceCol(t3, 14, c3));
     }
 
     @Test
@@ -2197,32 +2190,32 @@ class MatrixTest {
 
 
         // Test 2: Valid index, Invalid row
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t1, 1, r2);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t1, 2, r2);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t1, 1, r3);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t1, 3, r3);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t2, 1, r1);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t2, 2, r1);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t2, 3, r3);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t2, 4, r3);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t3, 1, r1);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t3, 2, r1);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t3, 1, r2);} );
-        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> {Matrix.replaceRow(t3, 2, r2);} );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceRow(t1, 1, r2));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceRow(t1, 2, r2));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceRow(t1, 1, r3));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceRow(t1, 3, r3));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceRow(t2, 1, r1));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceRow(t2, 2, r1));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceRow(t2, 3, r3));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceRow(t2, 4, r3));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceRow(t3, 1, r1));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceRow(t3, 2, r1));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceRow(t3, 1, r2));
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.replaceRow(t3, 2, r2));
 
         // Test 3: Invalid index
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t1, 0, r1);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t1, -1, r1);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t1, 4, r1);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t1, 7, r1);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t2, 0, r2);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t2, -1, r2);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t2, 5, r2);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t2, 14, r2);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t3, 0, r3);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t3, -1, r3);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t3, 3, r3);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.replaceRow(t3, 10, r3);} );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceRow(t1, 0, r1));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceRow(t1, -1, r1));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceRow(t1, 4, r1));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceRow(t1, 7, r1));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceRow(t2, 0, r2));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceRow(t2, -1, r2));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceRow(t2, 5, r2));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceRow(t2, 14, r2));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceRow(t3, 0, r3));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceRow(t3, -1, r3));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceRow(t3, 3, r3));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.replaceRow(t3, 10, r3));
     }
 
     @Test
@@ -2592,7 +2585,7 @@ class MatrixTest {
         Assertions.assertThrows( AssertionError.class, () -> Matrix.removeRow(t3, 3) );
     }
 
-    @Test // INCOMPLETE
+    @Test
     void padTest() {
         // Test 1: Padding Rows
         Matrix t1 = new Matrix(new double[][] {
@@ -2670,15 +2663,15 @@ class MatrixTest {
         Assertions.assertEquals(t3, Matrix.pad(t3, Matrix.rows(t3), Matrix.cols(t3), 0));
 
         // actual invalid inputs
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t1, 0, 3, 0);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t1, -1, 3, 0);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t1, 2, 3, 0);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t2, 4, 0, 0);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t2, 4, -1, 0);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t2, 4, 1, 0);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t3, 0, 0, 0);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t3, -1, -1, 0);} );
-        Assertions.assertThrows( AssertionError.class, () -> {Matrix.pad(t3, 1, 3, 0);} );
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.pad(t1, 0, 3, 0));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.pad(t1, -1, 3, 0));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.pad(t1, 2, 3, 0));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.pad(t2, 4, 0, 0));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.pad(t2, 4, -1, 0));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.pad(t2, 4, 1, 0));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.pad(t3, 0, 0, 0));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.pad(t3, -1, -1, 0));
+        Assertions.assertThrows( AssertionError.class, () -> Matrix.pad(t3, 1, 3, 0));
     }
 
     //-------------------------------------------------------------------------------------------------------
@@ -2687,97 +2680,1419 @@ class MatrixTest {
     @Test
     void copyTest() {
         // Test 1: Just copying a matrix, not much else to do here
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Matrix t2 = Matrix.zeroMatrix(4, 6);
+        Matrix t3 = Matrix.diag(new double[] {-3, 6, -5});
+
+        Assertions.assertEquals(t1, Matrix.copy(t1));
+        Assertions.assertEquals(t2, Matrix.copy(t2));
+        Assertions.assertEquals(t3, Matrix.copy(t3));
     }
 
     @Test
     void transposeTest() {
-        // Test 1: Arbitrary Matrix
-        // Test 2: Column Vector
-        // Test 3: Row Vector
-        // Test 4: Symmetric Matrix
+        // Test 1: Arbitrary Matrices
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 4, 7},
+                {2, 5, 8},
+                {3, 6, 9}
+        }), Matrix.transpose(t1));
+
+        Matrix t2 = new Matrix(new double[][] {
+                {-1, -6},
+                {3, 3},
+                {6, 7},
+                {-9, 2}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-1, 3, 6, -9},
+                {-6, 3, 7, 2}
+        }), Matrix.transpose(t2));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {4, 6, 1, 5},
+                {0, 0, 2, 5}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, 0},
+                {6, 0},
+                {1, 2},
+                {5, 5}
+        }), Matrix.transpose(t3));
+
+        // Test 2: Column Vectors
+        Matrix t4 = Matrix.getCol(t1, 1);
+        Matrix t5 = Matrix.getCol(t2, 2);
+        Matrix t6 = Matrix.getCol(t3, 3);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 4, 7}
+        }), Matrix.transpose(t4));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-6, 3, 7, 2}
+        }), Matrix.transpose(t5));
+
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2}
+        }), Matrix.transpose(t6));
+
+        // Test 3: Row Vectors
+        Matrix t7 = Matrix.getRow(t1, 1);
+        Matrix t8 = Matrix.getRow(t2, 2);
+        Matrix t9 = Matrix.getRow(t3, 1);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1},
+                {2},
+                {3}
+        }), Matrix.transpose(t7));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3},
+                {3}
+        }), Matrix.transpose(t8));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4},
+                {6},
+                {1},
+                {5}
+        }), Matrix.transpose(t9));
+
+        // Test 4: Symmetric Matrices
+        Matrix t10 = new Matrix();
+        Matrix t11 = Matrix.zeroMatrix(4, 4);
+        Matrix t12 = Matrix.diag(new double[] {6, -2, 5});
+        Matrix t13 = new Matrix(new double[][] {
+                {4, 7, 10, -1},
+                {7, -3, 3, -8},
+                {10, 3, 6, 9},
+                {-1, -8, 9, 2}
+        });
+        Assertions.assertEquals(t10, Matrix.transpose(t10));
+        Assertions.assertEquals(t11, Matrix.transpose(t11));
+        Assertions.assertEquals(t12, Matrix.transpose(t12));
+        Assertions.assertEquals(t13, Matrix.transpose(t13));
+
+        // Test 5: Two Transposes = Identity
+        Assertions.assertEquals(t1, Matrix.transpose(Matrix.transpose(t1)));
+        Assertions.assertEquals(t2, Matrix.transpose(Matrix.transpose(t2)));
+        Assertions.assertEquals(t3, Matrix.transpose(Matrix.transpose(t3)));
+        Assertions.assertEquals(t4, Matrix.transpose(Matrix.transpose(t4)));
+        Assertions.assertEquals(t5, Matrix.transpose(Matrix.transpose(t5)));
+        Assertions.assertEquals(t6, Matrix.transpose(Matrix.transpose(t6)));
+        Assertions.assertEquals(t7, Matrix.transpose(Matrix.transpose(t7)));
+        Assertions.assertEquals(t8, Matrix.transpose(Matrix.transpose(t8)));
+        Assertions.assertEquals(t9, Matrix.transpose(Matrix.transpose(t9)));
+        Assertions.assertEquals(t10, Matrix.transpose(Matrix.transpose(t10)));
+        Assertions.assertEquals(t11, Matrix.transpose(Matrix.transpose(t11)));
+        Assertions.assertEquals(t12, Matrix.transpose(Matrix.transpose(t12)));
+        Assertions.assertEquals(t13, Matrix.transpose(Matrix.transpose(t13)));
     }
 
     @Test
     void dotTest() {
         // Test 1: Column vectors
+        Matrix t1 = new Matrix(new double[][] {
+                {3},
+                {6},
+                {0}
+        });
+        Matrix t2 = new Matrix(new double[][] {
+                {0},
+                {0},
+                {2}
+        });
+        Assertions.assertEquals(0, Matrix.dot(t1, t2));
+        Assertions.assertEquals(0, Matrix.dot(t2, t1));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {1},
+                {-4}
+        });
+        Matrix t4 = new Matrix(new double[][] {
+                {2},
+                {-8}
+        });
+        Assertions.assertEquals(34,  Matrix.dot(t3, t4));
+        Assertions.assertEquals(34, Matrix.dot(t4, t3));
+
+        Matrix t5 = new Matrix(new double[][] {
+                {4},
+                {-8},
+                {-9},
+                {3}
+        });
+        Matrix t6 = new Matrix(new double[][] {
+                {2},
+                {4},
+                {4},
+                {7}
+        });
+        Assertions.assertEquals(-39,  Matrix.dot(t5, t6));
+        Assertions.assertEquals(-39, Matrix.dot(t6, t5));
+
         // Test 2: Row vectors
+        Matrix t7 = Matrix.transpose(t1);
+        Matrix t8 = Matrix.transpose(t2);
+        Assertions.assertEquals(0, Matrix.dot(t7, t8));
+        Assertions.assertEquals(0, Matrix.dot(t8, t7));
+
+        Matrix t9 = Matrix.transpose(t3);
+        Matrix t10 = Matrix.transpose(t4);
+        Assertions.assertEquals(34, Matrix.dot(t9, t10));
+        Assertions.assertEquals(34, Matrix.dot(t10, t9));
+
+        Matrix t11 = Matrix.transpose(t5);
+        Matrix t12 = Matrix.transpose(t6);
+        Assertions.assertEquals(-39, Matrix.dot(t11, t12));
+        Assertions.assertEquals(-39, Matrix.dot(t12, t11));
+
+        Matrix t13 = new Matrix(new double[][] {
+                {3, 13, -2},
+        });
+        Matrix t14 = new Matrix(new double[][] {
+                {-9, 2, -3}
+        });
+        Assertions.assertEquals(5, Matrix.dot(t13, t14));
+        Assertions.assertEquals(5, Matrix.dot(t14, t13));
+
+        Matrix t15 = new Matrix(new double[][] {
+                {5}
+        });
+        Matrix t16 = new Matrix(new double[][] {
+                {-3}
+        });
+        Assertions.assertEquals(-15,  Matrix.dot(t15, t16));
+        Assertions.assertEquals(-15, Matrix.dot(t16, t15));
+
         // Test 3: Non-vectors
+        Matrix t17 = new Matrix(new double[][] {
+                {3, -4},
+                {2, -3},
+                {5, -5}
+        });
+        Matrix t18 = new Matrix(new double[][] {
+                {4, 5, 6},
+                {-2, 5, 9}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.dot(t17, t1) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.dot(t17, t3) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.dot(t17, t5) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.dot(t17, t15) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.dot(t18, t1) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.dot(t18, t3) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.dot(t18, t5) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.dot(t18, t15) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.dot(t17, t18) );
+
+        // Test 4: Vector size mismatches
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.dot(t1, t3) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.dot(t1, t5) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.dot(t1, t15) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.dot(t3, t5) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.dot(t3, t15) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.dot(t5, t15) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.dot(t7, t9) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.dot(t7, t16) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.dot(t9, t11) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.dot(t9, t12) );
+
 
     }
 
     @Test
     void magnTest() {
         // Test 1: Column vector
+        Matrix t1 = new Matrix(new double[][] {
+                {3},
+                {6},
+                {0}
+        });
+        Matrix t2 = new Matrix(new double[][] {
+                {1},
+                {-4}
+        });
+        Matrix t3 = new Matrix(new double[][] {
+                {4},
+                {-8},
+                {-9},
+                {3}
+        });
+        Assertions.assertEquals(Math.sqrt(45), Matrix.magn(t1));
+        Assertions.assertEquals(Math.sqrt(17), Matrix.magn(t2));
+        Assertions.assertEquals(Math.sqrt(170), Matrix.magn(t3));
+
         // Test 2: Row vector
+        Matrix t4 = Matrix.transpose(t1);
+        Matrix t5 = Matrix.transpose(t2);
+        Matrix t6 = Matrix.transpose(t3);
+        Assertions.assertEquals(Math.sqrt(45), Matrix.magn(t4));
+        Assertions.assertEquals(Math.sqrt(17), Matrix.magn(t5));
+        Assertions.assertEquals(Math.sqrt(170), Matrix.magn(t6));
+
+        Matrix t7 = new Matrix(new double[][] {
+                {3, -2, 6}
+        });
+        Matrix t8 = new Matrix(new double[][] {
+                {-11, 4, 8}
+        });
+        Assertions.assertEquals(7, Matrix.magn(t7));
+        Assertions.assertEquals(Math.sqrt(201), Matrix.magn(t8));
+
         // Test 3: Non-vector
+        Matrix t9 = new Matrix();
+        Matrix t10 = Matrix.zeroMatrix(2, 3);
+        Matrix t11 = Matrix.diag(new double[] {5, 4, 2, 9});
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.magn(t9) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.magn(t10) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.magn(t11) );
+
+
     }
 
     @Test
-    void angleTest() {}
+    void angleTest() {
+        // Test 1: Parallel Vectors
+        Matrix t1 = new Matrix(new double[][] {
+                {1},
+                {2}
+        });
+        Matrix t2 = new Matrix(new double[][] {
+                {2},
+                {4}
+        });
+        Assertions.assertTrue( Math.abs( Matrix.angle(t1, t2) ) <= tol );
+        Assertions.assertTrue( Math.abs( Matrix.angle(t2, t1) ) <= tol );
+
+        // Test 2: Antiparallel Vectors
+        Matrix t3 = Matrix.transpose(t1);
+        Matrix t4 = new Matrix(new double[][] {
+                {-1, -2}
+        });
+        Assertions.assertTrue( Math.abs( Math.PI - Matrix.angle(t3, t4) ) <= tol );
+        Assertions.assertTrue( Math.abs( Math.PI - Matrix.angle(t4, t3) ) <= tol );
+
+        // Test 3: Orthogonal Vectors
+        Matrix t5 =  new Matrix(new double[][] {
+                {-2},
+                {1}
+        });
+        Assertions.assertTrue( Math.abs( (Math.PI / 2) - Matrix.angle(t1, t5) ) <= tol );
+        Assertions.assertTrue( Math.abs( (Math.PI / 2) - Matrix.angle(t5, t1) ) <= tol );
+
+        // Test 4: Vectors with Unequal Sizes
+        Matrix t6 = new Matrix(new double[][] {
+                {1},
+                {2},
+                {3}
+        });
+        Matrix t7 = new Matrix(new double[][] {
+                {4, 5, 6}
+        });
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.angle(t6, t7) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.angle(t1, t6) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.angle(t3, t7) );
+
+        // Test 5: Non-vectors
+        Matrix t8 = new Matrix(2);
+        Matrix t9 = new Matrix(new double[][] {
+                {1, 2, 3, 4},
+                {5, 6, 7, 8},
+                {9, 10, 11, 12}
+        });
+        Matrix t10 = new Matrix(new double[][]{
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9},
+                {10, 11, 12}
+        });
+        Matrix t11 = new Matrix();
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.angle(t8, t9) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.angle(t10, t11) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.angle(t1, t8) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.angle(t8, t9) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.angle(t7, t10) );
+
+    }
 
     @Test
-    void distanceTest() {}
+    void distanceTest() {
+        // Test 1: Two equal vectors
+        Matrix t1 = new Matrix(new double[][] {
+                {1},
+                {2}
+        });
+        // Two equal vectors have a distance of zero separating them.
+        Assertions.assertTrue( Math.abs(Matrix.distance(t1, t1)) <= tol );
+
+        // Test 2: Two antiparallel vectors
+        Matrix t2 = new Matrix(new double[][] {
+                {-1},
+                {-2}
+        });
+        // Two antiparallel are separated by a distance equal to the sum of their lengths.
+        Assertions.assertTrue( Math.abs(Matrix.magn(t1) + Matrix.magn(t2) - Matrix.distance(t1, t2)) <= tol );
+        Assertions.assertTrue( Math.abs(Matrix.magn(t1) + Matrix.magn(t2) - Matrix.distance(t2, t1)) <= tol );
+
+        // Test 3: Two orthogonal vectors
+        Matrix t3 = Matrix.transpose(t1);
+        Matrix t4 = new Matrix(new double[][] {
+                {-2, 1}
+        });
+        // Two orthogonal vectors are separated by a distance equal to the hypotenuse of the right triangle
+        // that they form the legs of.
+        Assertions.assertTrue( Math.abs( Math.sqrt(Matrix.dot(t3, t3) + Matrix.dot(t4, t4))
+                - Matrix.distance(t3, t4) ) <= tol );
+        Assertions.assertTrue( Math.abs( Math.sqrt(Matrix.dot(t3, t3) + Matrix.dot(t4, t4))
+                - Matrix.distance(t4, t3) ) <= tol );
+
+        // Test 4: Vectors with unequal sizes
+        Matrix t5 = new Matrix(new double[][] {
+                {1},
+                {2},
+                {3}
+        });
+        Matrix t6 = new Matrix(new double[][] {
+                {4, 5, 6}
+        });
+
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.distance(t1, t3) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.distance(t2, t5) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.distance(t4, t6) );
+
+        // Test 5: Non-vectors
+        Matrix t7 = new Matrix(2);
+        Matrix t8 = new Matrix(new double[][] {
+                {1, 2, 3, 4},
+                {5, 6, 7, 8},
+                {9, 10, 11, 12}
+        });
+        Matrix t9 = new Matrix(new double[][]{
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9},
+                {10, 11, 12}
+        });
+        Matrix t10 = new Matrix();
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.distance(t7, t8) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.distance(t9, t10) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.distance(t1, t7) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.distance(t7, t8) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.distance(t6, t9) );
+    }
 
     @Test
-    void normalizeTest() {}
+    void normalizeTest() {
+        // Single Matrix Tests
+
+        // Test 1: Arbitrary Vectors
+        Matrix t1 = new Matrix(new double[][] {
+                {2},
+                {-6},
+                {7}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2 / Math.sqrt(89)},
+                {-6 / Math.sqrt(89)},
+                {7 / Math.sqrt(89)}
+        }), Matrix.normalize(t1, true));
+
+        Matrix t2 = new Matrix(new double[][] {
+                {-5, 5, 0, -1}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-5 / Math.sqrt(51), 5 / Math.sqrt(51), 0, -1 / Math.sqrt(51)}
+        }), Matrix.normalize(t2, true));
+
+        // Test 2: Unit Vectors
+        Matrix t3 = new Matrix(new double[][] {
+                {2 / Math.sqrt(89)},
+                {-6 / Math.sqrt(89)},
+                {7 / Math.sqrt(89)}
+        });
+        Matrix t4 = new Matrix(new double[][] {
+                {-5 / Math.sqrt(51), 5 / Math.sqrt(51), 0, -1 / Math.sqrt(51)}
+        });
+        Assertions.assertEquals(t3, Matrix.normalize(t3, true));
+        Assertions.assertEquals(t4, Matrix.normalize(t4, true));
+
+        // Test 3: Zero Vectors / Zero Matrices
+        Matrix t5 = Matrix.zeroMatrix(3, 1);
+        Matrix t6 = Matrix.zeroMatrix(1, 4);
+        Matrix t7 = Matrix.zeroMatrix(5, 2);
+        Matrix t8 = Matrix.zeroMatrix(3, 3);
+        Assertions.assertEquals(t5, Matrix.normalize(t5, true));
+        Assertions.assertEquals(t6, Matrix.normalize(t6, true));
+        Assertions.assertEquals(t7, Matrix.normalize(t7, true));
+        Assertions.assertEquals(t7, Matrix.normalize(t7, false));
+        Assertions.assertEquals(t8, Matrix.normalize(t8, true));
+        Assertions.assertEquals(t8, Matrix.normalize(t8, false));
+
+        // Test 4: Arbitrary Matrices
+        Matrix t9 = new Matrix();
+        Matrix t10 = new Matrix(new double[][] {
+                {3, 2, -6, -7},
+                {1, 4, 5, -2}
+        });
+        Matrix t11 = new Matrix(new double[][] {
+                {4}
+        });
+        Matrix t12 = new Matrix(new double[][] {
+                {2, 5},
+                {-5, 1},
+                {1, 4},
+                {4, 9},
+                {9, -3}
+        });
+        Assertions.assertEquals(t9, Matrix.normalize(t9, true));
+        Assertions.assertEquals(t9, Matrix.normalize(t9, false));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3 / Math.sqrt(10), 2 / Math.sqrt(20), -6 / Math.sqrt(61), -7 / Math.sqrt(53)},
+                {1 / Math.sqrt(10), 4 / Math.sqrt(20), 5 / Math.sqrt(61), -2 / Math.sqrt(53)}
+        }), Matrix.normalize(t10, true));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3 / Math.sqrt(98), 2 / Math.sqrt(98), -6 / Math.sqrt(98), -7 / Math.sqrt(98)},
+                {1 / Math.sqrt(46), 4 / Math.sqrt(46), 5 / Math.sqrt(46), -2 / Math.sqrt(46)}
+        }), Matrix.normalize(t10, false));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1}
+        }), Matrix.normalize(t11, true));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1}
+        }), Matrix.normalize(t11, false));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2 / Math.sqrt(127), 5 / Math.sqrt(132)},
+                {-5 / Math.sqrt(127), 1 / Math.sqrt(132)},
+                {1 / Math.sqrt(127), 4 / Math.sqrt(132)},
+                {4 / Math.sqrt(127), 9 / Math.sqrt(132)},
+                {9 / Math.sqrt(127), -3 / Math.sqrt(132)}
+        }), Matrix.normalize(t12, true));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2 / Math.sqrt(29), 5 / Math.sqrt(29)},
+                {-5 / Math.sqrt(26), 1 / Math.sqrt(26)},
+                {1 / Math.sqrt(17), 4 / Math.sqrt(17)},
+                {4 / Math.sqrt(97), 9 / Math.sqrt(97)},
+                {9 / Math.sqrt(90), -3 / Math.sqrt(90)}
+        }), Matrix.normalize(t12, false));
+
+
+        // Matrix Array Tests
+
+        // Test 5: Empty input array
+        Matrix[] t13 = new Matrix[] {};
+        Assertions.assertNull(Matrix.normalize(t13, true));
+
+        // Test 6: Array with arbitrary vectors and matrices
+        Matrix[] t14 = new Matrix[] {t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12};
+        Assertions.assertArrayEquals(new Matrix[] {t3, t4, t3, t4, t5, t6, t7, t8, t9,
+                new Matrix(new double[][] {
+                        {3 / Math.sqrt(10), 2 / Math.sqrt(20), -6 / Math.sqrt(61), -7 / Math.sqrt(53)},
+                        {1 / Math.sqrt(10), 4 / Math.sqrt(20), 5 / Math.sqrt(61), -2 / Math.sqrt(53)}
+                }),
+                new Matrix(new double[][] {
+                        {1}
+                }),
+                new Matrix(new double[][] {
+                        {2 / Math.sqrt(127), 5 / Math.sqrt(132)},
+                        {-5 / Math.sqrt(127), 1 / Math.sqrt(132)},
+                        {1 / Math.sqrt(127), 4 / Math.sqrt(132)},
+                        {4 / Math.sqrt(127), 9 / Math.sqrt(132)},
+                        {9 / Math.sqrt(127), -3 / Math.sqrt(132)}
+                })}, Matrix.normalize(t14, true));
+        Assertions.assertArrayEquals(new Matrix[] {t3, t4, t3, t4, t5, t6, t7, t8, t9,
+                new Matrix(new double[][] {
+                        {3 / Math.sqrt(98), 2 / Math.sqrt(98), -6 / Math.sqrt(98), -7 / Math.sqrt(98)},
+                        {1 / Math.sqrt(46), 4 / Math.sqrt(46), 5 / Math.sqrt(46), -2 / Math.sqrt(46)}
+                }),
+                new Matrix(new double[][] {
+                        {1}
+                }),
+                new Matrix(new double[][] {
+                        {2 / Math.sqrt(29), 5 / Math.sqrt(29)},
+                        {-5 / Math.sqrt(26), 1 / Math.sqrt(26)},
+                        {1 / Math.sqrt(17), 4 / Math.sqrt(17)},
+                        {4 / Math.sqrt(97), 9 / Math.sqrt(97)},
+                        {9 / Math.sqrt(90), -3 / Math.sqrt(90)}
+                })}, Matrix.normalize(t14, false));
+
+    }
 
     @Test
     void traceTest() {
         // Test 1: Square Matrices
+        Matrix t1 = new Matrix();
+        Matrix t2 = Matrix.diag(new double[] {4, -2, 5});
+        Matrix t3 = Matrix.zeroMatrix(2, 2);
+        Matrix t4 = new Matrix(new double[][] {
+                {-6}
+        });
+        Matrix t5 = new Matrix(new double[][] {
+                {3, -4, 1},
+                {1, -9, 5},
+                {6, 5, 7}
+        });
+        Assertions.assertEquals(3, Matrix.trace(t1));
+        Assertions.assertEquals(7, Matrix.trace(t2));
+        Assertions.assertEquals(0, Matrix.trace(t3));
+        Assertions.assertEquals(-6, Matrix.trace(t4));
+        Assertions.assertEquals(1, Matrix.trace(t5));
+
         // Test 2: Non-square Matrices
+        Matrix t6 = Matrix.zeroMatrix(3, 4);
+        Matrix t7 = Matrix.zeroMatrix(5, 2);
+        Matrix t8 = new Matrix(new double[][] {
+                {2},
+                {4},
+                {6}
+        });
+        Matrix t9 = new Matrix(new double[][] {
+                {4, 5, 2},
+                {-5, 1, 2}
+        });
+        Matrix t10 = new Matrix(new double[][] {
+                {4, 2, -7},
+                {-2, -3, 5},
+                {1, -3, 6},
+                {7, 0, 9}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.trace(t6) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.trace(t7) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.trace(t8) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.trace(t9) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.trace(t10) );
     }
 
     @Test
     void addTest() {
         // Test 1: Valid sizes
-        // Test 2: Invalid sizes
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Matrix t2 = new Matrix(new double[][] {
+                {5, -3, 9},
+                {1, 6, 2},
+                {1, 9, 0}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {6, -1, 12},
+                {5, 11, 8},
+                {8, 17, 9}
+        }), Matrix.add(t1, t2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {6, -1, 12},
+                {5, 11, 8},
+                {8, 17, 9}
+        }), Matrix.add(t2, t1));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {5},
+                {-4}
+        });
+        Matrix t4 = new Matrix(new double[][] {
+                {0},
+                {-9}
+        });
+        Assertions.assertEquals(new Matrix(new double[][]{
+                {5},
+                {-13}
+        }), Matrix.add(t3, t4));
+        Assertions.assertEquals(new Matrix(new double[][]{
+                {5},
+                {-13}
+        }), Matrix.add(t4, t3));
+
+        Matrix t5 = new Matrix(new double[][] {
+                {1, 4, -2, 6}
+        });
+        Matrix t6 = new Matrix(new double[][] {
+                {6, -1, 4, -8}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {7, 3, 2, -2}
+        }), Matrix.add(t5, t6));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {7, 3, 2, -2}
+        }), Matrix.add(t6, t5));
+
+        Matrix t7 = new Matrix(new double[][] {
+                {2, -3, -1, -2, 7},
+                {8, 9, -3, 5, 6}
+        });
+        Matrix t8 = new Matrix(new double[][] {
+                {5, -1, 4, 5, 9},
+                {1, 2, 3, 4, 5}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {7, -4, 3, 3, 16},
+                {9, 11, 0, 9, 11}
+        }), Matrix.add(t7, t8));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {7, -4, 3, 3, 16},
+                {9, 11, 0, 9, 11}
+        }), Matrix.add(t8, t7));
+
+        Matrix t9 = new Matrix(new double[][] {
+                {4, 2, 5},
+                {-7, 1, 2},
+                {0, 0, 8},
+                {-9, -4, -5}
+        });
+        Matrix t10 = new Matrix(new double[][] {
+                {-2, 7, 8},
+                {1, 0, -2},
+                {7, 3, 4},
+                {-7, 9, -1}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2, 9, 13},
+                {-6, 1, 0},
+                {7, 3, 12},
+                {-16, 5, -6}
+        }), Matrix.add(t9, t10));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2, 9, 13},
+                {-6, 1, 0},
+                {7, 3, 12},
+                {-16, 5, -6}
+        }), Matrix.add(t10, t9));
+
+        // Test 2: Mismatched sizes
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.add(t1, t3) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.add(t1, t5) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.add(t1, t7) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.add(t1, t9) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.add(t3, t5) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.add(t3, t7) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.add(t3, t9) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.add(t5, t7) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.add(t5, t9) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.add(t7, t9) );
     }
 
     @Test
     void scaleTest() {
-        // Test 1: Matrices
+        // Test 1: Matrices (not much else to use here)
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Assertions.assertEquals(Matrix.zeroMatrix(3, 3), Matrix.scale(t1, 0));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        }), Matrix.scale(t1, 1));
+
+        Matrix t2 = new Matrix(new double[][] {
+                {5},
+                {-4}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-12.5},
+                {10}
+        }), Matrix.scale(t2, -2.5));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {10},
+                {-8}
+        }), Matrix.scale(t2, 2));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {1, 4, -2, 6}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3, 12, -6, 18}
+        }), Matrix.scale(t3, 3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-3.3, -13.2, 6.6, -19.8}
+        }), Matrix.scale(t3, -3.3));
+
+        Matrix t4 = new Matrix(new double[][] {
+                {2, -3, -1, -2, 7},
+                {8, 9, -3, 5, 6}
+        });
+        Assertions.assertEquals(Matrix.zeroMatrix(2, 5), Matrix.scale(t4, 0));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-2, 3, 1, 2, -7},
+                {-8, -9, 3, -5, -6}
+        }), Matrix.scale(t4, -1));
+
+        Matrix t5 = new Matrix(new double[][] {
+                {4, 2, 5},
+                {-7, 1, 2},
+                {0, 0, 8},
+                {-9, -4, -5}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {28, 14, 35},
+                {-49, 7, 14},
+                {0, 0, 56},
+                {-63, -28, -35}
+        }), Matrix.scale(t5, 7));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-20, -10, -25},
+                {35, -5, -10},
+                {0, 0, -40},
+                {45, 20, 25}
+        }), Matrix.scale(t5, -5));
+
     }
 
     @Test
     void subTest() {
+        // Test 1: Valid sizes
+        Matrix t1 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {4, 5, 6},
+                {7, 8, 9}
+        });
+        Matrix t2 = new Matrix(new double[][] {
+                {5, -3, 9},
+                {1, 6, 2},
+                {1, 9, 0}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-4, 5, -6},
+                {3, -1, 4},
+                {6, -1, 9}
+        }), Matrix.sub(t1, t2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4, -5, 6},
+                {-3, 1, -4},
+                {-6, 1, -9}
+        }), Matrix.sub(t2, t1));
 
+        Matrix t3 = new Matrix(new double[][] {
+                {5},
+                {-4}
+        });
+        Matrix t4 = new Matrix(new double[][] {
+                {0},
+                {-9}
+        });
+        Assertions.assertEquals(new Matrix(new double[][]{
+                {5},
+                {5}
+        }), Matrix.sub(t3, t4));
+        Assertions.assertEquals(new Matrix(new double[][]{
+                {-5},
+                {-5}
+        }), Matrix.sub(t4, t3));
+
+        Matrix t5 = new Matrix(new double[][] {
+                {1, 4, -2, 6}
+        });
+        Matrix t6 = new Matrix(new double[][] {
+                {6, -1, 4, -8}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-5, 5, -6, 14}
+        }), Matrix.sub(t5, t6));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {5, -5, 6, -14}
+        }), Matrix.sub(t6, t5));
+
+        Matrix t7 = new Matrix(new double[][] {
+                {2, -3, -1, -2, 7},
+                {8, 9, -3, 5, 6}
+        });
+        Matrix t8 = new Matrix(new double[][] {
+                {5, -1, 4, 5, 9},
+                {1, 2, 3, 4, 5}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-3, -2, -5, -7, -2},
+                {7, 7, -6, 1, 1}
+        }), Matrix.sub(t7, t8));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3, 2, 5, 7, 2},
+                {-7, -7, 6, -1, -1}
+        }), Matrix.sub(t8, t7));
+
+        Matrix t9 = new Matrix(new double[][] {
+                {4, 2, 5},
+                {-7, 1, 2},
+                {0, 0, 8},
+                {-9, -4, -5}
+        });
+        Matrix t10 = new Matrix(new double[][] {
+                {-2, 7, 8},
+                {1, 0, -2},
+                {7, 3, 4},
+                {-7, 9, -1}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {6, -5, -3},
+                {-8, 1, 4},
+                {-7, -3, 4},
+                {-2, -13, -4}
+        }), Matrix.sub(t9, t10));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-6, 5, 3},
+                {8, -1, -4},
+                {7, 3, -4},
+                {2, 13, 4}
+        }), Matrix.sub(t10, t9));
+
+        // Test 2: Mismatched sizes
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.sub(t1, t3) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.sub(t1, t5) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.sub(t1, t7) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.sub(t1, t9) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.sub(t3, t5) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.sub(t3, t7) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.sub(t3, t9) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.sub(t5, t7) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.sub(t5, t9) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.sub(t7, t9) );
     }
 
     @Test
     void multTest() {
         // Test 1: Valid sizes
-        // Test 2: Invalid sizes
+        Matrix t1 = new Matrix();
+        Matrix t2 = new Matrix(new double[][] {
+                {3, 5, 1},
+                {-3, 6, 4},
+                {-7, -8, 0}
+        });
+        Matrix t3 = new Matrix(new double[][] {
+                {9},
+                {8},
+                {7}
+        });
+        Assertions.assertEquals(t2, Matrix.mult(t1, t2));
+        Assertions.assertEquals(t3, Matrix.mult(t1, t3));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {74},
+                {49},
+                {-127}
+        }), Matrix.mult(t2, t3));
+
+        Matrix t4 = new Matrix(new double[][] {
+                {2, 3},
+                {1, -5}
+        });
+        Matrix t5 = new Matrix(new double[][] {
+                {4, 3, 6},
+                {1, -2, 3}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {11, 0, 21},
+                {-1, 13, -9}
+        }), Matrix.mult(t4, t5));
+
+        Matrix t6 = new Matrix(new double[][] {
+                {2, -5, 0},
+                {-1, 3, -4},
+                {6, -8, -7},
+                {-3, 0, 9}
+        });
+        Matrix t7 = new Matrix(new double[][] {
+                {4, -6},
+                {7, 1},
+                {3, 2}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-27, -17},
+                {5, 1},
+                {-53, -58},
+                {15, 36}
+        }), Matrix.mult(t6, t7));
+
+        // Test 2: Mismatched sizes
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.mult(t3, t2) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.mult(t5, t4) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.mult(t7, t6) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.mult(t1, t6) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.mult(t7, t1) );
+
     }
 
     @Test
     void powerTest() {
         // Test 1: Square matrix, positive power
-        // Test 2: Square matrix, zeroth power
-        // Test 3: Square matrix, invertible, negative power
-        // Test 4: Square matrix, non-invertible, negative power
-        // Test 5: Non-square
+        Matrix t1 = new Matrix(new double[][] {
+                {5, -3, 1},
+                {0, 7, -4},
+                {0, 0, -2}
+        });
+        Assertions.assertEquals(t1, Matrix.power(t1, 1));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {25, -36, 15},
+                {0, 49, -20},
+                {0, 0, 4}
+        }), Matrix.power(t1, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3125, -20523, 8971},
+                {0, 16807, -7484},
+                {0, 0, -32}
+        }), Matrix.power(t1, 5));
+
+        Matrix t2 = new Matrix(new double[][] {
+                {0, 0, 0, 0},
+                {1, 3, -2, 1},
+                {2, 6, 1, 5},
+                {0, 1, 4, 2}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0, 0, 0, 0},
+                {-1, -2, -4, -5},
+                {8, 29, 9, 21},
+                {9, 29, 10, 25}
+        }), Matrix.power(t2, 2));
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0, 0, 0, 0},
+                {-10847, -37869, -7938, -26495},
+                {27986, 97798, 19473, 67717},
+                {34768, 121473, 24580, 84370}
+        }), Matrix.power(t2, 7));
+
+        // Test 2: Square matrix, invertible, negative power
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1.0/25.0, 36.0/1225.0, -3.0/980.0},
+                {0, 1.0/49.0, 5.0/49.0},
+                {0, 0, 1.0/4.0}
+        }), Matrix.power(t1, -2));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {1, 0},
+                {0, 1},
+                {2, 3},
+                {-1, 4}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1113.0/219488.0, -109.0/219488.0},
+                {-109.0/219488.0, 23.0/219488.0}
+        }), Matrix.power(Matrix.mult(Matrix.transpose(t3), t3), -3));
+
+        // Test 3: Square matrix, non-invertible, negative power
+        Matrix t4 = Matrix.diag(new double[] {2, 0, -7});
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.power(t4, -2) );
+
+        Matrix t5 = new Matrix(new double[][] {
+                {4, 6, -7, 1},
+                {0, 0, -4, 9},
+                {0, 0, 2, 5},
+                {0, 0, 0, 2}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.power(t5, -1) );
+
+        Matrix t6 = new Matrix(new double[][] {
+                {1, 2, 3, 4, 5},
+                {6, 7, 8, 9, 10},
+                {11, 12, 13, 14, 15},
+                {16, 17, 18, 19, 20},
+                {21, 22, 23, 24, 25}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.power(t6, -4) );
+
+        // Test 4: Non-square
+        Matrix t7 = new Matrix(new double[][] {
+                {1, 2, 1},
+                {0, 1, 3},
+                {2, 5, 5},
+                {1, 1, -2}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.power(t7, -1) );
+
+        Matrix t8 = new Matrix(new double[][] {
+                {1, 0},
+                {0, 1},
+                {2, 3},
+                {-1, 4}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.power(t8, -3) );
+
+        Matrix t9 = new Matrix(new double[][] {
+                {1, 3, 5, 7},
+                {3, 5, 7, 9},
+                {5, 7, 9, 1}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.power(t9, -2) );
     }
 
     @Test
     void rowRedTest() {
-        // Test 1: Nice matrix
-        // Test 2: Midway interchanges
-        // Test 3: Invertible matrix
+        // Test 1: Full Rank Matrices
+        Matrix t1 = new Matrix();
+        Assertions.assertEquals(t1, Matrix.rowRed(t1, false)[0]);
+        Assertions.assertEquals(t1, Matrix.rowRed(t1, true)[0]);
 
+        Matrix t2 = new Matrix(new double[][] {
+                {2, 3},
+                {4, 1}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2, 3},
+                {0, -5}
+        }), Matrix.rowRed(t2, false)[0]);
+        Assertions.assertEquals(new Matrix(2), Matrix.rowRed(t2, true)[0]);
+
+        Matrix t3 = new Matrix(new double[][] {
+                {1, -1, 2, 4},
+                {2, 1, -1, 1},
+                {-1, 2, 3, 7}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, -1, 2, 4},
+                {0, 3, -5, -7},
+                {0, 0, 20.0/3.0, 40.0/3.0}
+        }), Matrix.rowRed(t3, false)[0]);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 0, 0, 1},
+                {0, 1, 0, 1},
+                {0, 0, 1, 2}
+        }), Matrix.rowRed(t3, true)[0]);
+
+        Matrix t4 = new Matrix(new double[][] {
+                {1, 0},
+                {0, 1},
+                {2, 3},
+                {-1, 4}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 0},
+                {0, 1},
+                {0, 0},
+                {0, 0}
+        }), Matrix.rowRed(t4, false)[0]);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 0},
+                {0, 1},
+                {0, 0},
+                {0, 0}
+        }), Matrix.rowRed(t4, true)[0]);
+
+        // Test 2: Zero rows / Zero columns / Zero Matrices
+        Matrix t5 = Matrix.zeroMatrix(3, 3);
+        Matrix t6 = Matrix.zeroMatrix(4, 2);
+        Matrix t7 = Matrix.zeroMatrix(3, 5);
+        Assertions.assertEquals(t5, Matrix.rowRed(t5, false)[0]);
+        Assertions.assertEquals(t5, Matrix.rowRed(t5, true)[0]);
+        Assertions.assertEquals(t6, Matrix.rowRed(t6, false)[0]);
+        Assertions.assertEquals(t6, Matrix.rowRed(t6, true)[0]);
+        Assertions.assertEquals(t7, Matrix.rowRed(t7, false)[0]);
+        Assertions.assertEquals(t7, Matrix.rowRed(t7, true)[0]);
+
+        Matrix t8 = new Matrix(new double[][] {
+                {0, 0, 0, 0},
+                {1, 3, -2, 1},
+                {2, 6, 1, 5},
+                {0, 1, 4, 2}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 3, -2, 1},
+                {0, 1, 4, 2},
+                {0, 0, 5, 3},
+                {0, 0, 0, 0}
+        }), Matrix.rowRed(t8, false)[0]);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 0, 0, 3.4},
+                {0, 1, 0, -0.4},
+                {0, 0, 1, 0.6},
+                {0, 0, 0, 0}
+        }), Matrix.rowRed(t8, true)[0]);
+
+        Matrix t9 = new Matrix(new double[][] {
+                {2, 0, 0, 4, 2},
+                {0, 1, 0, -1, 1},
+                {4, -1, 0, 9, 3},
+                {1, 2, 0, 0, 3},
+                {3, 0, 0, 6, 3}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2, 0, 0, 4, 2},
+                {0, 1, 0, -1, 1},
+                {0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0}
+        }), Matrix.rowRed(t9, false)[0]);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 0, 0, 2, 1},
+                {0, 1, 0, -1, 1},
+                {0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0}
+        }), Matrix.rowRed(t9, true)[0]);
+
+        Matrix t10 = new Matrix(new double[][] {
+                {0, 2, 4, -2},
+                {0, 1, 2, -1},
+                {0, -3, -6, 3},
+                {0, 0, 0, 0}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0, 2, 4, -2},
+                {0, 0, 0, 0},
+                {0, 0, 0, 0},
+                {0, 0, 0, 0}
+        }), Matrix.rowRed(t10, false)[0]);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0, 1, 2, -1},
+                {0, 0, 0, 0},
+                {0, 0, 0, 0},
+                {0, 0, 0, 0}
+        }), Matrix.rowRed(t10, true)[0]);
+
+        // Test 3: Rank-deficient Matrices
+        Matrix t11 = new Matrix(new double[][] {
+                {1, -2, 3},
+                {-2, 4, -6}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, -2, 3},
+                {0, 0, 0}
+        }), Matrix.rowRed(t11, false)[0]);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, -2, 3},
+                {0, 0, 0}
+        }), Matrix.rowRed(t11, true)[0]);
+
+        Matrix t12 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {2, 5, 7},
+                {3, 7, 10}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {0, 1, 1},
+                {0, 0, 0}
+        }), Matrix.rowRed(t12, false)[0]);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 0, 1},
+                {0, 1, 1},
+                {0, 0, 0}
+        }), Matrix.rowRed(t12, true)[0]);
+
+        Matrix t13 = new Matrix(new double[][] {
+                {3, 6, 9},
+                {1, 2, 3},
+                {-2, -4, -6}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3, 6, 9},
+                {0, 0, 0},
+                {0, 0, 0}
+        }), Matrix.rowRed(t13, false)[0]);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 3},
+                {0, 0, 0},
+                {0, 0, 0}
+        }), Matrix.rowRed(t13, true)[0]);
+
+        Matrix t14 = new Matrix(new double[][] {
+                {1, 2, 1},
+                {0, 1, 3},
+                {2, 5, 5},
+                {1, 1, -2}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 2, 1},
+                {0, 1, 3},
+                {0, 0, 0},
+                {0, 0, 0}
+        }), Matrix.rowRed(t14, false)[0]);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 0, -5},
+                {0, 1, 3},
+                {0, 0, 0},
+                {0, 0, 0}
+        }), Matrix.rowRed(t14, true)[0]);
+
+        Matrix t15 = new Matrix(new double[][] {
+                {1, 3, 5, 7},
+                {3, 5, 7, 9},
+                {5, 7, 9, 1}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 3, 5, 7},
+                {0, -4, -8, -12},
+                {0, 0, 0, -10}
+        }), Matrix.rowRed(t15, false)[0]);
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1, 0, -1, 0},
+                {0, 1, 2, 0},
+                {0, 0, 0, 1}
+        }), Matrix.rowRed(t15, true)[0]);
     }
 
     @Test
     void inverseTest() {
-        // Test 1: Square, Triangular
-        // Test 2: Square, Non-triangular
+        // Test 1: Square, Invertible
+        Matrix t1 = new Matrix(new double[][] {
+                {5, -3, 1},
+                {0, 7, -4},
+                {0, 0, -2}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1.0/5.0, 3.0/35.0, -1.0/14.0},
+                {0, 1.0/7.0, -2.0/7.0},
+                {0, 0, -1.0/2.0}
+        }), Matrix.inverse(t1));
+
+        Matrix t2 = Matrix.diag(new double[] {4, 1, -6});
+        Assertions.assertEquals(Matrix.diag(new double[] {1.0/4.0, 1, -1.0/6.0}), Matrix.inverse(t2));
+
+        Matrix t3 = new Matrix(new double[][] {
+                {0, 1, 2},
+                {1, 0, 3},
+                {4, -3, 8}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {-9.0/2.0, 7, -3.0/2.0},
+                {-2, 4, -1},
+                {3.0/2.0, -2, 1.0/2.0}
+        }), Matrix.inverse(t3));
+
+        // Test 2: Square, Non-invertible
+        Matrix t4 = Matrix.diag(new double[] {2, 0, -7});
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.inverse(t4) );
+
+        Matrix t5 = new Matrix(new double[][] {
+                {4, 6, -7, 1},
+                {0, 0, -4, 9},
+                {0, 0, 2, 5},
+                {0, 0, 0, 2}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.inverse(t5) );
+
+        Matrix t6 = new Matrix(new double[][] {
+                {1, 2, 3, 4, 5},
+                {6, 7, 8, 9, 10},
+                {11, 12, 13, 14, 15},
+                {16, 17, 18, 19, 20},
+                {21, 22, 23, 24, 25}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.inverse(t6) );
+
         // Test 3: Non-square
+        Matrix t7 = new Matrix(new double[][] {
+                {1, 2, 1},
+                {0, 1, 3},
+                {2, 5, 5},
+                {1, 1, -2}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.inverse(t7) );
+
+        Matrix t8 = new Matrix(new double[][] {
+                {1, 0},
+                {0, 1},
+                {2, 3},
+                {-1, 4}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.inverse(t8) );
+
+        Matrix t9 = new Matrix(new double[][] {
+                {1, 3, 5, 7},
+                {3, 5, 7, 9},
+                {5, 7, 9, 1}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.inverse(t9) );
     }
 
     @Test
     void detTest() {
         // Test 1: Square, Triangular
+        Matrix t1 = new Matrix();
+        Assertions.assertEquals(1, Matrix.det(t1));
+
+        Matrix t2 = Matrix.zeroMatrix(4, 4);
+        Assertions.assertEquals(0, Math.abs(Matrix.det(t2)));
+
+        Matrix t3 = Matrix.diag(new double[] {5, -2, 0});
+        Assertions.assertEquals(0, Math.abs(Matrix.det(t3)));
+
+        Matrix t4 = new Matrix(new double[][] {
+                {5, -3, 1},
+                {0, 7, -4},
+                {0, 0, -2}
+        });
+        Assertions.assertEquals(-70, Matrix.det(t4));
+
+        Matrix t5 = new Matrix(new double[][] {
+                {6, 0, 0},
+                {-3, 3, 0},
+                {7, 8, 9}
+        });
+        Assertions.assertEquals(162, Matrix.det(t5));
+
         // Test 2: Square, Non-Triangular
+        Matrix t6 = new Matrix(new double[][] {
+                {2, 3},
+                {4, 1}
+        });
+        Assertions.assertEquals(-10, Matrix.det(t6));
+
+        Matrix t7 = new Matrix(new double[][] {
+                {1, 2, 3},
+                {2, 5, 7},
+                {3, 7, 10}
+        });
+        Assertions.assertEquals(0, Math.abs(Matrix.det(t7)));
+
+        Matrix t8 = new Matrix(new double[][] {
+                {0, 0, 0, 0},
+                {1, 3, -2, 1},
+                {2, 6, 1, 5},
+                {0, 1, 4, 2}
+        });
+        Assertions.assertEquals(0, Math.abs(Matrix.det(t8)));
+
+        Matrix t9 = new Matrix(new double[][] {
+                {0, 1},
+                {2, 3}
+        });
+        Assertions.assertEquals(-2,  Matrix.det(t9));
+
+        Matrix t10 = new Matrix(new double[][] {
+                {1, 2, 3, 4, 5},
+                {6, 7, 8, 9, 10},
+                {11, 12, 13, 14, 15},
+                {16, 17, 18, 19, 20},
+                {21, 22, 23, 24, 25}
+        });
+        Assertions.assertEquals(0, Math.abs(Matrix.det(t10)));
+
         // Test 3: Non-square
+        Matrix t11 = new Matrix(new double[][] {
+                {1, 2, 1},
+                {0, 1, 3},
+                {2, 5, 5},
+                {1, 1, -2}
+        });
+        Matrix t12 = new Matrix(new double[][] {
+                {1, 3, 5, 7},
+                {3, 5, 7, 9},
+                {5, 7, 9, 1}
+        });
+        Matrix t13 = new Matrix(new double[][] {
+                {1, 0},
+                {0, 1},
+                {2, 3},
+                {-1, 4}
+        });
+        Matrix t14 = new Matrix(new double[][] {
+                {4},
+                {-9},
+                {0}
+        });
+        Matrix t15 = new Matrix(new double[][] {
+                {1, -5, 2}
+        });
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.det(t11) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.det(t12) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.det(t13) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.det(t14) );
+        Assertions.assertThrows( InvalidMatrixException.class, () -> Matrix.det(t15) );
     }
 
 
@@ -2861,7 +4176,7 @@ class MatrixTest {
     //-------------------------------------------------------------------------------------------------------
     // MISC TESTS
 
-    // not really sure how to test these tbh, they behave as I want them to so I don't think it's necessary
+    // not really sure how to test these tbh, they behave as I want them to, so I don't think it's necessary
     @Test
     void toStringTest() {
         // Test 1: Random Matrix
