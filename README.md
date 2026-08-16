@@ -1,20 +1,20 @@
 This is my attempt at a Java implementation of a calculator that can perform operations on real-valued matrices.
 For the time being, efficiency isn't the goal; functionality is. I want to get the functions working, then optimize them afterwards.
 
-Last Updated: August 13, 2026
+Last Updated: August 16, 2026
 
 Currently implemented functionality (NT = not tested):
-- Matrix Addition NT
-- Matrix Multiplication NT
-- Matrix Transpose NT
-- Matrix Scaling NT
+- Matrix Addition
+- Matrix Multiplication
+- Matrix Transpose
+- Matrix Scaling
 - Submatrices
 - Matrix Padding
 - Row/Column Removal/Swapping/Replacement/Appending
-- Dot Products on Vectors NT
-- Gaussian Elimination NT
-- Determinants NT
-- Matrix Inverse NT
+- Dot Products on Vectors
+- Gaussian Elimination
+- Determinants
+- Matrix Inverse
 - Orthogonal Projections NT
 - The Gram-Schmidt Process NT
 - Linear System Solver NT
@@ -34,3 +34,4 @@ AI Usage:
 - Gemini
   - Used to verify my thought process for the row reduction algorithm
   - Used to teach myself how to algorithmically compute eigenvalues
+  - Used to generate test cases for several functions
