@@ -1,7 +1,7 @@
 /**
  * The test suite for the Matrix Calculator
  * Author: romander60
- * Last updated: August 15, 2026
+ * Last updated: August 16, 2026
  */
 
 
@@ -2675,7 +2675,7 @@ class MatrixTest {
     }
 
     //-------------------------------------------------------------------------------------------------------
-    // OPERATION TESTS
+    // OPERATION TESTS - COMPLETE
 
     @Test
     void copyTest() {
@@ -4115,40 +4115,320 @@ class MatrixTest {
     void nullityTest() {}
 
     //-------------------------------------------------------------------------------------------------------
-    // SYSTEM SOLVER TESTS
+    // SYSTEM SOLVER TESTS - COMPLETE
 
     @Test
     void solveTest() {
         // Test 1: Consistent Systems (various ranks)
+        Matrix A1 = new Matrix(new double[][] {
+                {2, 1},
+                {1, 3}
+        });
+        Matrix b1 = new Matrix(new double[][] {
+                {5},
+                {5}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2},
+                {1}
+        }), Matrix.solve(A1, b1));
+
+        Matrix A2 = new Matrix(new double[][] {
+                {1, 2},
+                {2, 4}
+        });
+        Matrix b2 = new Matrix(new double[][] {
+                {3},
+                {6}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {3},
+                {0}
+        }), Matrix.solve(A2, b2));
+
+        Matrix A3 = new Matrix(new double[][] {
+                {1, -1, 2},
+                {3, 1, 4},
+                {0, 2, 5}
+        });
+        Matrix b3 = new Matrix(new double[][] {
+                {1},
+                {11},
+                {7}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {9.0/4.0},
+                {9.0/4.0},
+                {0.5}
+        }), Matrix.solve(A3, b3));
+
+        Matrix A4 = new Matrix(new double[][] {
+                {1, 1, 1},
+                {2, 3, 1},
+                {3, 4, 2}
+        });
+        Matrix b4 = new Matrix(new double[][] {
+                {6},
+                {11},
+                {17}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {7},
+                {-1},
+                {0}
+        }), Matrix.solve(A4, b4));
+
+        Matrix A5 = new Matrix(new double[][] {
+                {2, -4, 6},
+                {-1, 2, -3},
+                {3, -6, 9}
+        });
+        Matrix b5 = new Matrix(new double[][] {
+                {10},
+                {-5},
+                {15}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {5},
+                {0},
+                {0}
+        }), Matrix.solve(A5, b5));
+
+        Matrix A6 = new Matrix(new double[][] {
+                {1, 2},
+                {3, -1},
+                {2, 1}
+        });
+        Matrix b6 = new Matrix(new double[][] {
+                {5},
+                {1},
+                {4}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1},
+                {2}
+        }), Matrix.solve(A6, b6));
+
+        Matrix A7 = new Matrix(new double[][] {
+                {1, -2, 3},
+                {2, 1, -1}
+        });
+        Matrix b7 = new Matrix(new double[][] {
+                {4},
+                {3}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2},
+                {-1},
+                {0}
+        }), Matrix.solve(A7, b7));
+
+        Matrix A8 = new Matrix(new double[][] {
+                {1, 2, -1, 3},
+                {2, 4, -2, 6}
+        });
+        Matrix b8 = new Matrix(new double[][] {
+                {2},
+                {4}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {2},
+                {0},
+                {0},
+                {0}
+        }), Matrix.solve(A8, b8));
+
+        Matrix A9 = new Matrix(new double[][] {
+                {2, 3, -1, 4},
+                {0, 1, 2, -2},
+                {0, 0, 3, 1},
+                {0, 0, 0, 2}
+        });
+        Matrix b9 = new Matrix(new double[][] {
+                {10},
+                {-1},
+                {5},
+                {4}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {0},
+                {1},
+                {1},
+                {2}
+        }), Matrix.solve(A9, b9));
+
+        Matrix A10 = new Matrix(new double[][] {
+                {1, 0, 2, -1},
+                {2, 1, 0, 3},
+                {0, 1, -4, 5},
+                {1, 1, -2, 4}
+        });
+        Matrix b10 = new Matrix(new double[][] {
+                {1},
+                {5},
+                {3},
+                {4}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {1},
+                {3},
+                {0},
+                {0}
+        }), Matrix.solve(A10, b10));
+
+        Matrix A11 = new Matrix(new double[][] {
+                {1, 1, 0},
+                {0, 1, 2},
+                {1, 0, 1},
+                {2, 2, 3}
+        });
+        Matrix b11 = new Matrix(new double[][] {
+                {3},
+                {5},
+                {3},
+                {11}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {4.0/3.0},
+                {5.0/3.0},
+                {5.0/3.0}
+        }), Matrix.solve(A11, b11));
+
+        Matrix A12 = new Matrix(new double[][] {
+                {1, 1.0/2.0, 1.0/3.0, 1.0/4.0, 1.0/5.0},
+                {1.0/2.0, 1.0/3.0, 1.0/4.0, 1.0/5.0, 1.0/6.0},
+                {1.0/3.0, 1.0/4.0, 1.0/5.0, 1.0/6.0, 1.0/7.0},
+                {1.0/4.0, 1.0/5.0, 1.0/6.0, 1.0/7.0, 1.0/8.0},
+                {1.0/5.0, 1.0/6.0, 1.0/7.0, 1.0/8.0, 1.0/9.0}
+        });
+        Matrix b12 = new Matrix(new double[][] {
+                {1},
+                {0},
+                {0},
+                {0},
+                {0}
+        });
+        Assertions.assertEquals(new Matrix(new double[][] {
+                {25},
+                {-300},
+                {1050},
+                {-1400},
+                {630}
+        }), Matrix.solve(A12, b12));
+
         // Test 2: Inconsistent Systems
+        Matrix A13 = new Matrix(new double[][] {
+                {1, 2},
+                {2, 4}
+        });
+        Matrix b13 = new Matrix(new double[][] {
+                {3},
+                {7}
+        });
+        Assertions.assertThrows( InconsistentSystemException.class, () -> Matrix.solve(A13, b13) );
+
+        Matrix A14 = new Matrix(new double[][] {
+                {1, 1, 1},
+                {2, 3, 1},
+                {3, 4, 2}
+        });
+        Matrix b14 = new Matrix(new double[][] {
+                {6},
+                {11},
+                {18}
+        });
+        Assertions.assertThrows( InconsistentSystemException.class, () -> Matrix.solve(A14, b14) );
+
+        Matrix A15 = new Matrix(new double[][] {
+                {1, 2},
+                {3, -1},
+                {2, 1}
+        });
+        Matrix b15 = new Matrix(new double[][] {
+                {5},
+                {1},
+                {10}
+        });
+        Assertions.assertThrows( InconsistentSystemException.class, () -> Matrix.solve(A15, b15) );
+
+        // Test 3: Homogeneous Systems
+        Matrix A16 = new Matrix(new double[][] {
+                {1, 2},
+                {3, -1}
+        });
+        Matrix b16 = Matrix.zeroMatrix(2, 1);
+        Assertions.assertEquals(Matrix.zeroMatrix(2, 1), Matrix.solve(A16, b16) );
+
+        Matrix A17 = new Matrix(new double[][] {
+                {1, -2, 3},
+                {2, -4, 6}
+        });
+        Matrix b17 = Matrix.zeroMatrix(2, 1);
+        Assertions.assertEquals(Matrix.zeroMatrix(3, 1), Matrix.solve(A17, b17) );
+
+        Matrix A18 = new Matrix(new double[][] {
+                {1, 1, -1},
+                {2, -1, 3},
+                {3, 0, 2}
+        });
+        Matrix b18 = Matrix.zeroMatrix(3, 1);
+        Assertions.assertEquals(Matrix.zeroMatrix(3, 1), Matrix.solve(A18, b18) );
+
+        Matrix A19 = new Matrix(new double[][] {
+                {1, 1, 1},
+                {1, -1, 0},
+                {2, 0, 1},
+                {0, 1, 2}
+        });
+        Matrix b19 = Matrix.zeroMatrix(4, 1);
+        Assertions.assertEquals(Matrix.zeroMatrix(3, 1), Matrix.solve(A19, b19) );
+
+        Matrix A20 = new Matrix(new double[][] {
+                {1, 2, 0, -1, 3},
+                {0, 0, 1, 2, -1},
+                {1, 2, 1, 1, 2}
+        });
+        Matrix b20 = Matrix.zeroMatrix(3, 1);
+        Assertions.assertEquals(Matrix.zeroMatrix(5, 1), Matrix.solve(A20, b20));
+
+
+        // Test 4: Invalid Inputs
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.solve(A1, b3) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.solve(A7, b6) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.solve(A12, b11) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.solve(A9, b12) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.solve(A6, b7) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.solve(A1, A2) );
+        Assertions.assertThrows( MatrixSizeMismatchException.class, () -> Matrix.solve(A4, A5) );
     }
 
 
     //-------------------------------------------------------------------------------------------------------
     // ORTHOGONALITY / LEAST SQUARES TESTS
-    @Test
+
+    @Test // INCOMPLETE
     void projTest() {
 
     }
 
-    @Test
+    @Test // INCOMPLETE
     void gsTest() {
 
     }
 
-    @Test
+    @Test // INCOMPLETE
     void orthoCompTest() {
 
     }
 
-    @Test
+    @Test // INCOMPLETE
     void leastSquaresTest() {
 
     }
 
 
     //-------------------------------------------------------------------------------------------------------
-    // EIGENSTUFF TEST
+    // EIGENSTUFF TESTS
 
     @Test
     void eigenvaluesTest() {}

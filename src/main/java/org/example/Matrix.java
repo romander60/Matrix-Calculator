@@ -1,8 +1,8 @@
 /**
  * A library containing a bunch of matrix operations. Matrices are represented as 2D arrays of doubles.
  * Author: romander60  
- * Overall time spent on project: ~73 hours
- * Last updated: August 15, 2026
+ * Overall time spent on project: ~75 hours
+ * Last updated: August 16, 2026
  */
 
 
@@ -1732,6 +1732,76 @@ public class Matrix {
     }
 
 //-------------------------------------------------------------------------------------------------------------
+// THE SYSTEM SOLVER
+
+    /**
+     * Returns a particular solution to the equation Ax = b. This solution, if it exists, will be a vector p
+     * such that Ap = b.<br>
+     * NOTE: This method does not capture A's null space; for that, call the nullSpace method.
+     * @param A the coefficient matrix
+     * @param b the target vector
+     * @return <ul>
+     *     <li>1) If the system is consistent, a Matrix object representing a vector p such that Ap = b.</li>
+     *     <li>2) If the system is inconsistent, a zero vector with as many entries as A has columns. </li>
+     * </ul>
+     * @throws MatrixSizeMismatchException if b isn't a column vector with as many rows as A.
+     */
+    public static Matrix solve(Matrix A, Matrix b)
+            throws MatrixSizeMismatchException {
+        if (b.rows != A.rows || !isColVec(b)) {
+            throw new MatrixSizeMismatchException("b must be a column vector with as many rows as A.");
+        }
+
+        if (b.equals(zeroMatrix(A.rows, 1))) {
+            // If the system is homogeneous, it cannot have a solution that isn't part of its null space,
+            // and this function doesn't deal with null spaces.
+            return zeroMatrix(A.cols, 1);
+        }
+
+        Matrix equation = append(A, b, true);
+
+        Matrix[] rowRed = rowRed(equation, true);
+        Matrix reduced = rowRed[0];
+        double[][] pivCols = getEntries( rowRed[2] );
+
+        // Checking if the system is inconsistent
+        if (arrayContains(pivCols[0], reduced.cols)) {
+            // A system of equations is inconsistent iff the rightmost column
+            // of its augmented matrix is a pivot column.
+            throw new InconsistentSystemException("Equation was inconsistent.");
+        }
+
+        // Getting the indices of the pivot columns
+        double[][] basics = getEntries(rowRed[2]);
+
+        // Getting the rightmost column
+        Matrix rightmost = getCol(reduced, A.cols + 1);
+
+        // The particular solution vector is always the rightmost column in the system's rref, with zeroes
+        // injected in the positions corresponding to free variables
+        double[][] particularEntries = new double[A.cols][1];
+
+        // Tracking the number of basic variables that have been accounted for
+        int rightmostEntriesUsed = 0;
+
+        // Iterate through the columns of the reduced matrix and use the pivot columns to
+        // fill out the entries of the particular solution.
+        for (int j = 0; j < A.cols; j++) {
+            if (arrayContains(basics[0], j + 1)) {
+                particularEntries[j][0] = rightmost.entries[rightmostEntriesUsed][0];
+                rightmostEntriesUsed++;
+            }
+            else {
+                // All particularEntries elements are initialized to zero, so I technically don't need
+                // this else branch; I'm just keeping it here to make understanding the code easier.
+                particularEntries[j][0] = 0;
+            }
+        }
+        return new Matrix(particularEntries);
+    }
+
+
+//-------------------------------------------------------------------------------------------------------------
 // SUBSPACES
 
     /**
@@ -1801,9 +1871,9 @@ public class Matrix {
      * @return the dimension of Col(A)
      */
     public static int rank(Matrix A) {
-        // Could optimize this to compute the rank as the number of pivot columns in A
-        // and just use the size of the third element of the array the rowRed function returns.
-        return dimension(getCols(columnSpace(A, false)));
+        // The rank of a matrix is equal to the number of pivot columns it has.
+        Matrix pivCols = rowRed(A, false)[0];
+        return pivCols.rows * pivCols.cols;
     }
 
 
@@ -1898,90 +1968,8 @@ public class Matrix {
      * @return the dimension of Nul(A).
      */
     public static int nullity(Matrix A) {
-        // Could optimize this to compute the nullity as n - (# of pivot columns in A), where n is the number
-        // of columns A has, and just use the size of the third element of the array the rowRed function returns.
-
-        return dimension(getCols(nullSpace(A, false)));
-    }
-
-
-//-------------------------------------------------------------------------------------------------------------
-// THE SYSTEM SOLVER
-
-    /**
-     * Returns a particular solution to the equation Ax = b. This solution, if it exists, will be a vector p
-     * such that Ap = b.<br>
-     * NOTE: This method does not capture A's null space; for that, call the nullSpace method.
-     * @param A the coefficient matrix
-     * @param b the target vector
-     * @return <ul>
-     *     <li>1) If the system is consistent, a Matrix object representing a vector p such that Ap = b.</li>
-     *     <li>2) If the system is inconsistent, a zero vector with as many entries as A has columns. </li>
-     * </ul>
-     * @throws MatrixSizeMismatchException if b isn't a column vector with as many rows as A.
-     */
-    public static Matrix solve(Matrix A, Matrix b)
-            throws MatrixSizeMismatchException {
-        // of the reduced matrix is a pivot column
-        if (b.rows != A.rows || !isColVec(b)) {
-            throw new MatrixSizeMismatchException("b must be a column vector with as many rows as A.");
-        }
-        Matrix equation = append(A, b, true);
-
-        try {
-            int m = A.rows;
-            int n = A.cols;
-            Matrix[] rowRed = rowRed(equation, true);
-            Matrix reduced = rowRed[0];
-            double[][] pivCols = getEntries( rowRed[2] );
-
-            // Checking if the system is inconsistent
-            if (arrayContains(pivCols[0], reduced.cols)) {
-                // A system of equations is inconsistent iff the rightmost column
-                // of its augmented matrix is a pivot column.
-                throw new InconsistentSystemException("Equation was inconsistent.");
-            }
-
-            // Getting the indices of the pivot columns
-            double[][] basics = getEntries(rowRed[2]);
-
-            // Getting the rightmost column
-            Matrix rightmost = getCol(reduced, n + 1);
-
-            // Getting the particular solution
-            if (rightmost.equals(zeroMatrix(m, 1))) {
-                return zeroMatrix(n, 1);
-            }
-
-            else {
-                // The particular solution vector is always the rightmost column in the system's rref, with zeroes
-                // injected in the positions corresponding to free variables
-                double[][] particularEntries = new double[n][1];
-
-                // Tracking the number of basic variables that have been accounted for
-                int rightmostEntriesUsed = 0;
-
-                // Iterate through the columns of A (sort of) and use the pivot columns to
-                // fill out the entries of the particular solution.
-                for (int j = 0; j < n; j++) {
-                    if (arrayContains(basics[0], j)) {
-                        particularEntries[j][0] = rightmost.entries[rightmostEntriesUsed][0];
-                        rightmostEntriesUsed++;
-                    }
-                    else {
-                        // All particularEntries elements are initialized to zero, so I technically don't need
-                        // this else branch; I'm just keeping it here to make understanding the code easier.
-                        particularEntries[j][0] = 0;
-                    }
-                }
-                return new Matrix(particularEntries);
-            }
-        }
-
-        catch (InconsistentSystemException ise) {
-            System.out.println("The equation was inconsistent. Returning a zero vector.");
-            return zeroMatrix(A.cols, 1);
-        }
+        // By the Rank-Nullity Theorem, rank(A) + nullity(A) = n for any mxn matrix A.
+        return A.cols - rank(A);
     }
 
 
@@ -2568,8 +2556,8 @@ public class Matrix {
      * Returns true if arr contains val as an element.
      */
     private static boolean arrayContains(double[] arr, double val) {
-        for (double j : arr) {
-            if (val == j) {
+        for (double num : arr) {
+            if (val == num) {
                 return true;
             }
         }
